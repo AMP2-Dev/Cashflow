@@ -188,10 +188,10 @@ export const initialRadioConfig = {
     }
   ],
   jingles: [
-    { id: "j-1", title: "Carimbo 1: Ampliando sua onda musical", file: "/audio_demos/carimbo_1_ampliando_lounge.mp3", voice: "Carimbo 1 • Onda Musical" },
-    { id: "j-2", title: "Carimbo 2: A música nos acompanha", file: "/audio_demos/carimbo_2_acompanha_lounge.mp3", voice: "Carimbo 2 • Nos Acompanha" },
-    { id: "j-3", title: "Carimbo 3: Amplificadora", file: "/audio_demos/carimbo_3_amplificadora_lounge.mp3", voice: "Carimbo 3 • Amplificadora" },
-    { id: "j-4", title: "Carimbo 4: Muito além de uma webradio", file: "/audio_demos/carimbo_4_muito_alem_lounge.mp3", voice: "Carimbo 4 • Muito Além" }
+    { id: "j-1-fem", title: "Carimbo 1 (Fem): Amplificadora, ampliando sua onda musical", file: "/audio_demos/carimbo_1_fem.mp3", voice: "Carimbo 1 • Fem" },
+    { id: "j-1-masc", title: "Carimbo 1 (Masc): Amplificadora, ampliando sua onda musical", file: "/audio_demos/carimbo_1_masc_remy.mp3", voice: "Carimbo 1 • Masc" },
+    { id: "j-3-fem", title: "Carimbo 3 (Fem): Amplificadora", file: "/audio_demos/carimbo_3_fem.mp3", voice: "Carimbo 3 • Fem" },
+    { id: "j-3-masc", title: "Carimbo 3 (Masc): Amplificadora", file: "/audio_demos/carimbo_3_masc_remy.mp3", voice: "Carimbo 3 • Masc" }
   ],
   social: {
     instagram: "https://instagram.com/amplificadoraradio",

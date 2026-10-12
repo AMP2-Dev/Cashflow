@@ -103,7 +103,7 @@ ITEMS = [
         "voice": "fr-FR-VivienneMultilingualNeural",
         "rate": "-5%",
         "pitch": "-1Hz",
-        "text": "No mundo digital, segurança é patrimônio. O ecossistema de cibersegurança do Grupo A Ême Pê protege os dados, servidores e operações da sua empresa contra ameaças em tempo real, com monitoramento contínuo e governança avançada. Tranquilidade total para você liderar o mercado. Conheça nossas soluções em: A, Ême, Pê, ponto, I, A, ponto, Bê, Érre."
+        "text": "No mundo digital, segurança é patrimônio. O ecossistema de sáiber segurança do Grupo A Ême Pê protege os dados, servidores e operações da sua empresa contra ameaças em tempo real, com monitoramento contínuo e governança avançada. Tranquilidade total para você liderar o mercado. Conheça nossas soluções em: A, Ême, Pê, ponto, I, A, ponto, Bê, Érre."
     },
     {
         "file": "spot_amp_3_flow_dre.mp3",

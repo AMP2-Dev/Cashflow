@@ -86,10 +86,10 @@ export function HeroLiveStream() {
     },
     {
       type: 'schedule',
-      badge: activeShow.badge || 'PROGRAMAÇÃO AO VIVO',
-      title: activeShow.title || 'Manhã Alpha • Pop & Soft Hits',
-      subtitle: activeShow.genre || 'Pop Internacional & Clássicos',
-      desc: 'Transmissão sincronizada com o horário oficial de Brasília.',
+      badge: activeShow.badge || 'NO AR AGORA • AO VIVO',
+      title: azuraStats.currentTrack || activeShow.title || 'Programação Oficial Amplificadora',
+      subtitle: azuraStats.artist ? `${azuraStats.artist}${azuraStats.album ? ` • ${azuraStats.album}` : ''}` : (activeShow.genre || 'Pop Internacional & Clássicos'),
+      desc: activeShow.title || 'Transmissão sincronizada com o horário oficial de Brasília.',
       image: activeShow.cover || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=600&q=80'
     },
     {
@@ -320,7 +320,7 @@ export function HeroLiveStream() {
             <div className="pt-3 border-t border-white/10">
               <div className="flex items-center gap-2 text-xs font-semibold text-slate-300 mb-2">
                 <Mic className="w-3.5 h-3.5 text-pink-400" />
-                <span>Disparar Vinhetas Oficiais da Rádio (Voz Neural Feminina):</span>
+                <span>Carimbos Oficiais Aprovados (Voz Feminina & Masculina):</span>
               </div>
               <div className="flex items-center flex-wrap gap-2">
                 {(config.jingles || []).map((jingle) => (
@@ -399,12 +399,16 @@ export function HeroLiveStream() {
                 )}
 
                 {slide.type === 'schedule' && (
-                  <div className="space-y-3">
-                    <div className="w-16 h-16 rounded-2xl bg-purple-600/30 border border-purple-500/40 text-purple-300 flex items-center justify-center mx-auto shadow-2xl shadow-purple-600/40">
-                      <Radio className="w-8 h-8 animate-pulse" />
+                  <div className="space-y-3 flex flex-col items-center">
+                    <div className="relative w-36 h-36 sm:w-44 sm:h-44 rounded-2xl overflow-hidden bg-purple-950/60 border-2 border-pink-500/40 shadow-2xl shadow-pink-500/25">
+                      <img
+                        src={slide.image}
+                        alt={slide.title}
+                        className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                      />
                     </div>
-                    <h4 className="text-lg font-medium text-white tracking-wide">{slide.title}</h4>
-                    <p className="text-xs text-pink-300 font-normal">{slide.subtitle}</p>
+                    <h4 className="text-base sm:text-lg font-bold text-white tracking-wide line-clamp-2 px-2">{slide.title}</h4>
+                    <p className="text-xs text-pink-300 font-medium line-clamp-1 px-2">{slide.subtitle}</p>
                   </div>
                 )}
 

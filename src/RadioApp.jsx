@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { RadioProvider, useRadio } from './context/RadioContext';
 import { RadioNavbar } from './components/RadioNavbar';
 import { HeroLiveStream } from './components/HeroLiveStream';
+import { AutoNewsInstagramSection } from './components/AutoNewsInstagramSection';
 import { ChannelsSection } from './components/ChannelsSection';
 import { ShowsSection } from './components/ShowsSection';
 import { B2BIndoorSection } from './components/B2BIndoorSection';
@@ -81,6 +82,7 @@ function MainRadioApp() {
       <RadioNavbar />
       <main>
         <HeroLiveStream />
+        <AutoNewsInstagramSection />
         <ChannelsSection />
         <ShowsSection />
         <B2BIndoorSection />

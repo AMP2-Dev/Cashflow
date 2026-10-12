@@ -424,6 +424,12 @@ export function EmitirNfseModal({
         certificadoA1File: certArquivo,
         certificadoSenha: certSenha,
         modoAmbiente, // 'producao' oficial ou 'homologacao'
+        substituicao: isSubstituicao ? {
+          numeroSubstituida: String(numeroSubstituida || ''),
+          chSubstda: String(dadosIniciais?.chaveSubstituida || '').replace(/\D/g, ''),
+          cMotivo: '99',
+          xMotivo: 'Substituicao para ajuste na discriminacao do servico prestado conforme OS',
+        } : null,
       });
 
       // 3. Se optou por salvar como modelo recorrente

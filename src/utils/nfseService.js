@@ -228,6 +228,7 @@ export const NOTAS_OFICIAIS_SEFIN_NACIONAL = {
     serieDps: '00001',
     tomadorCnpj: '37967313000123',
     valorTotal: 177.48,
+    discriminacao: 'Suporte técnico em informática, inclusive instalação, configuração e manutenção de programas de computação e bancos de dados.',
   },
   '77': {
     chaveAcesso: '35463062210682233000175000000000007726096921783242',
@@ -235,6 +236,7 @@ export const NOTAS_OFICIAIS_SEFIN_NACIONAL = {
     serieDps: '00001',
     tomadorCnpj: '15469021000128',
     valorTotal: 890.00,
+    discriminacao: 'Serviços de suporte técnico em tecnologia da informação, consultoria e gestão de sistemas.',
   },
   '78': {
     chaveAcesso: '35463062210682233000175000000000007826103334196102',
@@ -242,6 +244,7 @@ export const NOTAS_OFICIAIS_SEFIN_NACIONAL = {
     serieDps: '00001',
     tomadorCnpj: '56785132000120',
     valorTotal: 217.90,
+    discriminacao: 'Acordo hospedagem de site e-mail esporteclubepalmeirense.com',
   },
   '79': {
     chaveAcesso: '35463062210682233000175000000000007926106818741166',
@@ -249,6 +252,7 @@ export const NOTAS_OFICIAIS_SEFIN_NACIONAL = {
     serieDps: '00001',
     tomadorCnpj: '27083192000101',
     valorTotal: 184.00,
+    discriminacao: 'Acordo de hospedagem site/email - consuper.com.br',
   },
   '80': {
     chaveAcesso: '35463062210682233000175000000000008026103373582941',
@@ -256,6 +260,7 @@ export const NOTAS_OFICIAIS_SEFIN_NACIONAL = {
     serieDps: '00001',
     tomadorCnpj: '04910593000184',
     valorTotal: 1156.17,
+    discriminacao: 'Acordo serviço de hospedagem site e camada de proteção',
   },
   '81': {
     chaveAcesso: '35463062210682233000175000000000008126100634375480',
@@ -263,6 +268,7 @@ export const NOTAS_OFICIAIS_SEFIN_NACIONAL = {
     serieDps: '00001',
     tomadorCnpj: '11462339000126',
     valorTotal: 172.30,
+    discriminacao: 'Acordo mensal de Hospedagem/Emails',
   },
   '82': {
     chaveAcesso: '35463062210682233000175000000000008226100380885205',
@@ -270,6 +276,7 @@ export const NOTAS_OFICIAIS_SEFIN_NACIONAL = {
     serieDps: '00001',
     tomadorCnpj: '29737103000110',
     valorTotal: 4224.00,
+    discriminacao: 'Carta Contrato nº. RJ0520260103 | Natureza: Consultoria | Unidade Contratante: Coordenação de Indústria | Produto: Gestão Econômico/Financeira | Objeto: Realização de 04 consultorias online. | Profissional Responsável: MARCO ANTONIO PAVANI | Quantidade de Horas: 32 horas | Data da execução: de 25/05/2026 a 31/07/2026 | DADOS BANCÁRIOS: BCO: 756 - SICOOB AG: 3194 CC: 9747187-9',
   },
   '83': {
     chaveAcesso: '35463062210682233000175000000000008326103510168441',
@@ -277,6 +284,7 @@ export const NOTAS_OFICIAIS_SEFIN_NACIONAL = {
     serieDps: '00001',
     tomadorCnpj: '37967313000123',
     valorTotal: 177.48,
+    discriminacao: 'Prestação de serviços backup base de dados sistema supermercado',
   },
   '84': {
     chaveAcesso: '35463062210682233000175000000000008426102113870900',
@@ -284,6 +292,7 @@ export const NOTAS_OFICIAIS_SEFIN_NACIONAL = {
     serieDps: '00001',
     tomadorCnpj: '43728245000142',
     valorTotal: 170.00,
+    discriminacao: 'Edital 004/2026 \nProcesso 1777/2025 \nSGF nº. SP0920261108\nRAE: 39666760\nOS:091108/2026 \nProfissional Responsável: MARCO ANTONIO PAVANI\nQuantidade de Horas: 1 hora\nNatureza: Consultoria\nProduto: Faça a gestão financeira e tenha controle do seu dinheiro\nData da execução: 01/10/2026\nLocal (Cidade) da Prestação de Serviço : São Paulo\nNome/Razão Social do Cliente : HERMINIA ROSA SOUZA DE JESUS\nCPF/CNPJ: 47.983.316/0001-00\nDados Bancários da Empresa \nDADOS BANCÁRIOS:\nBCO: 756 - SICOOB\nAG: 3194\nCC: 9747187-9',
   },
 };
 
@@ -723,9 +732,11 @@ export function normalizarNotaFiscal(nota) {
     }
   }
 
-  let statusFinal = oficialSefin ? 'autorizada' : (nota.status || 'autorizada');
-  let substituidaPorFinal = oficialSefin ? undefined : nota.substituidaPor;
-  let substituiNotaFinal = oficialSefin ? undefined : nota.substituiNota;
+  let statusFinal = (nota.status === 'substituida' || nota.status === 'cancelada')
+    ? nota.status
+    : (oficialSefin ? 'autorizada' : (nota.status || 'autorizada'));
+  let substituidaPorFinal = nota.substituidaPor;
+  let substituiNotaFinal = nota.substituiNota;
   let servicoFinal = { ...(nota.servico || {}) };
 
   if (oficialSefin) {
@@ -734,7 +745,7 @@ export function normalizarNotaFiscal(nota) {
     servicoFinal = {
       ...servicoFinal,
       codigoAtividade: servicoFinal.codigoAtividade || '01.07.01',
-      discriminacao: oficialSefin.discriminacao,
+      discriminacao: oficialSefin.discriminacao || servicoFinal.discriminacao,
       valorTotal: vTotal,
       aliquotaIss: alIss,
       valorIss: Math.round((vTotal * (alIss / 100)) * 100) / 100,
@@ -753,8 +764,8 @@ export function normalizarNotaFiscal(nota) {
     dpsNumero: oficialSefin?.dpsNumero || nota.dpsNumero || `${Math.max(1, parseInt(numStr || '1') - 11)}`,
     serieDps: oficialSefin?.serieDps || nota.serieDps || '00001',
     status: statusFinal,
-    substituidaPor: substituidaPorFinal,
-    substituiNota: substituiNotaFinal,
+    ...(substituidaPorFinal ? { substituidaPor: substituidaPorFinal } : {}),
+    ...(substituiNotaFinal ? { substituiNota: substituiNotaFinal } : {}),
     emissor: emissorNormalizado,
     tomador: tomadorAtual,
     servico: servicoFinal,
@@ -1414,6 +1425,7 @@ export const nfseService = {
     certificadoA1File,
     certificadoSenha,
     modoAmbiente = 'producao',
+    substituicao = null,
   }) {
     // Gerador de protocolo e numeração sequencial respeitando o histórico oficial da Receita Federal
     const notasExistentes = this.getNotasEmitidas(empresaId);
@@ -1458,6 +1470,16 @@ export const nfseService = {
     const ativEncontrada = ATIVIDADES_SERVICOS_COMUNS.find(a => a.codigo === servico.codigoAtividade);
     const ctnResolvido = ativEncontrada?.ctn || ((servico.codigoAtividade === '01.07' || !servico.codigoAtividade) ? '010701' : (servico.codigoAtividade.replace(/\D/g, '').length === 4 ? `${servico.codigoAtividade.replace(/\D/g, '')}01` : servico.codigoAtividade.replace(/\D/g, '').padEnd(6, '0')));
 
+    // Se for substituição e não veio chSubstda explícito, busca na nota original
+    let dadosSubst = substituicao;
+    if (substituicao?.numeroSubstituida && !substituicao?.chSubstda) {
+      const notaOrig = notasExistentes.find(n => String(n.numero) === String(substituicao.numeroSubstituida));
+      const chaveOrig = notaOrig?.chaveAcesso || NOTAS_OFICIAIS_SEFIN_NACIONAL[String(substituicao.numeroSubstituida)]?.chaveAcesso || '';
+      if (chaveOrig) {
+        dadosSubst = { ...substituicao, chSubstda: somenteDigitos(chaveOrig) };
+      }
+    }
+
     // 1. Transmissão Direta e Obrigatória para a SEFIN Nacional (Receita Federal / ADN)
     const respGov = await fetch(`${API_NFSE_URL}/emitir`, {
       method: 'POST',
@@ -1466,6 +1488,7 @@ export const nfseService = {
         empresaId,
         ambiente: modoAmbiente,
         nDPS: String(numeroNfse),
+        ...(dadosSubst ? { substituicao: dadosSubst } : {}),
         prestador: {
           cnpj: (dadosEmissor?.cnpj && somenteDigitos(dadosEmissor.cnpj).length === 14) ? somenteDigitos(dadosEmissor.cnpj) : '10682233000175',
           razaoSocial: dadosEmissor?.razaoSocial || 'AMP DO BRASIL SOLUCOES ADMINISTRATIVAS E TECNOLOGICAS LTDA',

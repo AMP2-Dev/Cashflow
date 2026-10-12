@@ -207,6 +207,7 @@ export function NfseScreen({
     setDadosIniciaisEmissao({
       isSubstituicao: true,
       numeroSubstituida: notaAlvo.numero,
+      chaveSubstituida: notaAlvo.chaveAcesso || '',
       cpfCnpj: (notaAlvo.tomador?.cpfCnpj === '00.000.000/0000-00') ? '' : (notaAlvo.tomador?.cpfCnpj || ''),
       razaoSocial: notaAlvo.tomador?.razaoSocial || '',
       email: notaAlvo.tomador?.email || '',
@@ -889,11 +890,11 @@ export function NfseScreen({
                           borderTop: '1px solid #F1F5F9',
                           flexWrap: 'wrap'
                         }}>
-                          {/* Botão Editar: Permite ajustar dados cadastrais, endereço, e-mail, valor ou discriminação */}
-                          {!isCancelada && !isSubstituida && (
+                          {/* Botão Editar: Somente para rascunhos locais que ainda NÃO foram transmitidos à Receita Federal */}
+                          {!isCancelada && !isSubstituida && !n.certificadoInfo?.transmissaoNativaGov && (
                             <button
                               onClick={() => handleEditarNota(n)}
-                              title="Editar dados cadastrais do cliente, endereço, valor ou discriminação"
+                              title="Editar rascunho antes da transmissão à Receita Federal"
                               style={{
                                 background: '#EFF6FF',
                                 border: '1px solid #BFDBFE',
@@ -913,7 +914,7 @@ export function NfseScreen({
                             </button>
                           )}
 
-                          {!isCancelada && (
+                          {!isCancelada && !isSubstituida && (
                             <button
                               onClick={() => handleSubstituirNota(n)}
                               title="Substituir esta nota fiscal gerando uma nova nota com vínculo oficial perante o Fisco"
@@ -936,7 +937,7 @@ export function NfseScreen({
                             </button>
                           )}
 
-                          {!isCancelada && (
+                          {!isCancelada && !isSubstituida && (
                             <button
                               onClick={() => setNotaParaCancelar(n)}
                               title="Cancelar oficialmente esta nota fiscal perante a Receita Federal"

@@ -1,6 +1,6 @@
 import { initialRadioConfig, initialChannels, initialShows, initialSchedule, initialArticles, initialSongLibrary, timeBasedSchedule, initialB2BClients } from '../data/radioData';
 
-const CONFIG_KEY = 'amp_radio_config_v12_azura';
+const CONFIG_KEY = 'amp_radio_config_v13_azura';
 const CHANNELS_KEY = 'amp_radio_channels_v21_azura';
 const SHOWS_KEY = 'amp_radio_shows_v6';
 const SCHEDULE_KEY = 'amp_radio_schedule_v11';

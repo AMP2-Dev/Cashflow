@@ -307,6 +307,175 @@ export function RadioProvider({ children }) {
     }
   }, [timeSchedule, channels]);
 
+  // Cache for iTunes Search API lookups (keyed by raw track identifier)
+  const itunesCacheRef = useRef(new Map());
+
+  // Smart sanitizer for raw MP3 filenames / slugs without complete ID3 tags
+  const cleanTrackString = (raw = '') => {
+    if (!raw) return '';
+    let s = String(raw).trim();
+    // Remove file extensions
+    s = s.replace(/\.(mp3|flac|wav|m4a|ogg|aac)$/i, '');
+    // Remove bracketed tags
+    s = s.replace(/\[[^\]]*\]/g, ' ');
+    // Strip leading track numbers like "01 - ", "02-", "03. ", "105_"
+    s = s.replace(/^\d{1,3}[\s._-]+/, '');
+    // Replace underscores with spaces
+    s = s.replace(/_/g, ' ');
+    // If slug with hyphens and no spaces around hyphens, replace hyphens with spaces
+    if (s.includes('-') && !s.includes(' - ')) {
+      s = s.replace(/-/g, ' ');
+    }
+    // Remove parenthesized noise tags
+    s = s.replace(/\([^)]*(official|video|audio|hd|hq|legendado|tradu[cç][aã]o|lyric|remaster|clipe|live|ao\s*vivo|vevo|youtube)[^)]*\)/gi, ' ');
+    // Remove standalone noise words
+    const noisePatterns = [
+      /\bofficial\s+music\s+video\b/gi,
+      /\bofficial\s+hd\s+video\b/gi,
+      /\bofficial\s+video\b/gi,
+      /\bofficial\s+audio\b/gi,
+      /\bofficial\s+lyric\s+video\b/gi,
+      /\blyric\s+video\b/gi,
+      /\blyrics\b/gi,
+      /\blegendado\b/gi,
+      /\btradu[cç][aã]o\b/gi,
+      /\baudio\s+hq\b/gi,
+      /\baudio\s+oficial\b/gi,
+      /\bclipe\s+oficial\b/gi,
+      /\bvideo\s+oficial\b/gi,
+      /\bhd\s+video\b/gi,
+      /\bfull\s+album\b/gi,
+      /\bremastered\s*\d*\b/gi,
+      /\bremaster\s*\d*\b/gi,
+      /\b(hq|hd|4k|1080p|720p|mp3|flac|wav|youtube|vevo|topic|visualizer|official|video|audio)\b/gi
+    ];
+    for (const pat of noisePatterns) {
+      s = s.replace(pat, ' ');
+    }
+    s = s.replace(/\(\s*\)/g, ' ').replace(/\s+/g, ' ').replace(/^[\s\-_.,]+|[\s\-_.,]+$/g, '');
+    if (!s) return raw;
+
+    const lowerWords = new Set(['de', 'da', 'do', 'das', 'dos', 'e', 'em', 'na', 'no', 'nas', 'nos', 'um', 'uma', 'a', 'o', 'as', 'os', 'por', 'para', 'com', 'sem', 'of', 'the', 'in', 'on', 'at', 'to', 'for', 'and', 'or', 'by', 'with', 'from']);
+    const upperWords = new Set(['dj', 'mc', 'mpb', 'uk', 'usa', 'ac', 'dc', 'tv', 'ii', 'iii', 'iv', 'amp']);
+
+    return s
+      .split(' ')
+      .map((w, idx) => {
+        const wl = w.toLowerCase();
+        if (upperWords.has(wl)) return w.toUpperCase();
+        if (idx > 0 && lowerWords.has(wl)) return wl;
+        return w.charAt(0).toUpperCase() + w.slice(1).toLowerCase();
+      })
+      .join(' ');
+  };
+
+  const parseAndCleanSong = (song = {}) => {
+    const rawTitle = String(song.title || song.text || '').trim();
+    const rawArtist = String(song.artist || '').trim();
+    const combinedLower = `${rawArtist} ${rawTitle}`.toLowerCase();
+
+    // Detect station carimbos & commercial blocks
+    if (combinedLower.includes('carimbo_') || combinedLower.startsWith('carimbo ')) {
+      return {
+        isStationSpot: true,
+        title: 'Amplificadora • Identidade Sonora',
+        artist: 'Ampliando sua onda musical',
+        album: 'Rádio Amplificadora',
+        query: ''
+      };
+    }
+    if (combinedLower.includes('bloco_comercial') || combinedLower.includes('bloco comercial') || combinedLower.includes('spot_amp')) {
+      return {
+        isStationSpot: true,
+        title: 'Intervalo Comercial • Ecossistema AMP',
+        artist: 'Rádio Amplificadora',
+        album: 'Institucional AMP',
+        query: ''
+      };
+    }
+
+    let cArtist = cleanTrackString(rawArtist);
+    let cTitle = cleanTrackString(rawTitle);
+
+    // If artist is missing and rawTitle has "Artist - Title"
+    if (!cArtist && rawTitle.includes(' - ')) {
+      const parts = rawTitle.split(' - ');
+      cArtist = cleanTrackString(parts[0]);
+      cTitle = cleanTrackString(parts.slice(1).join(' - '));
+    }
+
+    const query = [cArtist, cTitle].filter(Boolean).join(' ').trim();
+    return {
+      isStationSpot: false,
+      title: cTitle || 'Programação Musical Amplificadora',
+      artist: cArtist || '',
+      album: song.album ? cleanTrackString(song.album) : '',
+      query
+    };
+  };
+
+  const resolveItunesMetadata = async (parsedSong, rawArt) => {
+    const slotDefaultCover = getActiveSlot()?.cover || 'https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?auto=format&fit=crop&w=1000&q=80';
+    const hasCustomAzuraArt = rawArt && !rawArt.includes('generic_song') && !rawArt.includes('default');
+
+    if (parsedSong.isStationSpot) {
+      return {
+        title: parsedSong.title,
+        artist: parsedSong.artist,
+        album: parsedSong.album,
+        cover: '/logo-amplificadora.png'
+      };
+    }
+
+    const cacheKey = parsedSong.query.toLowerCase();
+    if (!cacheKey) {
+      return {
+        title: parsedSong.title,
+        artist: parsedSong.artist || 'Seleção Oficial Amplificadora',
+        album: parsedSong.album,
+        cover: hasCustomAzuraArt ? rawArt : slotDefaultCover
+      };
+    }
+
+    if (itunesCacheRef.current.has(cacheKey)) {
+      return itunesCacheRef.current.get(cacheKey);
+    }
+
+    try {
+      const res = await fetch(
+        `https://itunes.apple.com/search?term=${encodeURIComponent(parsedSong.query)}&media=music&entity=song&limit=1`
+      );
+      if (res.ok) {
+        const json = await res.json();
+        const hit = json?.results?.[0];
+        if (hit) {
+          const hdArt = hit.artworkUrl100
+            ? hit.artworkUrl100.replace('100x100bb', '600x600bb')
+            : (hasCustomAzuraArt ? rawArt : slotDefaultCover);
+          const resolved = {
+            title: hit.trackName || parsedSong.title,
+            artist: hit.artistName || parsedSong.artist || 'Seleção Oficial Amplificadora',
+            album: hit.collectionName || parsedSong.album || '',
+            cover: hdArt
+          };
+          itunesCacheRef.current.set(cacheKey, resolved);
+          return resolved;
+        }
+      }
+    } catch {
+      // Fallback to local cleaned metadata if iTunes is unreachable
+    }
+
+    const fallback = {
+      title: parsedSong.title,
+      artist: parsedSong.artist || 'Seleção Oficial Amplificadora',
+      album: parsedSong.album || '',
+      cover: hasCustomAzuraArt ? rawArt : slotDefaultCover
+    };
+    itunesCacheRef.current.set(cacheKey, fallback);
+    return fallback;
+  };
+
   // Periodic AzuraCast Live Analytics & Icecast Telemetry Polling (every 15s)
   useEffect(() => {
     let isMounted = true;
@@ -330,9 +499,27 @@ export function RadioProvider({ children }) {
             const unique = Number(listeners.unique) || count;
             const isOnline = data.is_online ?? true;
 
-            const liveTrackLabel = song.artist && song.title
-              ? `${song.artist} — ${song.title}`
-              : (song.title || '');
+            const parsed = parseAndCleanSong(song);
+            const enriched = await resolveItunesMetadata(parsed, song.art);
+            if (!isMounted) return;
+
+            const cleanHistory = (data.song_history || []).map(item => {
+              const hParsed = parseAndCleanSong(item.song || {});
+              const cached = hParsed.query ? itunesCacheRef.current.get(hParsed.query.toLowerCase()) : null;
+              return {
+                ...item,
+                song: {
+                  ...(item.song || {}),
+                  title: cached?.title || hParsed.title,
+                  artist: cached?.artist || hParsed.artist || 'Amplificadora',
+                  art: cached?.cover || item.song?.art
+                }
+              };
+            });
+
+            const liveTrackLabel = enriched.artist && enriched.artist !== 'Seleção Oficial Amplificadora'
+              ? `${enriched.artist} — ${enriched.title}`
+              : enriched.title;
 
             setAzuraStats(prev => ({
               ...prev,
@@ -342,10 +529,11 @@ export function RadioProvider({ children }) {
               listenerPeak: Math.max(count, prev.listenerPeak || 0),
               isLive: Boolean(live.is_live),
               streamerName: live.streamer_name || '',
-              currentTrack: song.title || prev.currentTrack,
-              artist: song.artist || prev.artist,
-              cover: song.art || prev.cover,
-              history: data.song_history || [],
+              currentTrack: enriched.title,
+              artist: enriched.artist,
+              album: enriched.album || '',
+              cover: enriched.cover,
+              history: cleanHistory,
               lastSync: new Date().toLocaleTimeString()
             }));
 
@@ -353,17 +541,22 @@ export function RadioProvider({ children }) {
               setCurrentSlot(prev => prev && prev.streamUrl?.includes('radio.amplificadora.com.br') ? {
                 ...prev,
                 currentTrack: `🎵 Tocando Agora: ${liveTrackLabel}`,
-                artist: song.artist || prev.artist
+                artist: enriched.artist,
+                cover: enriched.cover || prev.cover
               } : prev);
             }
 
-            // Sync with current show config listeners count & live track
+            // Sync with current show config listeners count, live track, coherent artist & HD album cover
             setConfigState(prev => ({
               ...prev,
               currentShow: {
                 ...prev.currentShow,
                 listenersCount: count,
-                ...(liveTrackLabel ? { currentTrack: `🎵 Tocando Agora: ${liveTrackLabel}`, artist: song.artist || prev.currentShow?.artist } : {})
+                ...(liveTrackLabel ? {
+                  currentTrack: `🎵 Tocando Agora: ${liveTrackLabel}`,
+                  artist: enriched.artist,
+                  cover: enriched.cover || prev.currentShow?.cover
+                } : {})
               }
             }));
             return;
