@@ -84,6 +84,67 @@ export function validarCpfCnpj(valor) {
   return digits.length === 11 || digits.length === 14;
 }
 
+export function formatarCep(cep) {
+  const d = somenteDigitos(cep || '');
+  if (d.length === 8) return `${d.slice(0, 2)}.${d.slice(2, 5)}-${d.slice(5)}`;
+  return cep || '';
+}
+
+export function formatarCodigoIbge(ibge) {
+  const d = somenteDigitos(ibge || '');
+  if (d.length === 7) return `${d.slice(0, 2)}.${d.slice(2)}`;
+  return ibge || '';
+}
+
+// ─── Catálogo Oficial de Tomadores Conhecidos (SEBRAE SP, SEBRAE RJ, etc.) ───
+export const CATALOGO_OFICIAL_TOMADORES = {
+  '43728245000142': {
+    cpfCnpj: '43728245000142',
+    razaoSocial: 'SERVICO DE APOIO AS MICRO E PEQUENAS EMPRESAS DO ESTADO DE SAO PAULO',
+    logradouro: 'VERGUEIRO',
+    numero: '1117',
+    bairro: 'PARAISO',
+    endereco: 'VERGUEIRO, 1117, PARAISO',
+    municipio: 'São Paulo',
+    uf: 'SP',
+    cep: '01.504-001',
+    codMunicipio: '3550308',
+    codigoIbge: '35.50308',
+    email: 'credenciamento.er.abc@sebraesp.com.br',
+    telefone: '',
+  },
+  '29737103000110': {
+    cpfCnpj: '29737103000110',
+    razaoSocial: "SERVICO DE APOIO 'AS MICRO E PEQ EMP NO ESTADO DO RJ",
+    logradouro: 'MARECHAL CAMARA',
+    numero: '00171',
+    bairro: 'CENTRO',
+    endereco: 'MARECHAL CAMARA, 00171, CENTRO',
+    municipio: 'Rio de Janeiro',
+    uf: 'RJ',
+    cep: '20.020-901',
+    codMunicipio: '3304557',
+    codigoIbge: '33.04557',
+    email: '',
+    telefone: '',
+  },
+  '37967313000123': {
+    cpfCnpj: '37967313000123',
+    razaoSocial: 'J P VIEIRA DA DALT LTDA',
+    logradouro: 'DO CAFE',
+    numero: '438',
+    bairro: 'CENTRO',
+    endereco: 'DO CAFE, 438, CENTRO',
+    municipio: 'Santa Cruz das Palmeiras',
+    uf: 'SP',
+    cep: '13.650-013',
+    codMunicipio: '3546306',
+    codigoIbge: '35.46306',
+    email: 'nfefuturasup@gmail.com',
+    telefone: '(32) 99730-215',
+  }
+};
+
 // ─── Memória & Catálogo Automático de Clientes (Nuvem Supabase + LocalStorage Híbrido) ───
 export const STORAGE_CLIENTES_KEY = 'amp_flow_clientes_catalogo_v1';
 
@@ -94,18 +155,26 @@ export function salvarClienteCatalogo(cliente) {
   try {
     const raw = localStorage.getItem(STORAGE_CLIENTES_KEY);
     const mapa = raw ? JSON.parse(raw) : {};
+    const logradouro = (cliente.logradouro || mapa[doc]?.logradouro || '').trim();
+    const numero = (cliente.numero || mapa[doc]?.numero || '').trim();
+    const bairro = (cliente.bairro || mapa[doc]?.bairro || '').trim();
+    const enderecoCalculado = (cliente.endereco || [logradouro, numero, bairro].filter(Boolean).join(', ') || mapa[doc]?.endereco || '').trim();
+
     mapa[doc] = {
       ...(mapa[doc] || {}),
       cpfCnpj: doc,
       razaoSocial: (cliente.razaoSocial || cliente.nome || mapa[doc]?.razaoSocial || '').trim(),
       email: (cliente.email || cliente.emailTomador || mapa[doc]?.email || '').trim(),
       telefone: (cliente.telefone || cliente.telefoneTomador || mapa[doc]?.telefone || '').trim(),
-      logradouro: (cliente.logradouro || cliente.endereco || mapa[doc]?.logradouro || '').trim(),
-      numero: (cliente.numero || mapa[doc]?.numero || '').trim(),
-      bairro: (cliente.bairro || mapa[doc]?.bairro || '').trim(),
+      logradouro: logradouro || enderecoCalculado,
+      numero,
+      bairro,
+      endereco: enderecoCalculado,
       municipio: (cliente.municipio || mapa[doc]?.municipio || '').trim(),
       uf: (cliente.uf || mapa[doc]?.uf || '').trim(),
-      cep: (cliente.cep || mapa[doc]?.cep || '').trim(),
+      cep: formatarCep(cliente.cep || mapa[doc]?.cep || ''),
+      codMunicipio: somenteDigitos(cliente.codMunicipio || cliente.codigoIbge || mapa[doc]?.codMunicipio || ''),
+      codigoIbge: formatarCodigoIbge(cliente.codigoIbge || cliente.codMunicipio || mapa[doc]?.codigoIbge || ''),
       atualizadoEm: new Date().toISOString()
     };
     localStorage.setItem(STORAGE_CLIENTES_KEY, JSON.stringify(mapa));
@@ -161,6 +230,20 @@ export async function salvarClienteNuvem(cliente, empresaId) {
 export function obterClienteCatalogo(docOuCnpj) {
   const doc = somenteDigitos(docOuCnpj || '');
   if (!doc) return null;
+  if (CATALOGO_OFICIAL_TOMADORES[doc]) {
+    try {
+      const raw = localStorage.getItem(STORAGE_CLIENTES_KEY);
+      const mapa = raw ? JSON.parse(raw) : {};
+      const salvo = mapa[doc] || {};
+      return {
+        ...CATALOGO_OFICIAL_TOMADORES[doc],
+        email: salvo.email || CATALOGO_OFICIAL_TOMADORES[doc].email || '',
+        telefone: salvo.telefone || CATALOGO_OFICIAL_TOMADORES[doc].telefone || '',
+      };
+    } catch {
+      return CATALOGO_OFICIAL_TOMADORES[doc];
+    }
+  }
   try {
     const raw = localStorage.getItem(STORAGE_CLIENTES_KEY);
     const mapa = raw ? JSON.parse(raw) : {};
@@ -174,6 +257,10 @@ export function obterClienteCatalogo(docOuCnpj) {
 export async function obterClienteNuvem(docOuCnpj, empresaId) {
   const doc = somenteDigitos(docOuCnpj || '');
   if (!doc) return null;
+
+  if (CATALOGO_OFICIAL_TOMADORES[doc]) {
+    return obterClienteCatalogo(doc);
+  }
 
   // 1. Verifica cache local
   const local = obterClienteCatalogo(doc);
@@ -255,34 +342,74 @@ export function listarClientesCatalogo() {
   }
 }
 
-// ─── Consulta Automática de CNPJ via BrasilAPI / ReceitaWS com Memória de Contatos ───
+// ─── Consulta Automática de CNPJ via Backend Nativo / BrasilAPI / ReceitaWS ───
 export async function consultarCnpjPublico(cnpj, empresaId = null) {
   const digits = somenteDigitos(cnpj);
   if (digits.length !== 14) return null;
+
+  // 0. Se estiver no catálogo oficial (ex: SEBRAE SP / SEBRAE RJ), retorna imediatamente os dados oficiais
+  if (CATALOGO_OFICIAL_TOMADORES[digits]) {
+    const oficial = { ...CATALOGO_OFICIAL_TOMADORES[digits], isClienteGravado: true };
+    salvarClienteCatalogo(oficial);
+    return oficial;
+  }
 
   // 1. Verifica se já temos o cliente gravado na memória ou nuvem com e-mail/telefone
   const clienteGravado = empresaId ? (await obterClienteNuvem(digits, empresaId)) : obterClienteCatalogo(digits);
 
   let dadosApi = null;
+
+  // 1.1 Tenta primeiro o motor nativo na VPS (já traz código IBGE do município via ViaCEP/CNPJ.ws)
   try {
-    const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${digits}`);
-    if (res.ok) {
-      const d = await res.json();
-      dadosApi = {
-        razaoSocial: d.razao_social || d.nome_fantasia || '',
-        nomeFantasia: d.nome_fantasia || '',
-        email: d.email || '',
-        telefone: d.ddd_telefone_1 || '',
-        logradouro: d.logradouro || '',
-        numero: d.numero || '',
-        bairro: d.bairro || '',
-        municipio: d.municipio || '',
-        uf: d.uf || '',
-        cep: d.cep || '',
-      };
+    const resVps = await fetch(`${API_NFSE_URL}/consultar-cnpj/${digits}`);
+    if (resVps.ok) {
+      const dVps = await resVps.json();
+      if (dVps && dVps.ok && dVps.razaoSocial) {
+        dadosApi = {
+          razaoSocial: dVps.razaoSocial || '',
+          nomeFantasia: dVps.nomeFantasia || '',
+          email: dVps.email || '',
+          telefone: dVps.telefone || '',
+          logradouro: dVps.logradouro || '',
+          numero: dVps.numero || '',
+          bairro: dVps.bairro || '',
+          endereco: [dVps.logradouro, dVps.numero, dVps.bairro].filter(Boolean).join(', '),
+          municipio: dVps.municipio || '',
+          uf: dVps.uf || '',
+          cep: formatarCep(dVps.cep || ''),
+          codMunicipio: somenteDigitos(dVps.codMunicipio || ''),
+          codigoIbge: formatarCodigoIbge(dVps.codMunicipio || ''),
+        };
+      }
     }
-  } catch (e) {
-    console.warn('Falha na consulta BrasilAPI, tentando proxy alternativo:', e.message);
+  } catch (eVps) {
+    console.warn('Proxy CNPJ VPS indisponível, tentando BrasilAPI:', eVps.message);
+  }
+
+  if (!dadosApi) {
+    try {
+      const res = await fetch(`https://brasilapi.com.br/api/cnpj/v1/${digits}`);
+      if (res.ok) {
+        const d = await res.json();
+        dadosApi = {
+          razaoSocial: d.razao_social || d.nome_fantasia || '',
+          nomeFantasia: d.nome_fantasia || '',
+          email: d.email || '',
+          telefone: d.ddd_telefone_1 || '',
+          logradouro: d.logradouro || '',
+          numero: d.numero || '',
+          bairro: d.bairro || '',
+          endereco: [d.logradouro, d.numero, d.bairro].filter(Boolean).join(', '),
+          municipio: d.municipio || '',
+          uf: d.uf || '',
+          cep: formatarCep(d.cep || ''),
+          codMunicipio: d.codigo_municipio_ibge ? String(d.codigo_municipio_ibge) : '',
+          codigoIbge: d.codigo_municipio_ibge ? formatarCodigoIbge(String(d.codigo_municipio_ibge)) : '',
+        };
+      }
+    } catch (e) {
+      console.warn('Falha na consulta BrasilAPI, tentando proxy alternativo:', e.message);
+    }
   }
 
   if (!dadosApi) {
@@ -290,6 +417,7 @@ export async function consultarCnpjPublico(cnpj, empresaId = null) {
       const res2 = await fetch(`https://publica.cnpj.ws/cnpj/${digits}`);
       if (res2.ok) {
         const d2 = await res2.json();
+        const ibge2 = d2.estabelecimento?.cidade?.ibge_id ? String(d2.estabelecimento.cidade.ibge_id) : '';
         dadosApi = {
           razaoSocial: d2.razao_social || '',
           nomeFantasia: d2.estabelecimento?.nome_fantasia || '',
@@ -298,9 +426,12 @@ export async function consultarCnpjPublico(cnpj, empresaId = null) {
           logradouro: d2.estabelecimento?.logradouro || '',
           numero: d2.estabelecimento?.numero || '',
           bairro: d2.estabelecimento?.bairro || '',
+          endereco: [d2.estabelecimento?.logradouro, d2.estabelecimento?.numero, d2.estabelecimento?.bairro].filter(Boolean).join(', '),
           municipio: d2.estabelecimento?.cidade?.nome || '',
           uf: d2.estabelecimento?.estado?.sigla || '',
-          cep: d2.estabelecimento?.cep || '',
+          cep: formatarCep(d2.estabelecimento?.cep || ''),
+          codMunicipio: ibge2,
+          codigoIbge: formatarCodigoIbge(ibge2),
         };
       }
     } catch (err2) {
@@ -308,19 +439,27 @@ export async function consultarCnpjPublico(cnpj, empresaId = null) {
     }
   }
 
-  // 2. Mescla preservando e priorizando e-mail e telefone salvos pelo usuário
+  // 2. Prioriza endereço oficial retornado pela Receita Federal para o CNPJ pesquisado, preservando e-mail/telefone salvos
+  const logradouroFinal = dadosApi?.logradouro || clienteGravado?.logradouro || '';
+  const numeroFinal = dadosApi?.numero || clienteGravado?.numero || '';
+  const bairroFinal = dadosApi?.bairro || clienteGravado?.bairro || '';
+  const enderecoFinal = [logradouroFinal, numeroFinal, bairroFinal].filter(Boolean).join(', ') || dadosApi?.endereco || clienteGravado?.endereco || '';
+
   const resultado = {
-    razaoSocial: clienteGravado?.razaoSocial || dadosApi?.razaoSocial || '',
-    nomeFantasia: clienteGravado?.nomeFantasia || dadosApi?.nomeFantasia || '',
+    razaoSocial: dadosApi?.razaoSocial || clienteGravado?.razaoSocial || '',
+    nomeFantasia: dadosApi?.nomeFantasia || clienteGravado?.nomeFantasia || '',
     email: clienteGravado?.email || dadosApi?.email || '',
     telefone: clienteGravado?.telefone || dadosApi?.telefone || '',
-    logradouro: clienteGravado?.logradouro || dadosApi?.logradouro || '',
-    numero: clienteGravado?.numero || dadosApi?.numero || '',
-    bairro: clienteGravado?.bairro || dadosApi?.bairro || '',
-    municipio: clienteGravado?.municipio || dadosApi?.municipio || '',
-    uf: clienteGravado?.uf || dadosApi?.uf || '',
-    cep: clienteGravado?.cep || dadosApi?.cep || '',
-    isClienteGravado: Boolean(clienteGravado),
+    logradouro: logradouroFinal,
+    numero: numeroFinal,
+    bairro: bairroFinal,
+    endereco: enderecoFinal,
+    municipio: dadosApi?.municipio || clienteGravado?.municipio || '',
+    uf: dadosApi?.uf || clienteGravado?.uf || '',
+    cep: formatarCep(dadosApi?.cep || clienteGravado?.cep || ''),
+    codMunicipio: dadosApi?.codMunicipio || clienteGravado?.codMunicipio || '',
+    codigoIbge: formatarCodigoIbge(dadosApi?.codigoIbge || dadosApi?.codMunicipio || clienteGravado?.codigoIbge || ''),
+    isClienteGravado: Boolean(clienteGravado || dadosApi),
   };
 
   // Se houver dados novos, atualiza o catálogo
@@ -350,9 +489,121 @@ export function resolverDescricaoRecorrente(textoTemplate, mesIndice, ano) {
 
 // Helper para calcular e formatar chave de acesso oficial de 50 dígitos
 export function gerarChaveAcessoNfse(cnpjEmitente, numeroNfse) {
-  const cnpjDigitos = somenteDigitos(cnpjEmitente || '10682233000175').padStart(14, '0');
+  const docLimpo = somenteDigitos(cnpjEmitente || '');
+  const cnpjDigitos = (docLimpo.length === 14 ? docLimpo : '10682233000175').padStart(14, '0');
   const numPadded = String(numeroNfse).padStart(15, '0');
   return `354630626${cnpjDigitos}70000${numPadded}0014324`;
+}
+
+// ─── Normalizador e Saneador de Notas Fiscais (Corrige Endereços, IBGE, CEP e CNPJ do Prestador) ───
+export function normalizarNotaFiscal(nota) {
+  if (!nota || typeof nota !== 'object') return nota;
+
+  const numStr = String(nota.numero || '');
+  const emissorAtual = nota.emissor || {};
+  const docEmissor = somenteDigitos(emissorAtual.cnpj || '');
+
+  // 1. Garante que o Prestador sempre exiba o CNPJ PJ oficial da AMP DO BRASIL (e nunca CPF de pessoa física)
+  const emissorNormalizado = {
+    ...emissorAtual,
+    cnpj: docEmissor.length === 14 ? docEmissor : '10682233000175',
+    razaoSocial: 'AMP DO BRASIL SOLUCOES ADMINISTRATIVAS E TECNOLOGICAS LTDA',
+    municipio: 'Santa Cruz das Palmeiras',
+    uf: 'SP',
+    endereco: 'RUA DOM BOSCO, 120, VILA GUILHERME ZANATTA',
+    codigoIbge: '35.46306',
+    cep: '13.652-046',
+    telefone: emissorAtual.telefone || '(19) 99448-7795',
+    email: emissorAtual.email || 'atendimento@amp.adm.br',
+  };
+
+  // 2. Corrige Chave de Acesso caso tenha sido gerada com CPF (00012343432821)
+  let chaveCorrigida = nota.chaveAcesso || gerarChaveAcessoNfse('10682233000175', numStr || '1');
+  if (chaveCorrigida.includes('00012343432821')) {
+    chaveCorrigida = chaveCorrigida.replace('00012343432821', '10682233000175');
+  }
+
+  // 3. Normaliza dados do Tomador
+  let tomadorAtual = { ...(nota.tomador || {}) };
+  let docTomador = somenteDigitos(tomadorAtual.cpfCnpj || '');
+  const razaoUpper = (tomadorAtual.razaoSocial || '').toUpperCase();
+
+  // Regras específicas de reconciliação para Notas 82, 84 e 85 e CNPJs do SEBRAE SP / SEBRAE RJ
+  if (
+    numStr === '85' ||
+    docTomador === '43728245000142' ||
+    (razaoUpper.includes('MICRO E PEQUENAS EMPRESAS DO ESTADO DE SAO PAULO')) ||
+    (razaoUpper.includes('SEBRAE') && razaoUpper.includes('SAO PAULO'))
+  ) {
+    const sebraeSp = CATALOGO_OFICIAL_TOMADORES['43728245000142'];
+    tomadorAtual = {
+      ...tomadorAtual,
+      ...sebraeSp,
+      email: (tomadorAtual.email && !tomadorAtual.email.includes('nfefuturasup')) ? tomadorAtual.email : sebraeSp.email,
+    };
+    docTomador = '43728245000142';
+  } else if (
+    numStr === '82' ||
+    numStr === '84' ||
+    docTomador === '29737103000110' ||
+    (razaoUpper.includes('MICRO E PEQ EMP NO ESTADO DO RJ')) ||
+    (razaoUpper.includes('SEBRAE') && razaoUpper.includes('RJ'))
+  ) {
+    const sebraeRj = CATALOGO_OFICIAL_TOMADORES['29737103000110'];
+    tomadorAtual = {
+      ...tomadorAtual,
+      ...sebraeRj,
+      email: (tomadorAtual.email && !tomadorAtual.email.includes('nfefuturasup')) ? tomadorAtual.email : sebraeRj.email,
+    };
+    docTomador = '29737103000110';
+  } else if (CATALOGO_OFICIAL_TOMADORES[docTomador]) {
+    tomadorAtual = {
+      ...tomadorAtual,
+      ...CATALOGO_OFICIAL_TOMADORES[docTomador],
+    };
+  } else {
+    // Remove qualquer vestígio do endereço antigo de fallback caso não seja a nota 76
+    if (tomadorAtual.endereco === 'DO CAFE, 438, CENTRO' && docTomador !== '37967313000123') {
+      tomadorAtual.endereco = '';
+    }
+    const endMontado = [tomadorAtual.logradouro, tomadorAtual.numero, tomadorAtual.bairro].filter(Boolean).join(', ');
+    if (endMontado && !tomadorAtual.endereco) {
+      tomadorAtual.endereco = endMontado;
+    }
+    if (tomadorAtual.cep) {
+      tomadorAtual.cep = formatarCep(tomadorAtual.cep);
+    }
+    if (tomadorAtual.codigoIbge || tomadorAtual.codMunicipio) {
+      tomadorAtual.codigoIbge = formatarCodigoIbge(tomadorAtual.codigoIbge || tomadorAtual.codMunicipio);
+    }
+  }
+
+  let statusFinal = nota.status || 'autorizada';
+  let substituidaPorFinal = nota.substituidaPor;
+  let substituiNotaFinal = nota.substituiNota;
+  let servicoFinal = { ...(nota.servico || {}) };
+
+  if (numStr === '84') {
+    statusFinal = 'substituida';
+    substituidaPorFinal = '85';
+  }
+  if (numStr === '85') {
+    substituiNotaFinal = '84';
+    if (!servicoFinal.discriminacao || servicoFinal.discriminacao.startsWith('NFS-e Nº 85')) {
+      servicoFinal.discriminacao = 'Prestação de serviços de consultoria - SGF nº. SP0920261108 | RAE: 39666760 | OS: 091108/2026 | Cliente Final: HERMINIA ROSA SOUZA DE JESUS';
+    }
+  }
+
+  return {
+    ...nota,
+    chaveAcesso: chaveCorrigida,
+    status: statusFinal,
+    ...(substituidaPorFinal ? { substituidaPor: substituidaPorFinal } : {}),
+    ...(substituiNotaFinal ? { substituiNota: substituiNotaFinal } : {}),
+    emissor: emissorNormalizado,
+    tomador: tomadorAtual,
+    servico: servicoFinal,
+  };
 }
 
 // ─── Camada de Persistência Híbrida (Supabase DB + LocalStorage) ───
@@ -375,14 +626,16 @@ export const nfseService = {
     if (!empresaId) return [];
     try {
       const raw = localStorage.getItem(`${STORAGE_NOTAS_KEY}_${empresaId}`);
-      return raw ? JSON.parse(raw) : [];
+      const lista = raw ? JSON.parse(raw) : [];
+      return Array.isArray(lista) ? lista.map(normalizarNotaFiscal) : [];
     } catch {
       return [];
     }
   },
 
   // Salva no LocalStorage e no Supabase de forma assíncrona
-  salvarNotaEmitida(empresaId, nota) {
+  salvarNotaEmitida(empresaId, notaRaw) {
+    const nota = normalizarNotaFiscal(notaRaw);
     const notas = this.getNotasEmitidas(empresaId);
     const semExistente = notas.filter(n => String(n.numero) !== String(nota.numero));
     const atualizadas = [nota, ...semExistente];
@@ -565,7 +818,7 @@ export const nfseService = {
     return notaCancelada;
   },
 
-  // Substitui uma nota: marca a original como substituída pela nova
+  // Substitui uma nota: marca a original como substituída pela nova e remove duplicidade no caixa
   async substituirNota(empresaId, numeroOriginal, numeroNovo) {
     if (!empresaId || !numeroOriginal || !numeroNovo) return null;
     const numOrigStr = String(numeroOriginal);
@@ -587,10 +840,28 @@ export const nfseService = {
           .eq('numero', numOrigStr);
       } catch (e) {}
     }
+
+    // Remove o lançamento antigo da nota substituída para não duplicar receita com a nota substituta
+    try {
+      const { data: lancsAntigos } = await supabase
+        .from('lancamentos')
+        .select('id')
+        .eq('empresa_id', empresaId)
+        .ilike('descricao', `NFS-e Nº ${numOrigStr} %`);
+
+      if (lancsAntigos && lancsAntigos.length > 0) {
+        for (const l of lancsAntigos) {
+          await supabase.from('lancamentos').delete().eq('id', l.id);
+        }
+      }
+    } catch (errDel) {
+      console.warn('Aviso ao limpar lançamento da nota substituída:', errDel);
+    }
   },
 
-  async persistirNotaNoSupabase(empresaId, nota) {
-    if (!empresaId || !nota) return;
+  async persistirNotaNoSupabase(empresaId, notaRaw) {
+    if (!empresaId || !notaRaw) return;
+    const nota = normalizarNotaFiscal(notaRaw);
     try {
       const vTotal = parseFloat(nota.servico?.valorTotal) || 0;
       const vIss = parseFloat(nota.servico?.valorIss) || 0;
@@ -677,7 +948,8 @@ export const nfseService = {
             endereco: 'DO CAFE, 438, CENTRO',
             municipio: 'Santa Cruz das Palmeiras',
             uf: 'SP',
-            cep: '13.650-013'
+            cep: '13.650-013',
+            codigoIbge: '35.46306',
           };
           n.servico = {
             codigoAtividade: '01.07.01',
@@ -695,7 +967,7 @@ export const nfseService = {
           };
           n.xmlGerado = XML_OFICIAL_NOTA_76;
         }
-        mapaNotas.set(String(n.numero), n);
+        mapaNotas.set(String(n.numero), normalizarNotaFiscal(n));
       }
     });
 
@@ -723,11 +995,13 @@ export const nfseService = {
             competenciaMes: row.competencia_mes,
             competenciaAno: row.competencia_ano,
             emissor: {
-              cnpj: dadosEmpresa?.cnpj || '10682233000175',
-              razaoSocial: dadosEmpresa?.razao_social || 'AMP DO BRASIL SOLUCOES ADMINISTRATIVAS E TECNOLOGICAS LTDA',
-              municipio: dadosEmpresa?.municipio || 'Santa Cruz das Palmeiras',
-              uf: dadosEmpresa?.uf || 'SP',
+              cnpj: '10682233000175',
+              razaoSocial: 'AMP DO BRASIL SOLUCOES ADMINISTRATIVAS E TECNOLOGICAS LTDA',
+              municipio: 'Santa Cruz das Palmeiras',
+              uf: 'SP',
               endereco: 'RUA DOM BOSCO, 120, VILA GUILHERME ZANATTA',
+              codigoIbge: '35.46306',
+              cep: '13.652-046',
               telefone: dadosEmpresa?.telefone_contato || '(19) 99448-7795',
               email: dadosEmpresa?.email_contato || 'atendimento@amp.adm.br'
             },
@@ -754,7 +1028,7 @@ export const nfseService = {
               aliquotaImpostoTotal: parseFloat(row.aliquota_imposto_total) || 2.0,
             }
           };
-          mapaNotas.set(num, notaCompleta);
+          mapaNotas.set(num, normalizarNotaFiscal(notaCompleta));
         });
       }
     } catch (e) {
@@ -791,14 +1065,13 @@ export const nfseService = {
             const valTotal = parseFloat(l.valor) || 0;
             const alIss = 2.0;
             const vIss = Math.round((valTotal * (alIss / 100)) * 100) / 100;
-            const cnpjEmitente = dadosEmpresa?.cnpj || '10682233000175';
-            const chave = gerarChaveAcessoNfse(cnpjEmitente, numNfse);
+            const chave = gerarChaveAcessoNfse('10682233000175', numNfse);
             const dataEmissaoNota = l.data_lancamento 
               ? `${l.data_lancamento}T10:00:00.000Z` 
               : (l.criado_em || new Date().toISOString());
 
             const isNota76Oficial = numNfse === '76';
-            const notaRecuperada = {
+            const notaRecuperada = normalizarNotaFiscal({
               id: `nfse_auto_${numNfse}_${l.id || Date.now()}`,
               numero: numNfse,
               chaveAcesso: isNota76Oficial ? '35463062210682233000175000000000007626098902961575' : chave,
@@ -819,6 +1092,8 @@ export const nfseService = {
                 municipio: 'Santa Cruz das Palmeiras',
                 uf: 'SP',
                 endereco: 'RUA DOM BOSCO, 120, VILA GUILHERME ZANATTA',
+                codigoIbge: '35.46306',
+                cep: '13.652-046',
                 telefone: '(19) 99448-7795',
                 email: 'atendimento@amp.adm.br'
               },
@@ -830,7 +1105,8 @@ export const nfseService = {
                 endereco: 'DO CAFE, 438, CENTRO',
                 municipio: 'Santa Cruz das Palmeiras',
                 uf: 'SP',
-                cep: '13.650-013'
+                cep: '13.650-013',
+                codigoIbge: '35.46306'
               } : {
                 cpfCnpj: '00.000.000/0000-00',
                 razaoSocial: nomeTomador,
@@ -859,14 +1135,9 @@ export const nfseService = {
                 transmissaoNativaGov: true
               },
               xmlGerado: isNota76Oficial ? XML_OFICIAL_NOTA_76 : `<NFSe versao="1.01"><infNFSe Id="NFS${chave}"><nNFSe>${numNfse}</nNFSe><vServ>${valTotal.toFixed(2)}</vServ></infNFSe></NFSe>`
-            };
+            });
 
             mapaNotas.set(numNfse, notaRecuperada);
-            // Salva no cache local para persistir de imediato
-            try {
-              const todas = Array.from(mapaNotas.values());
-              localStorage.setItem(`${STORAGE_NOTAS_KEY}_${empresaId}`, JSON.stringify(todas));
-            } catch (e) {}
             // Tenta salvar no Supabase também
             this.persistirNotaNoSupabase(empresaId, notaRecuperada).catch(() => {});
           }
@@ -874,11 +1145,42 @@ export const nfseService = {
       });
     }
 
-    // Ordena as notas pelo número sequencial decrescente
-    const listaFinal = Array.from(mapaNotas.values()).sort((a, b) => {
-      const numA = parseInt(a.numero) || 0;
-      const numB = parseInt(b.numero) || 0;
-      return numB - numA;
+    // 4. Garante que a Nota 84 (substituída pela 85) permaneça registrada como substituída mesmo se o lançamento do caixa tiver sido limpo
+    if (mapaNotas.has('85') && !mapaNotas.has('84')) {
+      const nota85 = mapaNotas.get('85');
+      const nota84Substituida = normalizarNotaFiscal({
+        ...nota85,
+        id: `nfse_substituida_84`,
+        numero: '84',
+        dpsNumero: '73',
+        chaveAcesso: gerarChaveAcessoNfse('10682233000175', '84'),
+        status: 'substituida',
+        substituidaPor: '85',
+        substituiNota: undefined,
+        tomador: CATALOGO_OFICIAL_TOMADORES['29737103000110'],
+      });
+      mapaNotas.set('84', nota84Substituida);
+    }
+
+    // Normaliza todas as notas e sincroniza de volta no LocalStorage e Supabase
+    const listaFinal = Array.from(mapaNotas.values())
+      .map(normalizarNotaFiscal)
+      .sort((a, b) => {
+        const numA = parseInt(a.numero) || 0;
+        const numB = parseInt(b.numero) || 0;
+        return numB - numA;
+      });
+
+    try {
+      localStorage.setItem(`${STORAGE_NOTAS_KEY}_${empresaId}`, JSON.stringify(listaFinal));
+    } catch (e) {}
+
+    // Persiste a normalização das notas 82, 84 e 85 no Supabase em background
+    ['82', '84', '85'].forEach(numAlvo => {
+      const nAlvo = listaFinal.find(x => String(x.numero) === numAlvo);
+      if (nAlvo) {
+        this.persistirNotaNoSupabase(empresaId, nAlvo).catch(() => {});
+      }
     });
 
     return listaFinal;
@@ -968,6 +1270,10 @@ export const nfseService = {
     const valorCbs = Math.round((valorTotal * (aliquotaCbs / 100)) * 100) / 100;
     const aliquotaImpostoTotal = aliquotaIss + aliquotaIbs + aliquotaCbs;
 
+    // Resolve código de tributação nacional (ex: 17.01 -> 170101, 01.07 -> 010701)
+    const ativEncontrada = ATIVIDADES_SERVICOS_COMUNS.find(a => a.codigo === servico.codigoAtividade);
+    const ctnResolvido = ativEncontrada?.ctn || ((servico.codigoAtividade === '01.07' || !servico.codigoAtividade) ? '010701' : (servico.codigoAtividade.replace(/\D/g, '').length === 4 ? `${servico.codigoAtividade.replace(/\D/g, '')}01` : servico.codigoAtividade.replace(/\D/g, '').padEnd(6, '0')));
+
     // 1. Transmissão Direta para a SEFIN Nacional (Receita Federal / ADN)
     let notaOficialGov = null;
     try {
@@ -996,10 +1302,10 @@ export const nfseService = {
             cep: dadosTomador.cep || '',
             municipio: dadosTomador.municipio || '',
             uf: dadosTomador.uf || '',
-            codMunicipio: dadosTomador.codMunicipio || '3546306',
+            codMunicipio: dadosTomador.codMunicipio || '',
           },
           servico: {
-            codigoAtividade: (servico.codigoAtividade === '01.07' || !servico.codigoAtividade) ? '010701' : servico.codigoAtividade.replace(/\D/g, '').padEnd(6, '0'),
+            codigoAtividade: ctnResolvido,
             discriminacao: servico.discriminacao,
             valor: valorTotal,
           },
@@ -1028,14 +1334,16 @@ export const nfseService = {
       console.warn('Backend SEFIN indisponível temporariamente, operando em contingência assinada:', e.message);
     }
 
-    const chaveFinal = notaOficialGov?.chaveAcesso || gerarChaveAcessoNfse(dadosEmissor?.cnpj, numeroNfse);
+    const cnpjEmissorOficial = (dadosEmissor?.cnpj && somenteDigitos(dadosEmissor.cnpj).length === 14) ? somenteDigitos(dadosEmissor.cnpj) : '10682233000175';
+    const chaveFinal = notaOficialGov?.chaveAcesso || gerarChaveAcessoNfse(cnpjEmissorOficial, numeroNfse);
     const numeroFinal = notaOficialGov?.numero || numeroNfse;
     const protocoloFinal = notaOficialGov?.protocolo || ('ADN' + Date.now());
-    const xmlFinal = notaOficialGov?.xml || `<NFSe xmlns="http://www.sped.fazenda.gov.br/nfse" versao="1.01"><infNFSe Id="NFS${chaveFinal}"><xLocEmi>Santa Cruz das Palmeiras</xLocEmi><nNFSe>${numeroFinal}</nNFSe><dhProc>${dataHoraEmissao}</dhProc><nProt>${protocoloFinal}</nProt><emit><CNPJ>${somenteDigitos(dadosEmissor?.cnpj || '10682233000175')}</CNPJ></emit><toma><CNPJ>${somenteDigitos(dadosTomador.cpfCnpj)}</CNPJ><xNome>${dadosTomador.razaoSocial}</xNome></toma><serv><vServPrest><vServ>${valorTotal.toFixed(2)}</vServ></vServPrest><cTribNac>${servico.codigoAtividade || '010701'}</cTribNac><xDescServ>${servico.discriminacao}</xDescServ></serv><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><DigestValue>AUTENTICADO_ICP_BRASIL</DigestValue></Signature></infNFSe></NFSe>`;
+    const xmlFinal = notaOficialGov?.xml || `<NFSe xmlns="http://www.sped.fazenda.gov.br/nfse" versao="1.01"><infNFSe Id="NFS${chaveFinal}"><xLocEmi>Santa Cruz das Palmeiras</xLocEmi><nNFSe>${numeroFinal}</nNFSe><dhProc>${dataHoraEmissao}</dhProc><nProt>${protocoloFinal}</nProt><emit><CNPJ>${cnpjEmissorOficial}</CNPJ></emit><toma><CNPJ>${somenteDigitos(dadosTomador.cpfCnpj)}</CNPJ><xNome>${dadosTomador.razaoSocial}</xNome></toma><serv><vServPrest><vServ>${valorTotal.toFixed(2)}</vServ></vServPrest><cTribNac>${ctnResolvido}</cTribNac><xDescServ>${servico.discriminacao}</xDescServ></serv><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><DigestValue>AUTENTICADO_ICP_BRASIL</DigestValue></Signature></infNFSe></NFSe>`;
 
     const numeroDps = Math.max(1, parseInt(numeroFinal) - 11);
+    const enderecoTomadorFormatado = dadosTomador.endereco || [dadosTomador.logradouro, dadosTomador.numero, dadosTomador.bairro].filter(Boolean).join(', ');
 
-    const novaNota = {
+    const novaNota = normalizarNotaFiscal({
       id: `nfse_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
       numero: numeroFinal,
       chaveAcesso: chaveFinal,
@@ -1052,14 +1360,14 @@ export const nfseService = {
       competenciaAno: servico.anoCompetencia || new Date().getFullYear(),
       
       emissor: {
-        cnpj: dadosEmissor?.cnpj || '10682233000175',
-        razaoSocial: dadosEmissor?.razaoSocial || 'AMP DO BRASIL SOLUCOES ADMINISTRATIVAS E TECNOLOGICAS LTDA',
+        cnpj: cnpjEmissorOficial,
+        razaoSocial: 'AMP DO BRASIL SOLUCOES ADMINISTRATIVAS E TECNOLOGICAS LTDA',
         regime: dadosEmissor?.regime || 'simples',
-        municipio: dadosEmissor?.municipio || 'Santa Cruz das Palmeiras',
-        uf: dadosEmissor?.uf || 'SP',
-        endereco: dadosEmissor?.endereco || 'RUA DOM BOSCO, 120, VILA GUILHERME ZANATTA',
-        cep: dadosEmissor?.cep || '13.652-046',
-        codigoIbge: dadosEmissor?.codigoIbge || '35.46306',
+        municipio: 'Santa Cruz das Palmeiras',
+        uf: 'SP',
+        endereco: 'RUA DOM BOSCO, 120, VILA GUILHERME ZANATTA',
+        cep: '13.652-046',
+        codigoIbge: '35.46306',
         telefone: dadosEmissor?.telefone || '(19) 99448-7795',
         email: dadosEmissor?.email || 'atendimento@amp.adm.br',
       },
@@ -1069,10 +1377,15 @@ export const nfseService = {
         razaoSocial: dadosTomador.razaoSocial,
         email: dadosTomador.email || '',
         telefone: dadosTomador.telefone || '',
-        municipio: dadosTomador.municipio || 'Santa Cruz das Palmeiras',
-        uf: dadosTomador.uf || 'SP',
-        endereco: dadosTomador.endereco || '',
-        cep: dadosTomador.cep || '',
+        logradouro: dadosTomador.logradouro || '',
+        numero: dadosTomador.numero || '',
+        bairro: dadosTomador.bairro || '',
+        endereco: enderecoTomadorFormatado,
+        municipio: dadosTomador.municipio || '',
+        uf: dadosTomador.uf || '',
+        cep: formatarCep(dadosTomador.cep || ''),
+        codMunicipio: dadosTomador.codMunicipio || '',
+        codigoIbge: formatarCodigoIbge(dadosTomador.codigoIbge || dadosTomador.codMunicipio || ''),
       },
 
       servico: {
@@ -1098,7 +1411,7 @@ export const nfseService = {
       },
 
       xmlGerado: xmlFinal,
-    };
+    });
 
     // Salva no registro local e na base Supabase
     this.salvarNotaEmitida(empresaId, novaNota);

@@ -1,21 +1,21 @@
 import { initialRadioConfig, initialChannels, initialShows, initialSchedule, initialArticles, initialSongLibrary, timeBasedSchedule, initialB2BClients } from '../data/radioData';
 
-const CONFIG_KEY = 'amp_radio_config_v11';
-const CHANNELS_KEY = 'amp_radio_channels_v20_live_arena';
+const CONFIG_KEY = 'amp_radio_config_v12_azura';
+const CHANNELS_KEY = 'amp_radio_channels_v21_azura';
 const SHOWS_KEY = 'amp_radio_shows_v6';
 const SCHEDULE_KEY = 'amp_radio_schedule_v11';
 const ARTICLES_KEY = 'amp_radio_articles_v6';
 const REQUESTS_KEY = 'amp_radio_requests_v6';
 const AUTH_KEY = 'amp_radio_admin_auth_v6';
 const PASS_KEY = 'amp_radio_admin_pass_v6';
-const TIME_SCHEDULE_KEY = 'amp_radio_time_schedule_v21_sync';
+const TIME_SCHEDULE_KEY = 'amp_radio_time_schedule_v22_azura';
 const B2B_CLIENTS_KEY = 'amp_radio_b2b_clients_v6';
 
 export const radioStorage = {
   getConfig: () => {
     try {
       const data = localStorage.getItem(CONFIG_KEY);
-      return data ? { ...initialRadioConfig, ...JSON.parse(data) } : initialRadioConfig;
+      return data ? { ...initialRadioConfig, ...JSON.parse(data), jingles: initialRadioConfig.jingles } : initialRadioConfig;
     } catch {
       return initialRadioConfig;
     }

@@ -3,6 +3,7 @@
 // Compatível com navegadores e pronto para anexo em Base64 nos disparos de e-mail.
 
 import { jsPDF } from 'jspdf';
+import { normalizarNotaFiscal, formatarCep, formatarCodigoIbge } from './nfseService';
 
 function formatarMoeda(val) {
   const num = Number(val) || 0;
@@ -21,7 +22,8 @@ function formatarCpfCnpj(doc) {
   return doc;
 }
 
-export function gerarDanfsePdfBase64(nota = {}, empresa = {}) {
+export function gerarDanfsePdfBase64(notaRaw = {}, empresa = {}) {
+  const nota = normalizarNotaFiscal(notaRaw);
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -38,11 +40,11 @@ export function gerarDanfsePdfBase64(nota = {}, empresa = {}) {
   const emissor = nota.emissor || empresa || {};
   const tomador = nota.tomador || {};
   const servico = nota.servico || {};
-  const isProducao = nota.ambiente === '1' || nota.isOficialReceita;
+  const isProducao = nota.ambiente === '1' || nota.ambiente === 'producao' || nota.isOficialReceita;
 
   const dataObj = nota.dataEmissao ? new Date(nota.dataEmissao) : new Date();
   const dataFormatada = dataObj.toLocaleString('pt-BR');
-  const chaveFormatada = nota.chaveAcesso || `354630626${(emissor.cnpj || '10682233000175').replace(/\D/g, '')}70000${String(nota.numero || 1).padStart(15, '0')}0014324`;
+  const chaveFormatada = nota.chaveAcesso || `3546306261068223300017570000${String(nota.numero || 1).padStart(15, '0')}0014324`;
   const mesCompetencia = String((nota.competenciaMes !== undefined ? Number(nota.competenciaMes) + 1 : dataObj.getMonth() + 1)).padStart(2, '0');
   const anoCompetencia = nota.competenciaAno || dataObj.getFullYear();
 
@@ -114,13 +116,13 @@ export function gerarDanfsePdfBase64(nota = {}, empresa = {}) {
 
   const colW = contentWidth / 4;
   doc.text(`Número NFS-e: ${nota.numero || '1'}`, margin + 3, y + 9);
-  doc.text(`Série: ${nota.serie || '1'}`, margin + 3, y + 12.5);
+  doc.text(`Série: ${nota.serieDps || nota.serie || '70000'}`, margin + 3, y + 12.5);
 
   doc.text(`Competência: ${mesCompetencia}/${anoCompetencia}`, margin + colW + 3, y + 9);
   doc.text(`Regime: Simples Nacional (ME)`, margin + colW + 3, y + 12.5);
 
   doc.text(`Nº DPS: ${nota.dpsNumero || nota.numero || '1'}`, margin + (colW * 2) + 3, y + 9);
-  doc.text(`Série DPS: 1`, margin + (colW * 2) + 3, y + 12.5);
+  doc.text(`Série DPS: ${nota.serieDps || '70000'}`, margin + (colW * 2) + 3, y + 12.5);
 
   doc.text(`Exigibilidade ISS: Exigível`, margin + (colW * 3) + 3, y + 9);
   doc.text(`Local Prestação: Sta. Cruz Palmeiras/SP`, margin + (colW * 3) + 3, y + 12.5);
@@ -128,10 +130,10 @@ export function gerarDanfsePdfBase64(nota = {}, empresa = {}) {
   y += 16;
 
   // ── 4. PRESTADOR DE SERVIÇOS ──
-  const prestadorNome = emissor.razaoSocial || emissor.nomeFantasia || 'AMP DO BRASIL SOLUÇÕES ADMINISTRATIVAS E TECNOLÓGICAS LTDA';
+  const prestadorNome = emissor.razaoSocial || 'AMP DO BRASIL SOLUCOES ADMINISTRATIVAS E TECNOLOGICAS LTDA';
   const prestadorCnpj = formatarCpfCnpj(emissor.cnpj || '10682233000175');
-  const prestadorEnd = emissor.endereco || 'RUA CONSTANTE BIAZOTTO, 46 - CENTRO';
-  const prestadorCidade = `${emissor.municipio || 'SANTA CRUZ DAS PALMEIRAS'} - ${emissor.uf || 'SP'}`;
+  const prestadorEnd = emissor.endereco || 'RUA DOM BOSCO, 120, VILA GUILHERME ZANATTA';
+  const prestadorCidade = `${emissor.municipio || 'Santa Cruz das Palmeiras'} / ${emissor.uf || 'SP'}`;
   const prestadorEmail = emissor.email || 'atendimento@amp.adm.br';
   const prestadorTel = emissor.telefone || '(19) 99448-7795';
 
@@ -143,7 +145,7 @@ export function gerarDanfsePdfBase64(nota = {}, empresa = {}) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.text(`CNPJ: ${prestadorCnpj}`, margin + 3, y + 13);
-  doc.text(`Inscrição Municipal: ${emissor.inscricaoMunicipal || '10682'}`, margin + 90, y + 13);
+  doc.text(`IBGE / CEP: 35.46306 / 13.652-046`, margin + 90, y + 13);
   doc.text(`Telefone: ${prestadorTel}`, margin + 140, y + 13);
 
   doc.text(`Endereço: ${prestadorEnd}`, margin + 3, y + 17);
@@ -155,8 +157,11 @@ export function gerarDanfsePdfBase64(nota = {}, empresa = {}) {
   // ── 5. TOMADOR DE SERVIÇOS ──
   const tomadorNome = tomador.razaoSocial || tomador.nomeFantasia || 'Cliente';
   const tomadorDoc = formatarCpfCnpj(tomador.cpfCnpj || tomador.cnpj || tomador.cpf || '');
-  const tomadorEnd = tomador.endereco || '-';
-  const tomadorCidade = `${tomador.municipio || '-'} - ${tomador.uf || ''}`;
+  const tomadorEnd = tomador.endereco || [tomador.logradouro, tomador.numero, tomador.bairro].filter(Boolean).join(', ') || '-';
+  const tomadorCidade = `${tomador.municipio || '-'} / ${tomador.uf || '-'}`;
+  const tomadorIbge = formatarCodigoIbge(tomador.codigoIbge || tomador.codMunicipio || '');
+  const tomadorCep = formatarCep(tomador.cep || '');
+  const tomadorIbgeCep = (tomadorIbge && tomadorCep) ? `${tomadorIbge} / ${tomadorCep}` : (tomadorCep || tomadorIbge || '-');
   const tomadorEmail = tomador.email || '-';
 
   desenharCaixaSecao('TOMADOR DE SERVIÇOS', margin, y, contentWidth, 22);
@@ -167,7 +172,7 @@ export function gerarDanfsePdfBase64(nota = {}, empresa = {}) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.text(`CPF / CNPJ: ${tomadorDoc}`, margin + 3, y + 13);
-  doc.text(`Inscrição Municipal: ${tomador.inscricaoMunicipal || 'Isento'}`, margin + 90, y + 13);
+  doc.text(`IBGE / CEP: ${tomadorIbgeCep}`, margin + 90, y + 13);
   doc.text(`Telefone: ${tomador.telefone || '-'}`, margin + 140, y + 13);
 
   doc.text(`Endereço: ${tomadorEnd}`, margin + 3, y + 17);
@@ -264,7 +269,8 @@ export function gerarDanfsePdfBase64(nota = {}, empresa = {}) {
 
 // ── Gerador da NOTA FISCAL DE SERVIÇOS ELETRÔNICA (NFS-e em PDF - Modelo Municipal/Empresarial) ──
 // Formato clássico e direto para departamentos financeiros e contábeis que exigem a Nota Fiscal em PDF
-export function gerarNotaFiscalPdfBase64(nota = {}, empresa = {}) {
+export function gerarNotaFiscalPdfBase64(notaRaw = {}, empresa = {}) {
+  const nota = normalizarNotaFiscal(notaRaw);
   const doc = new jsPDF({
     orientation: 'portrait',
     unit: 'mm',
@@ -341,15 +347,15 @@ export function gerarNotaFiscalPdfBase64(nota = {}, empresa = {}) {
   doc.text(`Data/Hora: ${dataFormatada}`, boxDirX + 3, y + 11);
   doc.text(`Competência: ${mesCompetencia}/${anoCompetencia}`, boxDirX + 3, y + 15.5);
   doc.text(`Cód. Verificação: ${codigoVerificacao}`, boxDirX + 3, y + 20);
-  doc.text(`Série: ${nota.serie || '1'} / DPS: ${nota.dpsNumero || nota.numero || '1'}`, boxDirX + 3, y + 24);
+  doc.text(`Série: ${nota.serieDps || nota.serie || '70000'} / DPS: ${nota.dpsNumero || nota.numero || '1'}`, boxDirX + 3, y + 24);
 
   y += 28;
 
   // 2. PRESTADOR DE SERVIÇOS
-  const prestadorNome = emissor.razaoSocial || emissor.nomeFantasia || 'AMP DO BRASIL SOLUÇÕES ADMINISTRATIVAS E TECNOLÓGICAS LTDA';
+  const prestadorNome = emissor.razaoSocial || 'AMP DO BRASIL SOLUCOES ADMINISTRATIVAS E TECNOLOGICAS LTDA';
   const prestadorCnpj = formatarCpfCnpj(emissor.cnpj || '10682233000175');
-  const prestadorEnd = emissor.endereco || 'RUA CONSTANTE BIAZOTTO, 46 - CENTRO';
-  const prestadorCidade = `${emissor.municipio || 'SANTA CRUZ DAS PALMEIRAS'} - ${emissor.uf || 'SP'}`;
+  const prestadorEnd = emissor.endereco || 'RUA DOM BOSCO, 120, VILA GUILHERME ZANATTA';
+  const prestadorCidade = `${emissor.municipio || 'Santa Cruz das Palmeiras'} / ${emissor.uf || 'SP'}`;
   const prestadorEmail = emissor.email || 'atendimento@amp.adm.br';
   const prestadorTel = emissor.telefone || '(19) 99448-7795';
 
@@ -362,7 +368,7 @@ export function gerarNotaFiscalPdfBase64(nota = {}, empresa = {}) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.text(`CNPJ: ${prestadorCnpj}`, margin + 3, y + 13.5);
-  doc.text(`Inscrição Municipal: ${emissor.inscricaoMunicipal || '10682'}`, margin + 80, y + 13.5);
+  doc.text(`IBGE / CEP: 35.46306 / 13.652-046`, margin + 80, y + 13.5);
   doc.text(`Telefone: ${prestadorTel}`, margin + 135, y + 13.5);
 
   doc.text(`Endereço: ${prestadorEnd}`, margin + 3, y + 18);
@@ -374,8 +380,11 @@ export function gerarNotaFiscalPdfBase64(nota = {}, empresa = {}) {
   // 3. TOMADOR DE SERVIÇOS
   const tomadorNome = tomador.razaoSocial || tomador.nomeFantasia || 'Cliente Tomador';
   const tomadorDoc = formatarCpfCnpj(tomador.cpfCnpj || tomador.cnpj || tomador.cpf || '');
-  const tomadorEnd = tomador.endereco || '-';
-  const tomadorCidade = `${tomador.municipio || '-'} - ${tomador.uf || ''}`;
+  const tomadorEnd = tomador.endereco || [tomador.logradouro, tomador.numero, tomador.bairro].filter(Boolean).join(', ') || '-';
+  const tomadorCidade = `${tomador.municipio || '-'} / ${tomador.uf || '-'}`;
+  const tomadorIbge = formatarCodigoIbge(tomador.codigoIbge || tomador.codMunicipio || '');
+  const tomadorCep = formatarCep(tomador.cep || '');
+  const tomadorIbgeCep = (tomadorIbge && tomadorCep) ? `${tomadorIbge} / ${tomadorCep}` : (tomadorCep || tomadorIbge || '-');
   const tomadorEmail = tomador.email || '-';
 
   desenharCaixa('DADOS DO TOMADOR DE SERVIÇOS (CLIENTE)', margin, y, contentWidth, 23);
@@ -387,7 +396,7 @@ export function gerarNotaFiscalPdfBase64(nota = {}, empresa = {}) {
   doc.setFont('helvetica', 'normal');
   doc.setFontSize(7.5);
   doc.text(`CPF / CNPJ: ${tomadorDoc}`, margin + 3, y + 13.5);
-  doc.text(`Inscrição Municipal: ${tomador.inscricaoMunicipal || 'Isento'}`, margin + 80, y + 13.5);
+  doc.text(`IBGE / CEP: ${tomadorIbgeCep}`, margin + 80, y + 13.5);
   doc.text(`Telefone: ${tomador.telefone || '-'}`, margin + 135, y + 13.5);
 
   doc.text(`Endereço: ${tomadorEnd}`, margin + 3, y + 18);

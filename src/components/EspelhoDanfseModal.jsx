@@ -2,14 +2,19 @@ import React, { useState } from 'react';
 import { 
   FileText, Download, Printer, X, MessageCircle, ShieldCheck, Zap, AlertTriangle, Clock, Mail 
 } from 'lucide-react';
-import { formatBRL } from '../utils/formatters';
-import { formatarCpfCnpj, gerarLinkWhatsAppNfse } from '../utils/nfseService';
+import { formatBRL, somenteDigitos } from '../utils/formatters';
+import { 
+  formatarCpfCnpj, gerarLinkWhatsAppNfse, normalizarNotaFiscal, 
+  formatarCep, formatarCodigoIbge, ATIVIDADES_SERVICOS_COMUNS 
+} from '../utils/nfseService';
 import { MESES } from '../utils/constants';
 import { EnviarEmailNfseModal } from './EnviarEmailNfseModal';
 import { ConfigSmtpModal } from './ConfigSmtpModal';
 
-export function EspelhoDanfseModal({ nota, empresa, onClose, onValidarNota }) {
-  if (!nota) return null;
+export function EspelhoDanfseModal({ nota: notaRaw, empresa, onClose, onValidarNota }) {
+  if (!notaRaw) return null;
+
+  const nota = normalizarNotaFiscal(notaRaw);
 
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [showSmtpModal, setShowSmtpModal] = useState(false);
@@ -27,14 +32,30 @@ export function EspelhoDanfseModal({ nota, empresa, onClose, onValidarNota }) {
     tomador,
     servico,
     ambiente,
-    status
+    status,
+    substituiNota,
+    substituidaPor,
   } = nota;
 
   const dataObj = new Date(dataEmissao);
   const dataFormatada = dataObj.toLocaleString('pt-BR');
   const dataApenas = dataObj.toLocaleDateString('pt-BR');
-  const chaveFormatada = chaveAcesso || `354630626${emissor?.cnpj?.replace(/\D/g, '') || '10682233000175'}70000${String(numero).padStart(15, '0')}0014324`;
+  const cnpjEmissorLimpo = (somenteDigitos(emissor?.cnpj || '').length === 14) ? somenteDigitos(emissor.cnpj) : '10682233000175';
+  const chaveFormatada = chaveAcesso || `354630626${cnpjEmissorLimpo}70000${String(numero).padStart(15, '0')}0014324`;
   const numDpsCalculado = dpsNumero || (parseInt(numero) > 11 ? String(parseInt(numero) - 11) : String(numero));
+
+  const tomadorEnderecoExibicao = tomador?.endereco || [tomador?.logradouro, tomador?.numero, tomador?.bairro].filter(Boolean).join(', ') || '-';
+  const tomadorIbgeExibicao = formatarCodigoIbge(tomador?.codigoIbge || tomador?.codMunicipio || '');
+  const tomadorCepExibicao = formatarCep(tomador?.cep || '');
+  const tomadorIbgeCepCombinado = (tomadorIbgeExibicao && tomadorCepExibicao)
+    ? `${tomadorIbgeExibicao} / ${tomadorCepExibicao}`
+    : (tomadorCepExibicao || tomadorIbgeExibicao || '-');
+
+  const codAtivBase = (servico?.codigoAtividade || '01.07').slice(0, 5);
+  const codTribFormatado = servico?.codigoAtividade?.length > 5 ? servico.codigoAtividade : `${codAtivBase}.01`;
+  const descricaoItemServico = codAtivBase === '17.01'
+    ? 'Assessoria ou consultoria de qualquer natureza, não contida em outros itens desta lista; análise, exame, pesquisa, coleta, compilação e fornecimento de dados e informações.'
+    : (ATIVIDADES_SERVICOS_COMUNS.find(a => a.codigo === codAtivBase)?.label?.replace(/^\d+\.\d+\s*-\s*/, '') || 'Suporte técnico em informática, inclusive instalação, configuração e manutenção de programas de computação e bancos de dados.');
 
   const nomeClienteLimpo = (tomador?.razaoSocial || 'Cliente')
     .replace(/[\\/:*?"<>|]/g, '')
@@ -401,7 +422,9 @@ export function EspelhoDanfseModal({ nota, empresa, onClose, onValidarNota }) {
                     <div style={{ fontSize: 8, color: '#333', marginTop: 3 }}>SÉRIE DA DPS</div>
                     <div style={{ fontSize: 9.5 }}>{serieDps || '70000'}</div>
                     <div style={{ fontSize: 8, color: '#333', marginTop: 3 }}>SITUAÇÃO DA NFS-e</div>
-                    <div style={{ fontSize: 9, fontWeight: 700, color: '#006837' }}>NFS-e Gerada</div>
+                    <div style={{ fontSize: 9, fontWeight: 700, color: status === 'cancelada' || status === 'substituida' ? '#B91C1C' : '#006837' }}>
+                      {status === 'substituida' ? `Substituída (pela Nº ${substituidaPor || ''})` : (status === 'cancelada' ? 'Cancelada' : 'NFS-e Gerada')}
+                    </div>
                   </div>
 
                   <div>
@@ -410,7 +433,7 @@ export function EspelhoDanfseModal({ nota, empresa, onClose, onValidarNota }) {
                     <div style={{ fontSize: 8, color: '#333', marginTop: 3 }}>DATA E HORA DA EMISSÃO DA DPS</div>
                     <div style={{ fontSize: 9.5 }}>{dataFormatada}</div>
                     <div style={{ fontSize: 8, color: '#333', marginTop: 3 }}>FINALIDADE</div>
-                    <div style={{ fontSize: 9 }}>-</div>
+                    <div style={{ fontSize: 9 }}>{substituiNota ? `Substituta da NFS-e Nº ${substituiNota}` : '-'}</div>
                   </div>
 
                   <div style={{ textAlign: 'center', borderLeft: '1px solid #ddd', paddingLeft: 4 }}>
@@ -464,7 +487,7 @@ export function EspelhoDanfseModal({ nota, empresa, onClose, onValidarNota }) {
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 1.3fr 1.3fr 1fr', padding: '3px 6px', borderBottom: '1px solid #eee', fontSize: 9 }}>
                   <div><strong>{emissor?.razaoSocial || 'AMP DO BRASIL SOLUCOES ADMINISTRATIVAS E TECNOLOGICAS LTDA'}</strong></div>
-                  <div>{formatarCpfCnpj(emissor?.cnpj || '10682233000175')}</div>
+                  <div>{formatarCpfCnpj(cnpjEmissorLimpo)}</div>
                   <div>-</div>
                   <div>{emissor?.telefone || '(19) 99448-7795'}</div>
                 </div>
@@ -495,9 +518,9 @@ export function EspelhoDanfseModal({ nota, empresa, onClose, onValidarNota }) {
                   <div>{tomador?.telefone || '-'}</div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '2.5fr 1.3fr 1.3fr 1fr', padding: '3px 6px', fontSize: 8.5 }}>
-                  <div><strong>Endereço:</strong> {tomador?.endereco || 'DO CAFE, 438, CENTRO'}</div>
-                  <div><strong>Município / Sigla UF:</strong> {tomador?.municipio || 'Santa Cruz das Palmeiras'} / {tomador?.uf || 'SP'}</div>
-                  <div><strong>Código IBGE / CEP:</strong> {tomador?.cep || '35.46306 / 13.650-013'}</div>
+                  <div><strong>Endereço:</strong> {tomadorEnderecoExibicao}</div>
+                  <div><strong>Município / Sigla UF:</strong> {tomador?.municipio || '-'} / {tomador?.uf || '-'}</div>
+                  <div><strong>Código IBGE / CEP:</strong> {tomadorIbgeCepCombinado}</div>
                   <div><strong>E-mail:</strong> {tomador?.email || '-'}</div>
                 </div>
               </div>
@@ -518,12 +541,12 @@ export function EspelhoDanfseModal({ nota, empresa, onClose, onValidarNota }) {
                   <div>Local da Prestação / Sigla UF / País</div>
                 </div>
                 <div style={{ display: 'grid', gridTemplateColumns: '1.5fr 1fr 1.5fr', padding: '3px 6px', borderBottom: '1px solid #eee', fontSize: 8.5 }}>
-                  <div><strong>{servico?.codigoAtividade ? `${servico.codigoAtividade}.01` : '01.07.01'} / -</strong></div>
-                  <div><strong>1.1501.30.00</strong></div>
+                  <div><strong>{codTribFormatado} / -</strong></div>
+                  <div><strong>{codAtivBase === '17.01' ? '1.1401.12.00' : '1.1501.30.00'}</strong></div>
                   <div>{emissor?.municipio || 'Santa Cruz das Palmeiras'} / {emissor?.uf || 'SP'} / -</div>
                 </div>
                 <div style={{ padding: '3px 6px', fontSize: 8.5, color: '#333', borderBottom: '1px solid #eee' }}>
-                  Suporte técnico em informática, inclusive instalação, configuração e manutenção de programas de computação e bancos de dados.
+                  {descricaoItemServico}
                 </div>
                 <div style={{ background: '#f9f9f9', padding: '2px 6px', fontSize: 8, fontWeight: 700, borderBottom: '1px solid #eee' }}>
                   Descrição do Serviço
@@ -610,6 +633,8 @@ export function EspelhoDanfseModal({ nota, empresa, onClose, onValidarNota }) {
                   INFORMAÇÕES COMPLEMENTARES
                 </div>
                 <div style={{ padding: '4px 6px', fontSize: 8 }}>
+                  {substituiNota ? `Documento emitido em substituição à NFS-e Nº ${substituiNota}. ` : ''}
+                  {status === 'substituida' && substituidaPor ? `ATENÇÃO: Esta NFS-e foi substituída pela NFS-e Nº ${substituidaPor}. ` : ''}
                   Totais aproximados dos Tributos cfe. Lei nº 12.741/2012: Federais: -; Estaduais: -; Municipais: -; Documento emitido por ME ou EPP optante pelo Simples Nacional. Não gera direito a crédito fiscal de IPI.
                 </div>
               </div>

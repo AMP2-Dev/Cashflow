@@ -330,6 +330,10 @@ export function RadioProvider({ children }) {
             const unique = Number(listeners.unique) || count;
             const isOnline = data.is_online ?? true;
 
+            const liveTrackLabel = song.artist && song.title
+              ? `${song.artist} — ${song.title}`
+              : (song.title || '');
+
             setAzuraStats(prev => ({
               ...prev,
               isOnline,
@@ -345,12 +349,21 @@ export function RadioProvider({ children }) {
               lastSync: new Date().toLocaleTimeString()
             }));
 
-            // Sync with current show config listeners count
+            if (liveTrackLabel) {
+              setCurrentSlot(prev => prev && prev.streamUrl?.includes('radio.amplificadora.com.br') ? {
+                ...prev,
+                currentTrack: `🎵 Tocando Agora: ${liveTrackLabel}`,
+                artist: song.artist || prev.artist
+              } : prev);
+            }
+
+            // Sync with current show config listeners count & live track
             setConfigState(prev => ({
               ...prev,
               currentShow: {
                 ...prev.currentShow,
-                listenersCount: count
+                listenersCount: count,
+                ...(liveTrackLabel ? { currentTrack: `🎵 Tocando Agora: ${liveTrackLabel}`, artist: song.artist || prev.currentShow?.artist } : {})
               }
             }));
             return;

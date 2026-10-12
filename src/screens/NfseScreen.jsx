@@ -126,10 +126,11 @@ export function NfseScreen({
     });
   }, [notas, termoBusca, dataInicioFiltro, dataFimFiltro]);
 
-  // Total emitido no mês atual
+  // Total emitido no mês atual (exclui notas canceladas ou substituídas para não duplicar o faturamento)
   const totalMes = useMemo(() => {
     return notas
       .filter(n => {
+        if (n.status === 'cancelada' || n.status === 'substituida') return false;
         if (n.competenciaMes !== undefined) return n.competenciaMes === mesAtual && (!n.competenciaAno || n.competenciaAno === anoAtual);
         if (n.dataEmissao) {
           const d = new Date(n.dataEmissao);
@@ -190,6 +191,7 @@ export function NfseScreen({
       numeroEnd: notaAlvo.tomador?.numero || '',
       bairro: notaAlvo.tomador?.bairro || '',
       cep: notaAlvo.tomador?.cep || '',
+      codMunicipio: notaAlvo.tomador?.codMunicipio || '',
       valor: notaAlvo.servico?.valorTotal ? String(notaAlvo.servico.valorTotal) : '',
       discriminacao: notaAlvo.servico?.discriminacao || '',
       codigoAtividade: notaAlvo.servico?.codigoAtividade || '01.07',
@@ -215,6 +217,7 @@ export function NfseScreen({
       numeroEnd: notaAlvo.tomador?.numero || '',
       bairro: notaAlvo.tomador?.bairro || '',
       cep: notaAlvo.tomador?.cep || '',
+      codMunicipio: notaAlvo.tomador?.codMunicipio || '',
       valor: notaAlvo.servico?.valorTotal ? String(notaAlvo.servico.valorTotal) : '',
       discriminacao: notaAlvo.servico?.discriminacao || '',
       codigoAtividade: notaAlvo.servico?.codigoAtividade || '01.07',
@@ -679,6 +682,24 @@ export function NfseScreen({
                             )}
                           </span>
 
+                          {n.substituiNota && !isCancelada && !isSubstituida && (
+                            <span style={{
+                              fontSize: 10.5,
+                              fontWeight: 700,
+                              color: '#1E40AF',
+                              background: '#EFF6FF',
+                              border: '1px solid #BFDBFE',
+                              padding: '2px 7px',
+                              borderRadius: 5,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4
+                            }}>
+                              <RefreshCw size={10} />
+                              <span>Substituta da Nº {n.substituiNota}</span>
+                            </span>
+                          )}
+
                           {/* BADGES RECORRENTE COM O DIA ALINHADO */}
                           {isRecorrente && (
                             <span style={{ 
@@ -754,7 +775,7 @@ export function NfseScreen({
 
                       <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
                         <div style={{ textAlign: 'right' }}>
-                          <div style={{ fontSize: 17, fontWeight: 800, color: '#1C2421', fontFamily: 'var(--font-display, "Outfit", sans-serif)' }}>
+                          <div style={{ fontSize: 17, fontWeight: 800, color: '#1C2421', fontFamily: 'var(--font-display, "Outfit", sans-serif)', textDecoration: (isCancelada || isSubstituida) ? 'line-through' : 'none', opacity: (isCancelada || isSubstituida) ? 0.65 : 1 }}>
                             {formatBRL(n.servico?.valorTotal || 0)}
                           </div>
                           <div style={{ fontSize: 10.5, color: '#6B7280', marginTop: 2 }}>
@@ -859,7 +880,7 @@ export function NfseScreen({
                           </div>
                         )}
 
-                        {/* Botões de Ação: Editar (somente rascunhos), Substituir, Cancelar, PDF, E-mail, Whats e XML */}
+                        {/* Botões de Ação: Editar, Substituir, Cancelar, PDF, E-mail, Whats e XML */}
                         <div style={{ 
                           display: 'flex', 
                           justifyContent: 'flex-end', 
@@ -868,11 +889,11 @@ export function NfseScreen({
                           borderTop: '1px solid #F1F5F9',
                           flexWrap: 'wrap'
                         }}>
-                          {/* Botão Editar: Aparece EXCLUSIVAMENTE se a nota for Rascunho / não transmitida oficialmente */}
-                          {!isCancelada && !isSubstituida && !n.certificadoInfo?.transmissaoNativaGov && (
+                          {/* Botão Editar: Permite ajustar dados cadastrais, endereço, e-mail, valor ou discriminação */}
+                          {!isCancelada && !isSubstituida && (
                             <button
                               onClick={() => handleEditarNota(n)}
-                              title="Editar dados cadastrais do cliente, valor ou discriminação deste rascunho"
+                              title="Editar dados cadastrais do cliente, endereço, valor ou discriminação"
                               style={{
                                 background: '#EFF6FF',
                                 border: '1px solid #BFDBFE',

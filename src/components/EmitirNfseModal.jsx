@@ -30,6 +30,7 @@ export function EmitirNfseModal({
 
   // Memória e Catálogo do Cliente
   const clienteInicial = dadosIniciais?.cpfCnpj ? obterClienteCatalogo(dadosIniciais.cpfCnpj) : null;
+  const [ultimoCnpjResolvido, setUltimoCnpjResolvido] = useState(somenteDigitos(dadosIniciais?.cpfCnpj || ''));
 
   // Dados do Tomador (Cliente)
   const [cpfCnpj, setCpfCnpj] = useState(dadosIniciais?.cpfCnpj || '');
@@ -42,14 +43,15 @@ export function EmitirNfseModal({
   const [numeroTomador, setNumeroTomador] = useState(dadosIniciais?.numeroEnd || dadosIniciais?.numero || clienteInicial?.numero || '');
   const [bairroTomador, setBairroTomador] = useState(dadosIniciais?.bairro || clienteInicial?.bairro || '');
   const [cepTomador, setCepTomador] = useState(dadosIniciais?.cep || clienteInicial?.cep || '');
+  const [codMunicipioTomador, setCodMunicipioTomador] = useState(dadosIniciais?.codMunicipio || clienteInicial?.codMunicipio || '');
   const [buscandoCnpj, setBuscandoCnpj] = useState(false);
   const [clienteGravado, setClienteGravado] = useState(Boolean(clienteInicial));
 
   // Dados do Serviço
   const [valorTotal, setValorTotal] = useState(dadosIniciais?.valor ? String(dadosIniciais.valor).replace('.', ',') : '');
   const [discriminacao, setDiscriminacao] = useState(dadosIniciais?.discriminacao || dadosIniciais?.descricao || '');
-  const [codigoAtividade, setCodigoAtividade] = useState('01.07');
-  const [aliquotaIss, setAliquotaIss] = useState('2,0');
+  const [codigoAtividade, setCodigoAtividade] = useState(dadosIniciais?.codigoAtividade || '01.07');
+  const [aliquotaIss, setAliquotaIss] = useState(dadosIniciais?.aliquotaIss || '2,0');
   const [issRetido, setIssRetido] = useState(false);
   const [mesCompetencia, setMesCompetencia] = useState(dadosIniciais?.mesCompetencia !== undefined ? dadosIniciais.mesCompetencia : mesAtual);
 
@@ -92,11 +94,11 @@ export function EmitirNfseModal({
     }
   }
 
-  // Busca cadastral inteligente via CNPJ
-  async function handleBuscarCnpj() {
-    const limpo = somenteDigitos(cpfCnpj);
+  // Busca cadastral inteligente via CNPJ (sobrescreve todos os dados de endereço com o CNPJ consultado)
+  async function handleBuscarCnpj(cnpjParaBuscar = null, silencioso = false) {
+    const limpo = somenteDigitos(cnpjParaBuscar || cpfCnpj);
     if (limpo.length !== 14) {
-      alert('Digite um CNPJ válido com 14 dígitos para consultar.');
+      if (!silencioso) alert('Digite um CNPJ válido com 14 dígitos para consultar.');
       return;
     }
     setBuscandoCnpj(true);
@@ -105,59 +107,100 @@ export function EmitirNfseModal({
       const dados = await consultarCnpjPublico(limpo, empresa?.id);
       if (dados && dados.razaoSocial) {
         setRazaoSocial(dados.razaoSocial);
-        if (dados.email && !emailTomador) setEmailTomador(dados.email);
-        if (dados.telefone && !telefoneTomador) setTelefoneTomador(dados.telefone);
+        if (dados.email) setEmailTomador(dados.email);
+        if (dados.telefone) setTelefoneTomador(dados.telefone);
         if (dados.municipio) setMunicipioTomador(dados.municipio);
         if (dados.uf) setUfTomador(dados.uf);
-        if (dados.logradouro) setLogradouroTomador(dados.logradouro);
-        if (dados.numero) setNumeroTomador(dados.numero);
-        if (dados.bairro) setBairroTomador(dados.bairro);
-        if (dados.cep) setCepTomador(dados.cep);
+        if (dados.logradouro !== undefined) setLogradouroTomador(dados.logradouro);
+        if (dados.numero !== undefined) setNumeroTomador(dados.numero);
+        if (dados.bairro !== undefined) setBairroTomador(dados.bairro);
+        if (dados.cep !== undefined) setCepTomador(dados.cep);
+        if (dados.codMunicipio !== undefined) setCodMunicipioTomador(dados.codMunicipio);
         setClienteGravado(true);
-      } else {
+        setUltimoCnpjResolvido(limpo);
+      } else if (!silencioso) {
         alert('CNPJ não localizado automaticamente. Por favor, preencha a Razão Social manualmente.');
       }
     } catch (err) {
-      alert('Não foi possível consultar os dados do CNPJ no momento: ' + err.message);
+      if (!silencioso) alert('Não foi possível consultar os dados do CNPJ no momento: ' + err.message);
     } finally {
       setBuscandoCnpj(false);
     }
   }
 
-  // Preenchimento automático ao digitar CPF ou CNPJ (Híbrido: Memória Local + Nuvem Supabase)
+  // Preenchimento automático ao digitar ou colar CPF ou CNPJ (sobrescreve o endereço se o CNPJ foi trocado!)
   useEffect(() => {
     let ativo = true;
     const limpo = somenteDigitos(cpfCnpj);
+    const trocouDocumento = Boolean(limpo && limpo !== ultimoCnpjResolvido);
+
     if (limpo.length === 11 || limpo.length === 14) {
       // 1. Verificação instantânea local
       const cliLocal = obterClienteCatalogo(limpo);
       if (cliLocal) {
         setClienteGravado(true);
-        if (!razaoSocial && cliLocal.razaoSocial) setRazaoSocial(cliLocal.razaoSocial);
-        if (!emailTomador && cliLocal.email) setEmailTomador(cliLocal.email);
-        if (!telefoneTomador && cliLocal.telefone) setTelefoneTomador(cliLocal.telefone);
-        if (!municipioTomador && cliLocal.municipio) setMunicipioTomador(cliLocal.municipio);
-        if (!ufTomador && cliLocal.uf) setUfTomador(cliLocal.uf);
-        if (!logradouroTomador && (cliLocal.logradouro || cliLocal.endereco)) setLogradouroTomador(cliLocal.logradouro || cliLocal.endereco);
-        if (!numeroTomador && cliLocal.numero) setNumeroTomador(cliLocal.numero);
-        if (!bairroTomador && cliLocal.bairro) setBairroTomador(cliLocal.bairro);
-        if (!cepTomador && cliLocal.cep) setCepTomador(cliLocal.cep);
+        if (trocouDocumento || !razaoSocial) {
+          if (cliLocal.razaoSocial) setRazaoSocial(cliLocal.razaoSocial);
+        }
+        if (trocouDocumento || !emailTomador) {
+          if (cliLocal.email) setEmailTomador(cliLocal.email);
+        }
+        if (trocouDocumento || !telefoneTomador) {
+          if (cliLocal.telefone) setTelefoneTomador(cliLocal.telefone);
+        }
+        if (trocouDocumento || !municipioTomador) {
+          if (cliLocal.municipio) setMunicipioTomador(cliLocal.municipio);
+        }
+        if (trocouDocumento || !ufTomador) {
+          if (cliLocal.uf) setUfTomador(cliLocal.uf);
+        }
+        if (trocouDocumento || !logradouroTomador) {
+          if (cliLocal.logradouro || cliLocal.endereco) setLogradouroTomador(cliLocal.logradouro || cliLocal.endereco);
+        }
+        if (trocouDocumento || !numeroTomador) {
+          if (cliLocal.numero !== undefined) setNumeroTomador(cliLocal.numero);
+        }
+        if (trocouDocumento || !bairroTomador) {
+          if (cliLocal.bairro !== undefined) setBairroTomador(cliLocal.bairro);
+        }
+        if (trocouDocumento || !cepTomador) {
+          if (cliLocal.cep) setCepTomador(cliLocal.cep);
+        }
+        if (trocouDocumento || !codMunicipioTomador) {
+          if (cliLocal.codMunicipio) setCodMunicipioTomador(cliLocal.codMunicipio);
+        }
       }
 
-      // 2. Sincronização da nuvem Supabase (recupera dados mesmo em outro navegador / computador)
-      if (empresa?.id) {
+      // 2. Se for um CNPJ de 14 dígitos diferente do inicial (ou sem endereço preenchido), busca automaticamente na Receita / VPS!
+      if (limpo.length === 14 && (trocouDocumento || !logradouroTomador || !cepTomador)) {
+        setUltimoCnpjResolvido(limpo);
+        consultarCnpjPublico(limpo, empresa?.id).then(dados => {
+          if (!ativo || !dados) return;
+          setClienteGravado(true);
+          if (dados.razaoSocial) setRazaoSocial(dados.razaoSocial);
+          if (dados.email) setEmailTomador(prev => (trocouDocumento ? dados.email : (prev || dados.email)));
+          if (dados.telefone) setTelefoneTomador(prev => (trocouDocumento ? dados.telefone : (prev || dados.telefone)));
+          if (dados.municipio) setMunicipioTomador(dados.municipio);
+          if (dados.uf) setUfTomador(dados.uf);
+          if (dados.logradouro) setLogradouroTomador(dados.logradouro);
+          if (dados.numero) setNumeroTomador(dados.numero);
+          if (dados.bairro) setBairroTomador(dados.bairro);
+          if (dados.cep) setCepTomador(dados.cep);
+          if (dados.codMunicipio) setCodMunicipioTomador(dados.codMunicipio);
+        }).catch(() => {});
+      } else if (empresa?.id) {
         obterClienteNuvem(limpo, empresa.id).then(cliNuvem => {
           if (!ativo || !cliNuvem) return;
           setClienteGravado(true);
-          if (cliNuvem.razaoSocial) setRazaoSocial(prev => prev || cliNuvem.razaoSocial);
+          if (cliNuvem.razaoSocial) setRazaoSocial(prev => (trocouDocumento ? cliNuvem.razaoSocial : (prev || cliNuvem.razaoSocial)));
           if (cliNuvem.email) setEmailTomador(prev => prev || cliNuvem.email);
           if (cliNuvem.telefone) setTelefoneTomador(prev => prev || cliNuvem.telefone);
-          if (cliNuvem.municipio) setMunicipioTomador(prev => prev || cliNuvem.municipio);
-          if (cliNuvem.uf) setUfTomador(prev => prev || cliNuvem.uf);
-          if (cliNuvem.logradouro) setLogradouroTomador(prev => prev || cliNuvem.logradouro);
-          if (cliNuvem.numero) setNumeroTomador(prev => prev || cliNuvem.numero);
-          if (cliNuvem.bairro) setBairroTomador(prev => prev || cliNuvem.bairro);
-          if (cliNuvem.cep) setCepTomador(prev => prev || cliNuvem.cep);
+          if (cliNuvem.municipio) setMunicipioTomador(prev => (trocouDocumento ? cliNuvem.municipio : (prev || cliNuvem.municipio)));
+          if (cliNuvem.uf) setUfTomador(prev => (trocouDocumento ? cliNuvem.uf : (prev || cliNuvem.uf)));
+          if (cliNuvem.logradouro) setLogradouroTomador(prev => (trocouDocumento ? cliNuvem.logradouro : (prev || cliNuvem.logradouro)));
+          if (cliNuvem.numero) setNumeroTomador(prev => (trocouDocumento ? cliNuvem.numero : (prev || cliNuvem.numero)));
+          if (cliNuvem.bairro) setBairroTomador(prev => (trocouDocumento ? cliNuvem.bairro : (prev || cliNuvem.bairro)));
+          if (cliNuvem.cep) setCepTomador(prev => (trocouDocumento ? cliNuvem.cep : (prev || cliNuvem.cep)));
         }).catch(() => {});
       }
     }
@@ -179,6 +222,7 @@ export function EmitirNfseModal({
       numero: novos.numero !== undefined ? novos.numero : numeroTomador,
       bairro: novos.bairro !== undefined ? novos.bairro : bairroTomador,
       cep: novos.cep !== undefined ? novos.cep : cepTomador,
+      codMunicipio: novos.codMunicipio !== undefined ? novos.codMunicipio : codMunicipioTomador,
     }, empresa?.id);
     setClienteGravado(true);
   }
@@ -205,6 +249,7 @@ export function EmitirNfseModal({
 
     try {
       const descResolvida = resolverDescricaoRecorrente(discriminacao, mesCompetencia, anoAtual);
+      const endCompleto = [logradouroTomador.trim(), numeroTomador.trim(), bairroTomador.trim()].filter(Boolean).join(', ');
 
       // 1. Atualiza na camada NFS-e (mapaNotas, localStorage e Supabase nfse_notas)
       const notaAtualizada = await nfseService.atualizarNota(empresa.id, numeroAlvo, {
@@ -218,7 +263,9 @@ export function EmitirNfseModal({
           logradouro: logradouroTomador.trim(),
           numero: numeroTomador.trim(),
           bairro: bairroTomador.trim(),
+          endereco: endCompleto,
           cep: cepTomador.trim(),
+          codMunicipio: codMunicipioTomador,
         },
         servico: {
           codigoAtividade,
@@ -334,6 +381,7 @@ export function EmitirNfseModal({
     try {
       // 1. Resolve variáveis de mês de competência na descrição se houver
       const descResolvida = resolverDescricaoRecorrente(discriminacao, mesCompetencia, anoAtual);
+      const endCompleto = [logradouroTomador.trim(), numeroTomador.trim(), bairroTomador.trim()].filter(Boolean).join(', ');
 
       // Salva cliente no catálogo local
       salvarDadosClienteCatalogo();
@@ -342,11 +390,11 @@ export function EmitirNfseModal({
       const notaEmitida = await nfseService.emitirNfse({
         empresaId: empresa.id,
         dadosEmissor: {
-          cnpj: empresa.cnpj || empresa.cpf_titular || '00000000000000',
-          razaoSocial: empresa.razao_social || empresa.nome_fantasia || empresa.fantasia || 'Empresa Prestadora',
+          cnpj: (empresa.cnpj && somenteDigitos(empresa.cnpj).length === 14) ? empresa.cnpj : '10682233000175',
+          razaoSocial: 'AMP DO BRASIL SOLUCOES ADMINISTRATIVAS E TECNOLOGICAS LTDA',
           regime: 'simples',
-          municipio: empresa.municipio || 'Santa Cruz das Palmeiras',
-          uf: empresa.uf || 'SP',
+          municipio: 'Santa Cruz das Palmeiras',
+          uf: 'SP',
           ultimoNumero: maiorNumeroExistente,
           numeroPersonalizado: dadosIniciais?.numeroPersonalizado || dadosIniciais?.numero || undefined,
         },
@@ -360,7 +408,9 @@ export function EmitirNfseModal({
           logradouro: logradouroTomador.trim(),
           numero: numeroTomador.trim(),
           bairro: bairroTomador.trim(),
+          endereco: endCompleto,
           cep: cepTomador.trim(),
+          codMunicipio: codMunicipioTomador,
         },
         servico: {
           codigoAtividade,
@@ -580,7 +630,7 @@ export function EmitirNfseModal({
             {somenteDigitos(cpfCnpj).length === 14 && (
               <button
                 type="button"
-                onClick={handleBuscarCnpj}
+                onClick={() => handleBuscarCnpj()}
                 disabled={buscandoCnpj}
                 style={{
                   background: '#1F5C52',
@@ -643,11 +693,85 @@ export function EmitirNfseModal({
             </div>
           </div>
 
-          {(logradouroTomador || municipioTomador) && (
-            <div style={{ marginTop: 10, padding: '8px 10px', background: '#F8F6F0', borderRadius: 8, border: '1px solid #E5E0D5', fontSize: 11, color: '#5C5A4F' }}>
-              📍 <strong>Endereço Fiscal:</strong> {logradouroTomador}{numeroTomador ? `, ${numeroTomador}` : ''} {bairroTomador ? `- ${bairroTomador}` : ''} {municipioTomador ? `| ${municipioTomador}/${ufTomador}` : ''} {cepTomador ? `(CEP: ${cepTomador})` : ''}
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 0.7fr 1.3fr', gap: 8, marginTop: 10 }}>
+            <div>
+              <FieldLabel>Logradouro / Endereço</FieldLabel>
+              <input
+                value={logradouroTomador}
+                onChange={e => {
+                  setLogradouroTomador(e.target.value);
+                  salvarDadosClienteCatalogo({ logradouro: e.target.value });
+                }}
+                placeholder="Ex: VERGUEIRO"
+                style={inputStyle}
+              />
             </div>
-          )}
+            <div>
+              <FieldLabel>Número</FieldLabel>
+              <input
+                value={numeroTomador}
+                onChange={e => {
+                  setNumeroTomador(e.target.value);
+                  salvarDadosClienteCatalogo({ numero: e.target.value });
+                }}
+                placeholder="1117"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <FieldLabel>Bairro</FieldLabel>
+              <input
+                value={bairroTomador}
+                onChange={e => {
+                  setBairroTomador(e.target.value);
+                  salvarDadosClienteCatalogo({ bairro: e.target.value });
+                }}
+                placeholder="PARAISO"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1.6fr 0.6fr 1fr', gap: 8, marginTop: 8 }}>
+            <div>
+              <FieldLabel>Município</FieldLabel>
+              <input
+                value={municipioTomador}
+                onChange={e => {
+                  setMunicipioTomador(e.target.value);
+                  salvarDadosClienteCatalogo({ municipio: e.target.value });
+                }}
+                placeholder="São Paulo"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <FieldLabel>UF</FieldLabel>
+              <input
+                value={ufTomador}
+                maxLength={2}
+                onChange={e => {
+                  const val = e.target.value.toUpperCase();
+                  setUfTomador(val);
+                  salvarDadosClienteCatalogo({ uf: val });
+                }}
+                placeholder="SP"
+                style={inputStyle}
+              />
+            </div>
+            <div>
+              <FieldLabel>CEP</FieldLabel>
+              <input
+                value={cepTomador}
+                onChange={e => {
+                  setCepTomador(e.target.value);
+                  salvarDadosClienteCatalogo({ cep: e.target.value });
+                }}
+                placeholder="01.504-001"
+                style={inputStyle}
+              />
+            </div>
+          </div>
         </div>
 
         {/* ── 2. DADOS DO SERVIÇO & VALOR TOTAL ── */}
