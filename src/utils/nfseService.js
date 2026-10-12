@@ -96,7 +96,7 @@ export function formatarCodigoIbge(ibge) {
   return ibge || '';
 }
 
-// ─── Catálogo Oficial de Tomadores Conhecidos (SEBRAE SP, SEBRAE RJ, etc.) ───
+// ─── Catálogo Oficial de Tomadores Conhecidos (Endereços e Códigos IBGE/CEP homologados no DNE/SEFIN) ───
 export const CATALOGO_OFICIAL_TOMADORES = {
   '43728245000142': {
     cpfCnpj: '43728245000142',
@@ -126,23 +126,165 @@ export const CATALOGO_OFICIAL_TOMADORES = {
     codMunicipio: '3304557',
     codigoIbge: '33.04557',
     email: '',
-    telefone: '',
+    telefone: '(21) 2212-7700',
   },
   '37967313000123': {
     cpfCnpj: '37967313000123',
     razaoSocial: 'J P VIEIRA DA DALT LTDA',
-    logradouro: 'DO CAFE',
+    logradouro: 'RUA DR MARIO HUGO LADEIRA',
+    numero: '260',
+    bairro: 'VILA FRANCA',
+    endereco: 'RUA DR MARIO HUGO LADEIRA, 260, VILA FRANCA',
+    municipio: 'Rio Novo',
+    uf: 'MG',
+    cep: '36.150-000',
+    codMunicipio: '3155405',
+    codigoIbge: '31.55405',
+    email: 'nfefuturasup@gmail.com',
+    telefone: '(32) 99730-215',
+  },
+  '56785132000120': {
+    cpfCnpj: '56785132000120',
+    razaoSocial: 'ESPORTE CLUBE PALMEIRENSE',
+    logradouro: 'RUA CORONEL PENTEADO',
+    numero: '92',
+    bairro: 'CENTRO',
+    endereco: 'RUA CORONEL PENTEADO, 92, CENTRO',
+    municipio: 'Santa Cruz das Palmeiras',
+    uf: 'SP',
+    cep: '13.650-009',
+    codMunicipio: '3546306',
+    codigoIbge: '35.46306',
+    email: 'comercial@esporteclubepalmeirense.com',
+    telefone: '',
+  },
+  '27083192000101': {
+    cpfCnpj: '27083192000101',
+    razaoSocial: 'CONSUPER CONSULTORIA DE SUPERMERCADOS LTDA',
+    logradouro: 'RUA MILTON RAMOS DA SILVA',
+    numero: '363',
+    bairro: 'JARDIM CENTENARIO',
+    endereco: 'RUA MILTON RAMOS DA SILVA, 363, JARDIM CENTENARIO',
+    municipio: 'Santa Cruz das Palmeiras',
+    uf: 'SP',
+    cep: '13.652-096',
+    codMunicipio: '3546306',
+    codigoIbge: '35.46306',
+    email: 'consuper@consuper.com.br',
+    telefone: '(19) 99859-2385',
+  },
+  '04910593000184': {
+    cpfCnpj: '04910593000184',
+    razaoSocial: 'ALIANCA ASSESSORIA EMPRESARIAL S/S LTDA',
+    logradouro: 'AVENIDA DO CAFE',
     numero: '438',
     bairro: 'CENTRO',
-    endereco: 'DO CAFE, 438, CENTRO',
+    endereco: 'AVENIDA DO CAFE, 438, CENTRO',
     municipio: 'Santa Cruz das Palmeiras',
     uf: 'SP',
     cep: '13.650-013',
     codMunicipio: '3546306',
     codigoIbge: '35.46306',
-    email: 'nfefuturasup@gmail.com',
-    telefone: '(32) 99730-215',
-  }
+    email: '',
+    telefone: '(19) 3672-5404',
+  },
+  '11462339000126': {
+    cpfCnpj: '11462339000126',
+    razaoSocial: 'JMARTINS DO BRASIL LTDA',
+    logradouro: 'RUA HIDELBRANDO DEPERON',
+    numero: '81',
+    bairro: 'CONJUNTO HABITACIONAL DUILIO POSSE',
+    endereco: 'RUA HIDELBRANDO DEPERON, 81, CONJUNTO HABITACIONAL DUILIO POSSE',
+    municipio: 'Santa Cruz das Palmeiras',
+    uf: 'SP',
+    cep: '13.655-372',
+    codMunicipio: '3546306',
+    codigoIbge: '35.46306',
+    email: 'petronio.nobre@jmartins.ind.br',
+    telefone: '(19) 98303-0155',
+  },
+  '15469021000128': {
+    cpfCnpj: '15469021000128',
+    razaoSocial: 'DIGITAL SYSTEM CERTIFICADOS DIGITAIS LTDA',
+    logradouro: 'AVENIDA DO CAFE',
+    numero: '438',
+    bairro: 'CENTRO',
+    endereco: 'AVENIDA DO CAFE, 438, CENTRO',
+    municipio: 'Santa Cruz das Palmeiras',
+    uf: 'SP',
+    cep: '13.650-013',
+    codMunicipio: '3546306',
+    codigoIbge: '35.46306',
+    email: 'paulo@ocertificadodigital.com.br',
+    telefone: '(16) 99114-3138',
+  },
+};
+
+// ─── Chaves de Acesso Oficiais Autorizadas na SEFIN Nacional (Receita Federal) ───
+export const NOTAS_OFICIAIS_SEFIN_NACIONAL = {
+  '76': {
+    chaveAcesso: '35463062210682233000175000000000007626098902961575',
+    dpsNumero: '76',
+    serieDps: '00001',
+    tomadorCnpj: '37967313000123',
+    valorTotal: 177.48,
+  },
+  '77': {
+    chaveAcesso: '35463062210682233000175000000000007726096921783242',
+    dpsNumero: '77',
+    serieDps: '00001',
+    tomadorCnpj: '15469021000128',
+    valorTotal: 890.00,
+  },
+  '78': {
+    chaveAcesso: '35463062210682233000175000000000007826103334196102',
+    dpsNumero: '78',
+    serieDps: '00001',
+    tomadorCnpj: '56785132000120',
+    valorTotal: 217.90,
+  },
+  '79': {
+    chaveAcesso: '35463062210682233000175000000000007926106818741166',
+    dpsNumero: '79',
+    serieDps: '00001',
+    tomadorCnpj: '27083192000101',
+    valorTotal: 184.00,
+  },
+  '80': {
+    chaveAcesso: '35463062210682233000175000000000008026103373582941',
+    dpsNumero: '80',
+    serieDps: '00001',
+    tomadorCnpj: '04910593000184',
+    valorTotal: 1156.17,
+  },
+  '81': {
+    chaveAcesso: '35463062210682233000175000000000008126100634375480',
+    dpsNumero: '81',
+    serieDps: '00001',
+    tomadorCnpj: '11462339000126',
+    valorTotal: 172.30,
+  },
+  '82': {
+    chaveAcesso: '35463062210682233000175000000000008226100380885205',
+    dpsNumero: '82',
+    serieDps: '00001',
+    tomadorCnpj: '29737103000110',
+    valorTotal: 4224.00,
+  },
+  '83': {
+    chaveAcesso: '35463062210682233000175000000000008326103510168441',
+    dpsNumero: '83',
+    serieDps: '00001',
+    tomadorCnpj: '37967313000123',
+    valorTotal: 177.48,
+  },
+  '84': {
+    chaveAcesso: '35463062210682233000175000000000008426102113870900',
+    dpsNumero: '84',
+    serieDps: '00001',
+    tomadorCnpj: '43728245000142',
+    valorTotal: 170.00,
+  },
 };
 
 // ─── Memória & Catálogo Automático de Clientes (Nuvem Supabase + LocalStorage Híbrido) ───
@@ -517,19 +659,21 @@ export function normalizarNotaFiscal(nota) {
     email: emissorAtual.email || 'atendimento@amp.adm.br',
   };
 
-  // 2. Corrige Chave de Acesso caso tenha sido gerada com CPF (00012343432821)
-  let chaveCorrigida = nota.chaveAcesso || gerarChaveAcessoNfse('10682233000175', numStr || '1');
+  // 2. Corrige Chave de Acesso com o registro oficial da SEFIN Nacional (Receita Federal)
+  const oficialSefin = NOTAS_OFICIAIS_SEFIN_NACIONAL[numStr];
+  let chaveCorrigida = oficialSefin?.chaveAcesso || nota.chaveAcesso || gerarChaveAcessoNfse('10682233000175', numStr || '1');
   if (chaveCorrigida.includes('00012343432821')) {
     chaveCorrigida = chaveCorrigida.replace('00012343432821', '10682233000175');
   }
 
   // 3. Normaliza dados do Tomador
   let tomadorAtual = { ...(nota.tomador || {}) };
-  let docTomador = somenteDigitos(tomadorAtual.cpfCnpj || '');
+  let docTomador = oficialSefin?.tomadorCnpj || somenteDigitos(tomadorAtual.cpfCnpj || '');
   const razaoUpper = (tomadorAtual.razaoSocial || '').toUpperCase();
 
-  // Regras específicas de reconciliação para Notas 82, 84 e 85 e CNPJs do SEBRAE SP / SEBRAE RJ
+  // Regras específicas de reconciliação para Notas oficiais e CNPJs do catálogo
   if (
+    numStr === '84' ||
     numStr === '85' ||
     docTomador === '43728245000142' ||
     (razaoUpper.includes('MICRO E PEQUENAS EMPRESAS DO ESTADO DE SAO PAULO')) ||
@@ -544,7 +688,6 @@ export function normalizarNotaFiscal(nota) {
     docTomador = '43728245000142';
   } else if (
     numStr === '82' ||
-    numStr === '84' ||
     docTomador === '29737103000110' ||
     (razaoUpper.includes('MICRO E PEQ EMP NO ESTADO DO RJ')) ||
     (razaoUpper.includes('SEBRAE') && razaoUpper.includes('RJ'))
@@ -557,12 +700,14 @@ export function normalizarNotaFiscal(nota) {
     };
     docTomador = '29737103000110';
   } else if (CATALOGO_OFICIAL_TOMADORES[docTomador]) {
+    const cat = CATALOGO_OFICIAL_TOMADORES[docTomador];
     tomadorAtual = {
       ...tomadorAtual,
-      ...CATALOGO_OFICIAL_TOMADORES[docTomador],
+      ...cat,
+      email: (tomadorAtual.email && !tomadorAtual.email.includes('nfefuturasup')) ? tomadorAtual.email : cat.email,
     };
   } else {
-    // Remove qualquer vestígio do endereço antigo de fallback caso não seja a nota 76
+    // Remove qualquer vestígio do endereço antigo de fallback caso não seja a nota 76/83
     if (tomadorAtual.endereco === 'DO CAFE, 438, CENTRO' && docTomador !== '37967313000123') {
       tomadorAtual.endereco = '';
     }
@@ -578,31 +723,47 @@ export function normalizarNotaFiscal(nota) {
     }
   }
 
-  let statusFinal = nota.status || 'autorizada';
-  let substituidaPorFinal = nota.substituidaPor;
-  let substituiNotaFinal = nota.substituiNota;
+  let statusFinal = oficialSefin ? 'autorizada' : (nota.status || 'autorizada');
+  let substituidaPorFinal = oficialSefin ? undefined : nota.substituidaPor;
+  let substituiNotaFinal = oficialSefin ? undefined : nota.substituiNota;
   let servicoFinal = { ...(nota.servico || {}) };
 
-  if (numStr === '84') {
-    statusFinal = 'substituida';
-    substituidaPorFinal = '85';
-  }
-  if (numStr === '85') {
-    substituiNotaFinal = '84';
-    if (!servicoFinal.discriminacao || servicoFinal.discriminacao.startsWith('NFS-e Nº 85')) {
-      servicoFinal.discriminacao = 'Prestação de serviços de consultoria - SGF nº. SP0920261108 | RAE: 39666760 | OS: 091108/2026 | Cliente Final: HERMINIA ROSA SOUZA DE JESUS';
-    }
+  if (oficialSefin) {
+    const vTotal = oficialSefin.valorTotal;
+    const alIss = parseFloat(servicoFinal.aliquotaIss) || 2.0;
+    servicoFinal = {
+      ...servicoFinal,
+      codigoAtividade: servicoFinal.codigoAtividade || '01.07.01',
+      discriminacao: oficialSefin.discriminacao,
+      valorTotal: vTotal,
+      aliquotaIss: alIss,
+      valorIss: Math.round((vTotal * (alIss / 100)) * 100) / 100,
+      valorLiquido: vTotal,
+      aliquotaIbs: 0.10,
+      valorIbs: Math.round((vTotal * 0.001) * 100) / 100,
+      aliquotaCbs: 0.90,
+      valorCbs: Math.round((vTotal * 0.009) * 100) / 100,
+    };
   }
 
   return {
     ...nota,
     chaveAcesso: chaveCorrigida,
+    protocolo: oficialSefin ? `NFS${oficialSefin.chaveAcesso}` : (nota.protocolo || `NFS${chaveCorrigida}`),
+    dpsNumero: oficialSefin?.dpsNumero || nota.dpsNumero || `${Math.max(1, parseInt(numStr || '1') - 11)}`,
+    serieDps: oficialSefin?.serieDps || nota.serieDps || '00001',
     status: statusFinal,
-    ...(substituidaPorFinal ? { substituidaPor: substituidaPorFinal } : {}),
-    ...(substituiNotaFinal ? { substituiNota: substituiNotaFinal } : {}),
+    substituidaPor: substituidaPorFinal,
+    substituiNota: substituiNotaFinal,
     emissor: emissorNormalizado,
     tomador: tomadorAtual,
     servico: servicoFinal,
+    certificadoInfo: {
+      arquivo: 'AMP DO BRASIL SOLUCOES ADMINISTRATIVAS E TECNOLOGICAS LTDA.pfx',
+      assinadoEm: nota.certificadoInfo?.assinadoEm || nota.dataEmissao || new Date().toISOString(),
+      transmissaoNativaGov: true,
+      ...(nota.certificadoInfo || {}),
+    },
   };
 }
 
@@ -1145,22 +1306,47 @@ export const nfseService = {
       });
     }
 
-    // 4. Garante que a Nota 84 (substituída pela 85) permaneça registrada como substituída mesmo se o lançamento do caixa tiver sido limpo
-    if (mapaNotas.has('85') && !mapaNotas.has('84')) {
-      const nota85 = mapaNotas.get('85');
-      const nota84Substituida = normalizarNotaFiscal({
-        ...nota85,
-        id: `nfse_substituida_84`,
-        numero: '84',
-        dpsNumero: '73',
-        chaveAcesso: gerarChaveAcessoNfse('10682233000175', '84'),
-        status: 'substituida',
-        substituidaPor: '85',
-        substituiNota: undefined,
-        tomador: CATALOGO_OFICIAL_TOMADORES['29737103000110'],
-      });
-      mapaNotas.set('84', nota84Substituida);
+    // 4. Sincroniza a numeração oficial da SEFIN Nacional (Notas 76 a 84 autorizadas na Receita)
+    // Caso exista rascunho local '85' da substituição anterior do SEBRAE SP, converte/remove pois na Receita Federal ela entrou diretamente como NFS-e Nº 84
+    if (mapaNotas.has('85')) {
+      const nota85Local = mapaNotas.get('85');
+      if (!mapaNotas.has('84')) {
+        mapaNotas.set('84', normalizarNotaFiscal({
+          ...nota85Local,
+          id: 'nfse_oficial_84',
+          numero: '84',
+        }));
+      }
+      if (somenteDigitos(nota85Local?.tomador?.cpfCnpj || '') === '43728245000142') {
+        mapaNotas.delete('85');
+      }
     }
+
+    // Garante que todas as notas oficiais 76 a 84 existam no mapa mesmo em navegador limpo
+    Object.entries(NOTAS_OFICIAIS_SEFIN_NACIONAL).forEach(([numOficial, dadosOficiais]) => {
+      if (!mapaNotas.has(numOficial)) {
+        const catTomador = CATALOGO_OFICIAL_TOMADORES[dadosOficiais.tomadorCnpj] || {};
+        mapaNotas.set(numOficial, normalizarNotaFiscal({
+          id: `nfse_sefin_${numOficial}`,
+          numero: numOficial,
+          chaveAcesso: dadosOficiais.chaveAcesso,
+          dpsNumero: dadosOficiais.dpsNumero,
+          serieDps: dadosOficiais.serieDps,
+          status: 'autorizada',
+          ambiente: 'producao',
+          dataEmissao: numOficial === '76' ? '2026-09-30T19:47:00-03:00' : (numOficial === '77' ? '2026-09-30T21:14:00-03:00' : '2026-10-12T16:12:00-03:00'),
+          competenciaMes: (numOficial === '76' || numOficial === '77') ? 8 : 9,
+          competenciaAno: 2026,
+          tomador: catTomador,
+          servico: {
+            codigoAtividade: '01.07.01',
+            discriminacao: dadosOficiais.discriminacao,
+            valorTotal: dadosOficiais.valorTotal,
+            aliquotaIss: 2.0,
+          },
+        }));
+      }
+    });
 
     // Normaliza todas as notas e sincroniza de volta no LocalStorage e Supabase
     const listaFinal = Array.from(mapaNotas.values())
@@ -1173,10 +1359,12 @@ export const nfseService = {
 
     try {
       localStorage.setItem(`${STORAGE_NOTAS_KEY}_${empresaId}`, JSON.stringify(listaFinal));
+      const maiorNum = listaFinal.reduce((acc, n) => Math.max(acc, parseInt(n.numero) || 0), 84);
+      localStorage.setItem(`amp_nfse_ultimo_numero_${empresaId}`, String(maiorNum));
     } catch (e) {}
 
-    // Persiste a normalização das notas 82, 84 e 85 no Supabase em background
-    ['82', '84', '85'].forEach(numAlvo => {
+    // Persiste a normalização das notas 76 a 84 no Supabase em background
+    Object.keys(NOTAS_OFICIAIS_SEFIN_NACIONAL).forEach(numAlvo => {
       const nAlvo = listaFinal.find(x => String(x.numero) === numAlvo);
       if (nAlvo) {
         this.persistirNotaNoSupabase(empresaId, nAlvo).catch(() => {});
@@ -1227,16 +1415,16 @@ export const nfseService = {
     certificadoSenha,
     modoAmbiente = 'producao',
   }) {
-    // Gerador de protocolo e numeração sequencial respeitando o histórico
+    // Gerador de protocolo e numeração sequencial respeitando o histórico oficial da Receita Federal
     const notasExistentes = this.getNotasEmitidas(empresaId);
     const baseInicial = parseInt(
       dadosEmissor?.ultimoNumero ?? 
       dadosEmissor?.nfse_ultimo_numero ?? 
       localStorage.getItem(`amp_nfse_ultimo_numero_${empresaId}`) ?? 
-      74
+      84
     );
 
-    let maiorNumeroExistente = isNaN(baseInicial) ? 0 : baseInicial;
+    let maiorNumeroExistente = isNaN(baseInicial) ? 84 : Math.max(baseInicial, 84);
     notasExistentes.forEach(n => {
       const num = parseInt(n.numero);
       if (!isNaN(num) && num >= maiorNumeroExistente) {
@@ -1246,13 +1434,9 @@ export const nfseService = {
 
     const sequencialAtual = (dadosEmissor?.numeroPersonalizado && parseInt(dadosEmissor.numeroPersonalizado) > 0)
       ? parseInt(dadosEmissor.numeroPersonalizado)
-      : (maiorNumeroExistente > 0 ? maiorNumeroExistente + 1 : 1);
+      : (maiorNumeroExistente > 0 ? maiorNumeroExistente + 1 : 85);
 
     const numeroNfse = `${sequencialAtual}`;
-
-    try {
-      localStorage.setItem(`amp_nfse_ultimo_numero_${empresaId}`, numeroNfse);
-    } catch (e) {}
 
     const codigoVerificacao = Math.random().toString(36).substring(2, 6).toUpperCase() + '-' + Math.random().toString(36).substring(2, 6).toUpperCase();
     const dataHoraEmissao = new Date().toISOString();
@@ -1274,73 +1458,69 @@ export const nfseService = {
     const ativEncontrada = ATIVIDADES_SERVICOS_COMUNS.find(a => a.codigo === servico.codigoAtividade);
     const ctnResolvido = ativEncontrada?.ctn || ((servico.codigoAtividade === '01.07' || !servico.codigoAtividade) ? '010701' : (servico.codigoAtividade.replace(/\D/g, '').length === 4 ? `${servico.codigoAtividade.replace(/\D/g, '')}01` : servico.codigoAtividade.replace(/\D/g, '').padEnd(6, '0')));
 
-    // 1. Transmissão Direta para a SEFIN Nacional (Receita Federal / ADN)
-    let notaOficialGov = null;
-    try {
-      const respGov = await fetch(`${API_NFSE_URL}/emitir`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          empresaId,
-          ambiente: modoAmbiente,
-          nDPS: String(numeroNfse),
-          prestador: {
-            cnpj: (dadosEmissor?.cnpj && somenteDigitos(dadosEmissor.cnpj).length === 14) ? somenteDigitos(dadosEmissor.cnpj) : '10682233000175',
-            razaoSocial: dadosEmissor?.razaoSocial || 'AMP DO BRASIL SOLUCOES ADMINISTRATIVAS E TECNOLOGICAS LTDA',
-            im: dadosEmissor?.im || dadosEmissor?.inscricaoMunicipal || '',
-            codMunicipio: '3546306',
-            regime: 3,
-          },
-          tomador: {
-            cpfCnpj: somenteDigitos(dadosTomador.cpfCnpj),
-            razaoSocial: dadosTomador.razaoSocial,
-            telefone: dadosTomador.telefone || '',
-            email: dadosTomador.email || '',
-            logradouro: dadosTomador.logradouro || '',
-            numero: dadosTomador.numero || '',
-            bairro: dadosTomador.bairro || '',
-            cep: dadosTomador.cep || '',
-            municipio: dadosTomador.municipio || '',
-            uf: dadosTomador.uf || '',
-            codMunicipio: dadosTomador.codMunicipio || '',
-          },
-          servico: {
-            codigoAtividade: ctnResolvido,
-            discriminacao: servico.discriminacao,
-            valor: valorTotal,
-          },
-          valores: {
-            valorTotal,
-            aliquotaIss,
-            issRetido: servico.issRetido,
-            pTotTribSN: 6.00,
-          },
-        }),
-      });
+    // 1. Transmissão Direta e Obrigatória para a SEFIN Nacional (Receita Federal / ADN)
+    const respGov = await fetch(`${API_NFSE_URL}/emitir`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        empresaId,
+        ambiente: modoAmbiente,
+        nDPS: String(numeroNfse),
+        prestador: {
+          cnpj: (dadosEmissor?.cnpj && somenteDigitos(dadosEmissor.cnpj).length === 14) ? somenteDigitos(dadosEmissor.cnpj) : '10682233000175',
+          razaoSocial: dadosEmissor?.razaoSocial || 'AMP DO BRASIL SOLUCOES ADMINISTRATIVAS E TECNOLOGICAS LTDA',
+          im: dadosEmissor?.im || dadosEmissor?.inscricaoMunicipal || '',
+          codMunicipio: '3546306',
+          regime: 3,
+        },
+        tomador: {
+          cpfCnpj: somenteDigitos(dadosTomador.cpfCnpj),
+          razaoSocial: dadosTomador.razaoSocial,
+          telefone: dadosTomador.telefone || '',
+          email: dadosTomador.email || '',
+          logradouro: dadosTomador.logradouro || '',
+          numero: dadosTomador.numero || '',
+          bairro: dadosTomador.bairro || '',
+          cep: dadosTomador.cep || '',
+          municipio: dadosTomador.municipio || '',
+          uf: dadosTomador.uf || '',
+          codMunicipio: dadosTomador.codMunicipio || '',
+        },
+        servico: {
+          codigoAtividade: ctnResolvido,
+          discriminacao: servico.discriminacao,
+          valor: valorTotal,
+        },
+        valores: {
+          valorTotal,
+          aliquotaIss,
+          issRetido: servico.issRetido,
+          pTotTribSN: 6.00,
+        },
+      }),
+    });
 
-      const jsonGov = await respGov.json();
-      if (respGov.ok && jsonGov.ok && jsonGov.autorizada) {
-        notaOficialGov = jsonGov;
-      } else if (jsonGov.rejeicao) {
-        const msgErro = Array.isArray(jsonGov.detalhes)
-          ? jsonGov.detalhes.map(d => d.descricao || d.msg || JSON.stringify(d)).join('; ')
-          : (jsonGov.error || 'Rejeição na SEFIN Nacional');
-        throw new Error(msgErro);
-      }
-    } catch (e) {
-      if (e.message && !e.message.includes('Failed to fetch') && !e.message.includes('NetworkError')) {
-        throw e;
-      }
-      console.warn('Backend SEFIN indisponível temporariamente, operando em contingência assinada:', e.message);
+    const jsonGov = await respGov.json();
+    if (!respGov.ok || !jsonGov.ok || !jsonGov.autorizada) {
+      const msgErro = Array.isArray(jsonGov.detalhes)
+        ? jsonGov.detalhes.map(d => `${d.Codigo || ''} ${d.Descricao || d.descricao || d.msg || JSON.stringify(d)}`.trim()).join(' | ')
+        : (jsonGov.error || 'Rejeição na SEFIN Nacional');
+      throw new Error(`Falha na validação junto à Receita Federal (SEFIN Nacional): ${msgErro}`);
     }
 
+    const notaOficialGov = jsonGov;
     const cnpjEmissorOficial = (dadosEmissor?.cnpj && somenteDigitos(dadosEmissor.cnpj).length === 14) ? somenteDigitos(dadosEmissor.cnpj) : '10682233000175';
-    const chaveFinal = notaOficialGov?.chaveAcesso || gerarChaveAcessoNfse(cnpjEmissorOficial, numeroNfse);
-    const numeroFinal = notaOficialGov?.numero || numeroNfse;
-    const protocoloFinal = notaOficialGov?.protocolo || ('ADN' + Date.now());
-    const xmlFinal = notaOficialGov?.xml || `<NFSe xmlns="http://www.sped.fazenda.gov.br/nfse" versao="1.01"><infNFSe Id="NFS${chaveFinal}"><xLocEmi>Santa Cruz das Palmeiras</xLocEmi><nNFSe>${numeroFinal}</nNFSe><dhProc>${dataHoraEmissao}</dhProc><nProt>${protocoloFinal}</nProt><emit><CNPJ>${cnpjEmissorOficial}</CNPJ></emit><toma><CNPJ>${somenteDigitos(dadosTomador.cpfCnpj)}</CNPJ><xNome>${dadosTomador.razaoSocial}</xNome></toma><serv><vServPrest><vServ>${valorTotal.toFixed(2)}</vServ></vServPrest><cTribNac>${ctnResolvido}</cTribNac><xDescServ>${servico.discriminacao}</xDescServ></serv><Signature xmlns="http://www.w3.org/2000/09/xmldsig#"><DigestValue>AUTENTICADO_ICP_BRASIL</DigestValue></Signature></infNFSe></NFSe>`;
+    const chaveFinal = notaOficialGov.chaveAcesso;
+    const numeroFinal = String(notaOficialGov.numero || numeroNfse);
+    const protocoloFinal = notaOficialGov.protocolo || `NFS${chaveFinal}`;
+    const xmlFinal = notaOficialGov.xml;
 
-    const numeroDps = Math.max(1, parseInt(numeroFinal) - 11);
+    try {
+      localStorage.setItem(`amp_nfse_ultimo_numero_${empresaId}`, numeroFinal);
+    } catch (e) {}
+
+    const numeroDps = notaOficialGov.dpsNumero || String(Math.max(1, parseInt(numeroFinal) + 3));
+    const serieDpsOficial = notaOficialGov.serieDps || '00001';
     const enderecoTomadorFormatado = dadosTomador.endereco || [dadosTomador.logradouro, dadosTomador.numero, dadosTomador.bairro].filter(Boolean).join(', ');
 
     const novaNota = normalizarNotaFiscal({
@@ -1349,7 +1529,7 @@ export const nfseService = {
       chaveAcesso: chaveFinal,
       protocolo: protocoloFinal,
       dpsNumero: `${numeroDps}`,
-      serieDps: '70000',
+      serieDps: serieDpsOficial,
       codigoNbs: '1.1501.30.00',
       codigoTributacaoCompleto: servico.codigoAtividade ? `${servico.codigoAtividade}.01` : '01.07.01',
       codigoVerificacao,
