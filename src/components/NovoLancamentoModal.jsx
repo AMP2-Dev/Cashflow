@@ -1,5 +1,5 @@
 import { AlertTriangle, HelpCircle, Mic, AlertCircle, BookOpen, ChevronDown, ChevronUp, Check, Scissors, FileText, Camera, Paperclip, FileCheck, ExternalLink, Loader2, Trash2, CheckCircle2, Sparkles, RotateCw, ScanLine } from 'lucide-react';
-import { useMemo, useState, useRef } from 'react';
+import { useMemo, useState, useRef, useEffect } from 'react';
 import { BANCOS, CATEGORIAS, MESES, SUBCATEGORIAS_SUGERIDAS, PLANO_DE_CONTAS_SUGERIDO } from '../utils/constants';
 import { construirSugestoesDescricao, daysInMonth, formatBRL } from '../utils/formatters';
 import { ClassificacaoWizard } from './ClassificacaoWizard';
@@ -18,12 +18,12 @@ export function NovoLancamentoModal({
   onSave, 
   onUpdate, 
   onDelete, 
-  onAbrirEmissaoNfse,
-  moduloComprovantesAtivo = false,
-  empresaId = null
+  onAbrirEmissaoNfse, 
+  moduloComprovantesAtivo = false, 
+  empresaId = null 
 }) {
   const editando = !!lancamentoEditando;
-  const [tipo, setTipo] = useState(editando ? lancamentoEditando.tipo : tipoInicial);
+  const [tipo, setTipo] = useState(editando ? lancamentoEditando.tipo : (tipoInicial === 'scan' ? 'despesa' : tipoInicial));
   const [descricao, setDescricao] = useState(editando ? lancamentoEditando.descricao : '');
   const [valor, setValor] = useState(editando ? String(lancamentoEditando.valor).replace('.', ',') : '');
   const [mes, setMes] = useState(editando ? (lancamentoEditando.mes !== undefined ? lancamentoEditando.mes : mesAtual) : mesAtual);
@@ -70,6 +70,16 @@ export function NovoLancamentoModal({
   const [mostrarTextoOcr, setMostrarTextoOcr] = useState(false);
   const fileCameraRef = useRef(null);
   const fileUploadRef = useRef(null);
+
+  // Se aberto em modo direto de scanner, aciona a câmera automaticamente
+  useEffect(() => {
+    if (tipoInicial === 'scan') {
+      const timer = setTimeout(() => {
+        fileCameraRef.current?.click();
+      }, 220);
+      return () => clearTimeout(timer);
+    }
+  }, [tipoInicial]);
 
   async function processarArquivoEExecutarOcr(file) {
     if (!file) return;
@@ -148,6 +158,10 @@ export function NovoLancamentoModal({
           setTipo(resOcr.tipo);
         }
 
+        if (resOcr.bancoSugerido) {
+          setBanco(resOcr.bancoSugerido);
+        }
+
         if (resOcr.categoriaSugerida) {
           setCategoria(resOcr.categoriaSugerida);
         }
@@ -195,10 +209,20 @@ export function NovoLancamentoModal({
         }
         if (resOcr.dia) setDia(parseInt(resOcr.dia, 10));
         if (resOcr.mes !== null && resOcr.mes !== undefined) setMes(resOcr.mes - 1);
+        if (resOcr.tipo) setTipo(resOcr.tipo);
+        if (resOcr.bancoSugerido) setBanco(resOcr.bancoSugerido);
         if (resOcr.categoriaSugerida) setCategoria(resOcr.categoriaSugerida);
         if (resOcr.subcategoriaSugerida) {
           setSubcategoria(resOcr.subcategoriaSugerida);
           setSugestaoEscolhidaManualmente(true);
+        }
+        if (resOcr.formaPagamento) {
+          const fp = resOcr.formaPagamento.toLowerCase();
+          if (fp.includes('pix')) setMeioPagamento('PIX');
+          else if (fp.includes('crédito') || fp.includes('credito') || fp.includes('débito') || fp.includes('debito') || fp.includes('cartão') || fp.includes('cartao')) setMeioPagamento('Cartão');
+          else if (fp.includes('boleto')) setMeioPagamento('Boleto');
+          else if (fp.includes('dinheiro')) setMeioPagamento('Dinheiro');
+          else if (fp.includes('transferência') || fp.includes('transferencia') || fp.includes('ted') || fp.includes('doc')) setMeioPagamento('Transferência');
         }
       } else {
         alert('Não foi possível identificar dados fiscais claros nesta imagem.');
@@ -468,6 +492,22 @@ export function NovoLancamentoModal({
           </div>
 
           <div style={{ fontSize: 11.5, color: '#047857', display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+            {ocrResultado.tipo && (
+              <span style={{ 
+                background: ocrResultado.tipo === 'receita' ? '#D1FAE5' : '#FEE2E2', 
+                color: ocrResultado.tipo === 'receita' ? '#065F46' : '#991B1B', 
+                padding: '2px 8px', 
+                borderRadius: 6, 
+                fontWeight: 700 
+              }}>
+                {ocrResultado.tipo === 'receita' ? '📈 Receita' : '📉 Despesa'}
+              </span>
+            )}
+            {ocrResultado.bancoSugerido && (
+              <span style={{ background: '#E0E7FF', color: '#3730A3', padding: '2px 8px', borderRadius: 6, fontWeight: 700 }}>
+                🏦 {ocrResultado.bancoSugerido}
+              </span>
+            )}
             {ocrResultado.valorFormatado && (
               <span style={{ background: '#D1FAE5', padding: '2px 7px', borderRadius: 6, fontWeight: 700 }}>
                 💰 R$ {ocrResultado.valorFormatado}

@@ -122,7 +122,7 @@ export async function extrairTextoComprovante(imageSource, onProgresso = () => {
 
 /**
  * Interpreta o texto bruto do comprovante e extrai campos fiscais estruturados:
- * Valor, Data, Fornecedor, Forma de Pagamento, Categoria e Subcategoria.
+ * Valor, Data, Fornecedor/Cliente, Forma de Pagamento, Banco, Categoria e Subcategoria.
  */
 export function interpretarTextoComprovante(texto) {
   if (!texto || typeof texto !== 'string') {
@@ -135,6 +135,7 @@ export function interpretarTextoComprovante(texto) {
       fornecedor: '',
       descricaoSugerida: '',
       formaPagamento: 'Outros',
+      bancoSugerido: '',
       tipo: 'despesa',
       categoriaSugerida: 'variavel',
       subcategoriaSugerida: '',
@@ -147,23 +148,26 @@ export function interpretarTextoComprovante(texto) {
     .map(l => l.trim())
     .filter(l => l.length > 0);
 
-  // ── 1. EXTRAÇÃO DO VALOR ──
-  const { valor, valorFormatado } = extrairValorFiscal(linhas, texto);
-
-  // ── 2. EXTRAÇÃO DA DATA ──
-  const { dia, mes, ano } = extrairDataFiscal(texto);
-
-  // ── 3. EXTRAÇÃO DO FORNECEDOR / ESTABELECIMENTO ──
-  const fornecedor = extrairNomeFornecedor(linhas);
-
-  // ── 4. FORMA DE PAGAMENTO ──
-  const formaPagamento = extrairFormaPagamento(texto);
-
-  // ── 5. TIPO (DESPESA OU RECEITA) ──
+  // ── 1. TIPO (DESPESA OU RECEITA) ──
   const tipo = extrairTipoOperacao(texto);
 
-  // ── 6. CATEGORIA E SUBCATEGORIA SUGERIDA ──
-  const { categoria, subcategoria, descricaoFinal } = sugerirCategoria(fornecedor, texto);
+  // ── 2. EXTRAÇÃO DO VALOR ──
+  const { valor, valorFormatado } = extrairValorFiscal(linhas, texto);
+
+  // ── 3. EXTRAÇÃO DA DATA ──
+  const { dia, mes, ano } = extrairDataFiscal(texto);
+
+  // ── 4. EXTRAÇÃO DO BANCO EMISSOR DO COMPROVANTE (C6, Nubank, Sicoob, etc.) ──
+  const bancoSugerido = extrairBancoComprovante(texto);
+
+  // ── 5. EXTRAÇÃO DA OUTRA PARTE (FORNECEDOR OU PAGADOR/CLIENTE) ──
+  const fornecedor = extrairNomeEntidade(linhas, texto, tipo);
+
+  // ── 6. FORMA DE PAGAMENTO ──
+  const formaPagamento = extrairFormaPagamento(texto);
+
+  // ── 7. CATEGORIA E SUBCATEGORIA SUGERIDA ──
+  const { categoria, subcategoria, descricaoFinal } = sugerirCategoria(fornecedor, texto, tipo);
 
   return {
     valor,
@@ -172,12 +176,13 @@ export function interpretarTextoComprovante(texto) {
     mes,
     ano,
     fornecedor,
-    descricaoSugerida: descricaoFinal || fornecedor || 'Despesa com Comprovante',
+    descricaoSugerida: descricaoFinal || (tipo === 'receita' ? (fornecedor ? `Recebimento - ${fornecedor}` : 'Recebimento de Cliente') : (fornecedor ? `Pagamento - ${fornecedor}` : 'Despesa com Comprovante')),
     formaPagamento,
+    bancoSugerido,
     tipo,
     categoriaSugerida: categoria,
     subcategoriaSugerida: subcategoria,
-    confianca: valor ? 85 : 50,
+    confianca: valor ? 90 : 55,
   };
 }
 
@@ -295,39 +300,71 @@ function extrairDataFiscal(texto) {
 }
 
 /**
- * Identifica o nome do fornecedor ou estabelecimento
+ * Extrai o banco emissor do comprovante
  */
-function extrairNomeFornecedor(linhas) {
-  // Palavras que não são nome de empresa
-  const ignorar = [
-    'documento auxiliar', 'danfe', 'nfc-e', 'nf-e', 'cupom fiscal',
-    'extrato', 'via consumidor', 'cnpj', 'ie:', 'im:', 'endereço',
-    'endereco', 'rua', 'av.', 'avenida', 'cep', 'telefone', 'tel',
-    'data', 'emissao', 'chave de acesso', 'protocolo', 'comprovante',
-    'banco', 'transferencia', 'pix', 'autenticacao', 'hora',
-  ];
+export function extrairBancoComprovante(texto) {
+  const t = texto.toLowerCase();
+  if (t.includes('c6 bank') || t.includes('banco c6') || t.includes('c6 s.a') || t.includes('c6 s/a')) return 'C6 Bank';
+  if (t.includes('sicoob') || t.includes('bancoob') || t.includes('banco cooperativo sicoob')) return 'Sicoob';
+  if (t.includes('nubank') || t.includes('nu pagamentos') || t.includes('nu financeiras')) return 'Nubank';
+  if (t.includes('inter') || t.includes('banco inter')) return 'Inter';
+  if (t.includes('itaú') || t.includes('itau') || t.includes('unibanco')) return 'Itaú';
+  if (t.includes('bradesco') || t.includes('banco bradesco') || t.includes('next')) return 'Bradesco';
+  if (t.includes('santander')) return 'Santander';
+  if (t.includes('caixa econômica') || t.includes('caixa economica') || t.includes('cef')) return 'Caixa Econômica Federal';
+  if (t.includes('banco do brasil') || t.includes('bb s.a') || t.includes('bb s/a')) return 'Banco do Brasil';
+  if (t.includes('sicredi')) return 'Sicredi';
+  if (t.includes('btg') || t.includes('btg pactual')) return 'BTG Pactual';
+  if (t.includes('mercado pago') || t.includes('mercadopago')) return 'Mercado Pago';
+  if (t.includes('picpay')) return 'PicPay';
+  if (t.includes('pagbank') || t.includes('pagseguro')) return 'PagBank';
+  if (t.includes('stone') || t.includes('pagarme')) return 'Stone';
+  if (t.includes('safra')) return 'Safra';
+  return '';
+}
 
-  // Primeiras 5 linhas costumam ter a razão social ou nome fantasia
-  for (let i = 0; i < Math.min(6, linhas.length); i++) {
-    const linha = linhas[i].trim();
-    const lLower = linha.toLowerCase();
+/**
+ * Identifica o nome do fornecedor (para despesa) ou cliente/pagador (para receita)
+ */
+function extrairNomeEntidade(linhas, textoCompleto, tipo) {
+  // 1. Procura por campos nominais específicos de comprovantes bancários (PIX / TED / Boleto)
+  const termosAlvo = tipo === 'receita'
+    ? ['pagador', 'quem enviou', 'remetente', 'origem', 'cliente', 'tomador', 'de']
+    : ['destinatário', 'destinatario', 'favorecido', 'beneficiário', 'beneficiario', 'recebedor', 'para', 'pago a', 'quem recebeu'];
 
-    // Se é muito curta ou tem só números/símbolos, pula
-    if (linha.length < 3 || /^[\d\s\.\-\/\:]+$/.test(linha)) continue;
+  for (let i = 0; i < linhas.length; i++) {
+    const linha = linhas[i];
+    const lLower = linha.toLowerCase().trim();
 
-    // Se contém termos de cabeçalho fiscal puro, pula
-    const temIgnorado = ignorar.some(ig => lLower.includes(ig));
-    if (temIgnorado) continue;
+    for (const termo of termosAlvo) {
+      // Caso 1: Na mesma linha: "Destinatário: Kalunga S/A" ou "Para: João Silva"
+      if (lLower.startsWith(termo + ':') || lLower.startsWith(termo + ' -')) {
+        const partes = linha.split(/[:\-]/);
+        if (partes.length >= 2) {
+          const nomeCandidato = limparNomeEntidade(partes.slice(1).join(' '));
+          if (nomeCandidato && nomeCandidato.length >= 3 && !ehCabecalhoBancario(nomeCandidato)) {
+            return nomeCandidato;
+          }
+        }
+      }
 
-    // Se parece com nome de empresa (letras maiúsculas ou nome razoável)
-    // Limpar caracteres estranhos
-    const limpo = linha.replace(/[^a-zA-Z0-9À-ÿ\s\.\&\-]/g, '').trim();
-    if (limpo.length >= 4) {
-      return limpo;
+      // Caso 2: Em duas linhas: "Destinatário\nNome: Kalunga S/A" ou "Para\nJoão Silva"
+      if (lLower === termo) {
+        if (i + 1 < linhas.length) {
+          let prox = linhas[i + 1].trim();
+          if (prox.toLowerCase().startsWith('nome:')) {
+            prox = prox.substring(5).trim();
+          }
+          const nomeCandidato = limparNomeEntidade(prox);
+          if (nomeCandidato && nomeCandidato.length >= 3 && !ehCabecalhoBancario(nomeCandidato)) {
+            return nomeCandidato;
+          }
+        }
+      }
     }
   }
 
-  // Busca rápida por redes ou marcas famosas no texto
+  // 2. Busca rápida por marcas e redes conhecidas
   const marcas = [
     { termo: 'ipiranga', nome: 'Posto Ipiranga' },
     { termo: 'shell', nome: 'Posto Shell' },
@@ -348,14 +385,57 @@ function extrairNomeFornecedor(linhas) {
     { termo: 'sem parar', nome: 'Sem Parar' },
   ];
 
-  const tLower = linhas.join(' ').toLowerCase();
+  const tLower = textoCompleto.toLowerCase();
   for (const m of marcas) {
     if (tLower.includes(m.termo)) {
       return m.nome;
     }
   }
 
+  // 3. Fallback: Primeiras linhas de Cupom Fiscal / NFC-e
+  const ignorar = [
+    'documento auxiliar', 'danfe', 'nfc-e', 'nf-e', 'cupom fiscal',
+    'extrato', 'via consumidor', 'cnpj', 'ie:', 'im:', 'endereço',
+    'endereco', 'rua', 'av.', 'avenida', 'cep', 'telefone', 'tel',
+    'data', 'emissao', 'chave de acesso', 'protocolo', 'comprovante',
+    'banco', 'transferencia', 'pix', 'autenticacao', 'hora',
+  ];
+
+  for (let i = 0; i < Math.min(6, linhas.length); i++) {
+    const linha = linhas[i].trim();
+    const lLower = linha.toLowerCase();
+    if (linha.length < 3 || /^[\d\s\.\-\/\:]+$/.test(linha)) continue;
+    if (ignorar.some(ig => lLower.includes(ig))) continue;
+
+    const limpo = limparNomeEntidade(linha);
+    if (limpo && limpo.length >= 4 && !ehCabecalhoBancario(limpo)) {
+      return limpo;
+    }
+  }
+
   return '';
+}
+
+function limparNomeEntidade(str) {
+  if (!str) return '';
+  return str
+    .replace(/^nome\s*[:\-]?\s*/i, '')
+    .replace(/cpf\s*[:\-]?\s*[\d\.\-]+/gi, '')
+    .replace(/cnpj\s*[:\-]?\s*[\d\.\-\/]+/gi, '')
+    .replace(/institui[çc][ãa]o\s*[:\-]?.*/gi, '')
+    .replace(/chave\s*pix\s*[:\-]?.*/gi, '')
+    .replace(/[^a-zA-Z0-9À-ÿ\s\.\&\-]/g, '')
+    .trim();
+}
+
+function ehCabecalhoBancario(nome) {
+  const n = (nome || '').toLowerCase();
+  const termosBancos = [
+    'comprovante', 'banco', 'pagamentos', 'instituicao', 'instituição',
+    'transação', 'transacao', 'autenticação', 'autenticacao', 'ouvidoria',
+    'chave pix', 'código de controle', 'codigo de controle'
+  ];
+  return termosBancos.some(t => n.includes(t));
 }
 
 /**
@@ -363,15 +443,13 @@ function extrairNomeFornecedor(linhas) {
  */
 function extrairFormaPagamento(texto) {
   const t = texto.toLowerCase();
-
   if (t.includes('pix')) return 'Pix';
   if (t.includes('cartao de credito') || t.includes('crédito') || t.includes('credito') || t.includes('visa') || t.includes('mastercard')) return 'Cartão de Crédito';
   if (t.includes('cartao de debito') || t.includes('débito') || t.includes('debito')) return 'Cartão de Débito';
   if (t.includes('boleto')) return 'Boleto';
   if (t.includes('dinheiro') || t.includes('espécie')) return 'Dinheiro';
   if (t.includes('ted') || t.includes('doc') || t.includes('transferência') || t.includes('transferencia')) return 'Transferência Bancária';
-
-  return 'Outros';
+  return 'Pix'; // Default mais comum em comprovantes digitais
 }
 
 /**
@@ -379,16 +457,71 @@ function extrairFormaPagamento(texto) {
  */
 function extrairTipoOperacao(texto) {
   const t = texto.toLowerCase();
-  if (t.includes('comprovante de recebimento') || t.includes('transferência recebida') || t.includes('valor creditado') || t.includes('nota fiscal de serviço prestado')) {
+  
+  // Sinais expressos de Receita / Entrada
+  const sinaisReceita = [
+    'comprovante de recebimento',
+    'transferência recebida',
+    'transferencia recebida',
+    'pix recebido',
+    'você recebeu',
+    'voce recebeu',
+    'recebido por',
+    'crédito em conta',
+    'credito em conta',
+    'valor creditado',
+    'venda aprovada',
+    'comprovante de venda',
+    'nota fiscal de serviço',
+    'nfs-e',
+    'nfse',
+    'cobrança recebida',
+    'cobranca recebida'
+  ];
+
+  if (sinaisReceita.some(s => t.includes(s))) {
     return 'receita';
   }
+
+  // Sinais de Despesa / Saída
+  const sinaisDespesa = [
+    'comprovante de pagamento',
+    'pagamento de boleto',
+    'boleto liquidado',
+    'transferência enviada',
+    'transferencia enviada',
+    'pix enviado',
+    'você pagou',
+    'voce pagou',
+    'valor debitado',
+    'débito em conta',
+    'debito em conta',
+    'cupom fiscal',
+    'nfc-e',
+    'danfe',
+    'comprovante de débito',
+    'comprovante de debito'
+  ];
+
+  if (sinaisDespesa.some(s => t.includes(s))) {
+    return 'despesa';
+  }
+
   return 'despesa';
 }
 
 /**
  * Sugere categoria e subcategoria baseada no contexto do estabelecimento
  */
-function sugerirCategoria(fornecedor, textoCompleto) {
+function sugerirCategoria(fornecedor, textoCompleto, tipo = 'despesa') {
+  if (tipo === 'receita') {
+    return {
+      categoria: null,
+      subcategoria: '',
+      descricaoFinal: fornecedor ? `Recebimento - ${fornecedor}` : 'Recebimento de Cliente / Venda',
+    };
+  }
+
   const t = (fornecedor + ' ' + textoCompleto).toLowerCase();
 
   // 1. Combustível / Transporte

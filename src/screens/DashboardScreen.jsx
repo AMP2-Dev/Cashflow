@@ -1,4 +1,4 @@
-import { ArrowDownCircle, ArrowUpCircle, ChevronRight, ChevronDown, X, Presentation, FileText, Target, CheckCircle2, AlertTriangle, TrendingUp, ShieldCheck, HelpCircle, UploadCloud, Sparkles, Calendar, Users, Zap } from 'lucide-react';
+import { ArrowDownCircle, ArrowUpCircle, ChevronRight, ChevronDown, X, Presentation, FileText, Target, CheckCircle2, AlertTriangle, TrendingUp, ShieldCheck, HelpCircle, UploadCloud, Sparkles, Calendar, Users, Zap, Camera } from 'lucide-react';
 import { useMemo, useState, useEffect } from 'react';
 import { supabase } from '../lib/supabase';
 import { EmptyState } from '../components/UIComponents';
@@ -575,8 +575,58 @@ export function Dashboard({
               <ChevronRight size={14} />
             </button>
           </div>
-        )}
-      </div>
+      )}
+
+      {/* ── BOTÃO DE ATALHO RÁPIDO: SCANNER INTELIGENTE DE COMPROVANTES (OCR IA) ── */}
+      {onNovo && (
+        <button 
+          onClick={() => onNovo('scan')} 
+          style={{ 
+            width: '100%',
+            padding: '11px 16px', 
+            borderRadius: 14, 
+            border: '1.5px solid #10B981',
+            background: 'linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%)', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'space-between', 
+            cursor: 'pointer', 
+            boxShadow: '0 2px 8px rgba(16, 185, 129, 0.12)', 
+            marginBottom: 12,
+            transition: 'transform 0.15s ease' 
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <div style={{ 
+              background: '#10B981', 
+              borderRadius: 10, 
+              width: 34, 
+              height: 34, 
+              display: 'flex', 
+              alignItems: 'center', 
+              justifyContent: 'center', 
+              color: '#fff',
+              boxShadow: '0 2px 6px rgba(16, 185, 129, 0.3)',
+              flexShrink: 0
+            }}>
+              <Camera size={18} />
+            </div>
+            <div style={{ textAlign: 'left' }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: '#064E3B', display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span>📸 Escanear Comprovante ou Cupom</span>
+                <span style={{ fontSize: 9.5, fontWeight: 800, background: '#059669', color: '#fff', padding: '1px 6px', borderRadius: 4 }}>
+                  AUTO-PREENCHER
+                </span>
+              </div>
+              <div style={{ fontSize: 11, color: '#047857', marginTop: 1 }}>
+                Tire foto do PIX, boleto ou cupom e preencha receita ou despesa na hora
+              </div>
+            </div>
+          </div>
+          <span style={{ fontSize: 11.5, fontWeight: 700, color: '#059669', background: '#D1FAE5', padding: '5px 10px', borderRadius: 8, flexShrink: 0 }}>
+            Tirar Foto ➔
+          </span>
+        </button>
       )}
 
       {/* ── BOTÕES DE AÇÃO: CARDS CLAROS, ELEGANTES E DIFERENCIADOS ── */}
