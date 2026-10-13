@@ -10,7 +10,7 @@ export const STATUS_ASSINATURA = {
 export const MESES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
 export const CATEGORIAS = {
-  cmv: { label: 'Custos Diretos (CMV / CSP)', short: 'CMV / CSP', color: '#B05A2E', bg: '#F5E4D8' },
+  cmv: { label: 'Custos Diretos (CMV / CSP)', short: 'Custos Diretos', color: '#B05A2E', bg: '#F5E4D8' },
   variavel: { label: 'Despesa Variável', short: 'Variável', color: '#8A6D1A', bg: '#F3EAC9' },
   fixa: { label: 'Despesa Fixa', short: 'Fixa', color: '#1F5C52', bg: '#D9EBE6' },
   financeira: { label: 'Despesa Financeira', short: 'Financeira', color: '#7A2E3D', bg: '#F2DDE1' },
@@ -19,10 +19,10 @@ export const CATEGORIAS = {
 
 export const SUBCATEGORIAS_SUGERIDAS = {
   cmv: [
+    'Subcontratação de serviços / Diaristas de obra', 
+    'Peças e materiais aplicados em serviços', 
     'Mercadoria para revenda', 
     'Matéria-prima', 
-    'Peças e materiais aplicados em serviços', 
-    'Subcontratação de serviços / Diaristas de obra', 
     'Embalagens do produto', 
     'Frete de compra de mercadoria'
   ],
@@ -35,19 +35,19 @@ export const SUBCATEGORIAS_SUGERIDAS = {
 export const PLANO_DE_CONTAS_SUGERIDO = [
   {
     id: 'custos_diretos',
-    grupo: '📦 Custos Diretos (CMV / CSP)',
+    grupo: '📦 Custos Diretos (Produtos & Serviços)',
     categoria: 'cmv',
     tipoLabel: 'Custo Direto (CMV / CSP)',
     badgeColor: '#B05A2E',
     badgeBg: '#F5E4D8',
-    descricao: 'Gastos essenciais de mercadorias para revender, insumos de produção ou peças/terceiros aplicados no serviço',
+    descricao: 'Gastos essenciais de mercadorias para revender, insumos de produção ou peças/terceiros aplicados diretamente na entrega do serviço',
     itens: [
+      { nome: 'Subcontratação técnica / Diárias diretas', sub: 'Subcontratação de serviços / Diaristas de obra' },
+      { nome: 'Peças e materiais aplicados no serviço', sub: 'Peças e materiais aplicados em serviços' },
       { nome: 'Mercadoria para revenda', sub: 'Mercadoria para revenda' },
       { nome: 'Matéria-prima / Ingredientes', sub: 'Matéria-prima' },
-      { nome: 'Peças e materiais aplicados no serviço', sub: 'Peças e materiais aplicados em serviços' },
-      { nome: 'Subcontratação técnica / Diárias diretas', sub: 'Subcontratação de serviços / Diaristas de obra' },
       { nome: 'Embalagens do produto', sub: 'Embalagens do produto' },
-      { nome: 'Frete de compra de mercadoria', sub: 'Frete de compra de mercadoria' },
+      { nome: 'Frete de compra de mercadorias/insumos', sub: 'Frete de compra de mercadoria' },
     ]
   },
   {

@@ -173,7 +173,7 @@ function FracionamentoWizard({ valorTotal, descricaoOriginal = '', subcategoriaO
   }
 
   return (
-    <ModalShell onClose={onCancelar} titulo="Fracionamento de CMV e Gastos Mistos">
+    <ModalShell onClose={onCancelar} titulo="Fracionamento de Custos Diretos e Gastos Mistos">
       {/* Cabeçalho de Total */}
       <div style={{ background: '#F8F6F1', borderRadius: 12, padding: '12px 14px', marginBottom: 14, border: '1px solid #E5E0D5' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -188,7 +188,7 @@ function FracionamentoWizard({ valorTotal, descricaoOriginal = '', subcategoriaO
       {/* Alternador de Modo: Simples (% e R$) vs Múltiplas Partes */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
         <span style={{ fontSize: 12, fontWeight: 600, color: '#5C5A4F' }}>
-          {modoVisao === 'simples' ? 'Quanto deste total é CMV da empresa?' : 'Modo avançado (múltiplas fatias)'}
+          {modoVisao === 'simples' ? 'Quanto deste total é Custo Direto da empresa (CMV / CSP)?' : 'Modo avançado (múltiplas fatias)'}
         </span>
         <button
           type="button"
@@ -239,7 +239,7 @@ function FracionamentoWizard({ valorTotal, descricaoOriginal = '', subcategoriaO
           <div style={{ background: '#FFFDF9', border: '1px solid #E5E0D5', borderRadius: 12, padding: '12px 14px', marginBottom: 14 }}>
             {modoEntrada === 'pct' ? (
               <div>
-                <FieldLabel>Percentual destinado ao CMV (Produto/Negócio)</FieldLabel>
+                <FieldLabel>Percentual destinado aos Custos Diretos (Produtos / Serviços)</FieldLabel>
                 <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 4 }}>
                   <div style={{ position: 'relative', width: 110 }}>
                     <input
@@ -278,7 +278,7 @@ function FracionamentoWizard({ valorTotal, descricaoOriginal = '', subcategoriaO
               </div>
             ) : (
               <div>
-                <FieldLabel>Valor em R$ destinado ao CMV</FieldLabel>
+                <FieldLabel>Valor em R$ destinado aos Custos Diretos (CMV / CSP)</FieldLabel>
                 <div style={{ position: 'relative', marginTop: 4 }}>
                   <span style={{ position: 'absolute', left: 12, top: '50%', transform: 'translateY(-50%)', fontSize: 14, fontWeight: 600, color: '#B05A2E' }}>R$</span>
                   <input
@@ -624,12 +624,12 @@ export function ClassificacaoWizard({
           <div style={{ display: 'flex', gap: 8, background: '#F0EDE3', borderRadius: 10, padding: '10px 12px', marginBottom: 18 }}>
             <AlertCircle size={14} color="#9C9A8F" style={{ flexShrink: 0, marginTop: 2 }} />
             <div style={{ fontSize: 12.5, color: '#7A7868', lineHeight: 1.5 }}>
-              CMV (Custo da Mercadoria Vendida) é tudo que você compra <em>exclusivamente</em> para fabricar ou montar o produto que você vende. Se a nota também tem itens para outros fins, vamos separá-los agora.
+              <strong>Custos Diretos (CMV / CSP)</strong> são gastos necessários <em>exclusivamente</em> para entregar o produto ou executar o serviço (mercadorias para revenda, insumos de fabricação, peças no cliente ou diaristas/terceiros). Se este gasto tem itens para outros fins, vamos separá-los agora.
             </div>
           </div>
 
           <div style={{ fontSize: 14, fontWeight: 500, color: '#1C2421', marginBottom: 14 }}>
-            {valorTotal > 0 ? `Os ${formatBRL(valorTotal)} são 100% para fabricação do seu produto?` : 'Este valor é 100% para fabricação do seu produto?'}
+            {valorTotal > 0 ? `Os ${formatBRL(valorTotal)} são 100% custo direto para entrega do produto ou serviço?` : 'Este valor é 100% custo direto para entrega do produto ou serviço?'}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -637,7 +637,7 @@ export function ClassificacaoWizard({
               onClick={() => onConcluir(node.categoria, subEscolhida)}
               style={{ textAlign: 'left', padding: '13px 14px', borderRadius: 10, border: '1px solid #E5E0D5', background: '#fff', fontSize: 14, color: '#1C2421', cursor: 'pointer' }}
             >
-              ✅ Sim, tudo vai para fabricação
+              ✅ Sim, é 100% custo direto do negócio
             </button>
             <button
               onClick={() => setFaseCmv('fracionamento')}

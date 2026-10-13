@@ -5,9 +5,12 @@ import { supabase } from '../lib/supabase';
 import { MESES } from '../utils/constants';
 import { formatBRL, formatCompactoBRL } from '../utils/formatters';
 import { TradutorFinanceiroModal } from '../components/TradutorFinanceiroModal';
+import { obterTermosSegmento } from '../utils/segmentoLabels';
 import * as XLSX from 'xlsx';
 
 export function DREScreen({ lancamentos, lancamentosAno, mesAtual, anoAtual, empresaId, onSalvarEstoque, empresa, podeVerTradutor = false }) {
+
+  const termos = useMemo(() => obterTermosSegmento(empresa, lancamentosAno || lancamentos), [empresa, lancamentosAno, lancamentos]);
 
   // ─── Regime de Apuração (Caixa vs Competência) ──────────────────────────
   const [regime, setRegime] = useState('caixa'); // 'caixa' | 'competencia'
@@ -373,41 +376,44 @@ export function DREScreen({ lancamentos, lancamentosAno, mesAtual, anoAtual, emp
           <div style={{ display: 'flex', gap: 8, marginBottom: 10 }}>
             <button onClick={() => setModalEstoqueAberto(true)} style={{ flex: 1, padding: '11px', borderRadius: 12, border: '1px solid #F59E0B', background: '#FFFBEB', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, cursor: 'pointer', color: '#92400E' }}>
               <PackageCheck size={16} />
-              <span style={{ fontSize: 12.5, fontWeight: 600 }}>Apurar por Estoque</span>
+              <span style={{ fontSize: 12.5, fontWeight: 600 }}>{termos.rotuloInventario}</span>
             </button>
             <button onClick={() => { setPctCmvStr(pctCmvConfig > 0 ? String(pctCmvConfig) : ''); setModalCmvAberto(true); }} style={{ flex: 1, padding: '11px', borderRadius: 12, border: '1px solid #4A3B8A', background: '#E5E0F5', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 6, cursor: 'pointer', color: '#4A3B8A' }}>
               <Settings2 size={16} />
-              <span style={{ fontSize: 12.5, fontWeight: 600 }}>Configurar % CMV</span>
+              <span style={{ fontSize: 12.5, fontWeight: 600 }}>{termos.rotuloBotaoPct}</span>
             </button>
             <button onClick={exportarDREParaExcel} style={{ padding: '0 16px', borderRadius: 12, border: '1px solid #C9C5B6', background: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: '#5C5A4F', fontSize: 12.5, fontWeight: 600, flexShrink: 0 }}>
               Exportar Excel
             </button>
           </div>
 
-          {/* Aviso: CMV zero e sem configuração */}
+          {/* Aviso: CMV / Custos Diretos zero e sem configuração */}
           {calc.modoCmv === 'zero' && (
             <div style={{ background: '#FBF3E5', border: '1px solid #E8C896', borderRadius: 12, padding: '10px 12px', display: 'flex', gap: 8, alignItems: 'flex-start' }}>
-              <span style={{ fontSize: 14, flexShrink: 0 }}>⚠️</span>
+              <span style={{ fontSize: 14, flexShrink: 0 }}>💡</span>
               <div style={{ fontSize: 12, color: '#8A6D1A', lineHeight: 1.5 }}>
-                <strong>CMV não calculado.</strong> Lance compras como <strong>CMV</strong>, use o botão <strong>"Apurar por Estoque"</strong>, ou configure um <strong>% estimado</strong> do seu custo de mercadoria.
+                <strong>{termos.siglaCusto} não configurado.</strong> {termos.alertaZero}
               </div>
             </div>
           )}
 
-          {/* Composição do CMV */}
+          {/* Composição dos Custos Diretos (CMV / CSP) */}
           {calc.modoCmv !== 'zero' && (
             <div style={{ background: '#F5E4D8', border: '1px solid #E8C896', borderRadius: 12, padding: '10px 12px', fontSize: 11.5, color: '#7A3A1A', lineHeight: 1.6 }}>
-              <strong>Composição do CMV</strong>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 2 }}>
+                <strong>Composição dos Custos Diretos ({termos.siglaCusto})</strong>
+                <span style={{ fontSize: 10, padding: '1px 6px', borderRadius: 4, background: '#E5CBB8', fontWeight: 600 }}>{termos.segmentoNome}</span>
+              </div>
               {calc.modoCmv === 'estoque' && (
                 <div style={{ marginTop: 4 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Estoque Inicial:</span><strong>{formatBRL(calc.estoqueInicial || 0)}</strong></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>(+) Compras (CMV):</span><strong>{formatBRL(calc.cmvCompras)}</strong></div>
-                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>(–) Estoque Final:</span><strong>{formatBRL(calc.estoqueFinal || 0)}</strong></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>Insumos/Estoque Inicial:</span><strong>{formatBRL(calc.estoqueInicial || 0)}</strong></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>(+) Entradas/Despesas Diretas ({termos.siglaCusto}):</span><strong>{formatBRL(calc.cmvCompras)}</strong></div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>(–) Insumos/Estoque Final:</span><strong>{formatBRL(calc.estoqueFinal || 0)}</strong></div>
                 </div>
               )}
               {calc.modoCmv === 'lancamentos' && (
                 <div style={{ marginTop: 4 }}>
-                  <div>Soma dos lançamentos CMV do mês: <strong>{formatBRL(calc.cmvCompras)}</strong></div>
+                  <div>Soma dos lançamentos de custos diretos ({termos.siglaCusto}) do mês: <strong>{formatBRL(calc.cmvCompras)}</strong></div>
                 </div>
               )}
               {calc.modoCmv === 'estimado' && (
@@ -416,16 +422,16 @@ export function DREScreen({ lancamentos, lancamentosAno, mesAtual, anoAtual, emp
                 </div>
               )}
               <div style={{ borderTop: '1px solid #D9B8A8', marginTop: 6, paddingTop: 6, display: 'flex', justifyContent: 'space-between' }}>
-                <span>Total CMV:</span><strong>{formatBRL(calc.cmv)}</strong>
+                <span>Total {termos.siglaCusto}:</span><strong>{formatBRL(calc.cmv)}</strong>
               </div>
             </div>
           )}
 
-          {/* Card de Custo Primário (Insumos + Mão de Obra - Item 1) */}
+          {/* Card de Custo Primário (Insumos/Terceiros + Mão de Obra) */}
           {(calc.cmv > 0 || calc.maoDeObraTotal > 0) && (
             <div style={{ background: '#F0F4F8', border: '1px solid #C8D8E6', borderRadius: 12, padding: '12px 14px', fontSize: 12, color: '#1E3A5F', lineHeight: 1.5 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 }}>
-                <strong>Custo Primário (Insumos + Mão de Obra)</strong>
+                <strong>Custo Primário ({termos.siglaCusto} + Mão de Obra)</strong>
                 {fat > 0 && (
                   <span style={{
                     fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 6,
@@ -437,7 +443,7 @@ export function DREScreen({ lancamentos, lancamentosAno, mesAtual, anoAtual, emp
                 )}
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5 }}>
-                <span>Insumos & Mercadorias (CMV):</span>
+                <span>{termos.rotuloInsumosCard}:</span>
                 <span><strong>{formatBRL(calc.cmv)}</strong> ({pct(calc.cmv).toFixed(1)}%)</span>
               </div>
               <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11.5, marginTop: 2 }}>
@@ -458,7 +464,7 @@ export function DREScreen({ lancamentos, lancamentosAno, mesAtual, anoAtual, emp
           )}
 
           <DRELine label="Faturamento" valor={calc.faturamento} pct={pct(calc.faturamento)} destaque itens={calc.itensReceitas} aberto={linhaAberta === 'faturamento'} onToggle={() => toggleLinha('faturamento')} fat={fat} />
-          <DRELine label="(–) CMV" valor={-calc.cmv} pct={pct(-calc.cmv)} itens={calc.itensCmv} aberto={linhaAberta === 'cmv'} onToggle={() => toggleLinha('cmv')} fat={fat} negativo />
+          <DRELine label={termos.rotuloDRE} valor={-calc.cmv} pct={pct(-calc.cmv)} itens={calc.itensCmv} aberto={linhaAberta === 'cmv'} onToggle={() => toggleLinha('cmv')} fat={fat} negativo />
           <DRELine label="Resultado com vendas" valor={calc.resultadoComVendas} pct={pct(calc.resultadoComVendas)} sub />
           <DRELine label="(–) Despesas variáveis" valor={-calc.variaveis} pct={pct(-calc.variaveis)} itens={calc.itensVariaveis} aberto={linhaAberta === 'variavel'} onToggle={() => toggleLinha('variavel')} fat={fat} negativo />
           <DRELine label="Margem de contribuição" valor={calc.margemContribuicao} pct={pct(calc.margemContribuicao)} sub />
@@ -595,20 +601,20 @@ export function DREScreen({ lancamentos, lancamentosAno, mesAtual, anoAtual, emp
         </div>
       )}
 
-      {/* Modal Estoque */}
+      {/* Modal Estoque / Inventário */}
       {modalEstoqueAberto && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 16 }}>
           <div style={{ background: '#fff', borderRadius: 16, padding: 20, width: '100%', maxWidth: 400 }}>
-            <h3 style={{ margin: '0 0 16px 0', fontSize: 18, color: '#1C2421' }}>Inventário de Estoque</h3>
+            <h3 style={{ margin: '0 0 16px 0', fontSize: 18, color: '#1C2421' }}>{termos.rotuloInventario}</h3>
             <p style={{ fontSize: 13, color: '#5C5A4F', marginBottom: 20, lineHeight: 1.4 }}>
-              O CMV oficial é calculado pela fórmula: <br /><strong>Estoque Inicial + Compras - Estoque Final.</strong><br />Deixe em branco para usar a estimativa automática.
+              O custo oficial ({termos.siglaCusto}) é calculado pela fórmula: <br /><strong>Estoque/Insumos Iniciais + Compras/Despesas Diretas - Estoque Final.</strong><br />Deixe em branco para usar a estimativa automática ou lançamentos diretos.
             </p>
             <div style={{ marginBottom: 12 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5C5A4F', marginBottom: 4 }}>Estoque Inicial (R$)</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5C5A4F', marginBottom: 4 }}>Estoque / Insumos Iniciais (R$)</label>
               <input type="number" value={valEstInicial} onChange={e => setValEstInicial(e.target.value)} placeholder="0.00" style={{ width: '100%', padding: 12, borderRadius: 8, border: '1px solid #D1CFC7', fontSize: 16, boxSizing: 'border-box' }} />
             </div>
             <div style={{ marginBottom: 24 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5C5A4F', marginBottom: 4 }}>Estoque Final (R$)</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5C5A4F', marginBottom: 4 }}>Estoque / Insumos Finais (R$)</label>
               <input type="number" value={valEstFinal} onChange={e => setValEstFinal(e.target.value)} placeholder="0.00" style={{ width: '100%', padding: 12, borderRadius: 8, border: '1px solid #D1CFC7', fontSize: 16, boxSizing: 'border-box' }} />
             </div>
             <div style={{ display: 'flex', gap: 10 }}>
@@ -619,30 +625,30 @@ export function DREScreen({ lancamentos, lancamentosAno, mesAtual, anoAtual, emp
         </div>
       )}
 
-      {/* Modal % CMV */}
+      {/* Modal % Custo Direto Estimado */}
       {modalCmvAberto && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 100, padding: 16 }}>
           <div style={{ background: '#fff', borderRadius: 16, padding: 20, width: '100%', maxWidth: 400 }}>
-            <h3 style={{ margin: '0 0 8px 0', fontSize: 18, color: '#1C2421' }}>% CMV Estimado — {MESES[mesAtual]}</h3>
+            <h3 style={{ margin: '0 0 8px 0', fontSize: 18, color: '#1C2421' }}>{termos.rotuloModalPct} — {MESES[mesAtual]}</h3>
             <p style={{ fontSize: 13, color: '#5C5A4F', marginBottom: 6, lineHeight: 1.5 }}>
-              Informe o percentual médio que o custo de mercadoria representa no seu faturamento. Esse valor é salvo para este mês.
+              {termos.explicacaoModal}
             </p>
             <div style={{ background: '#F0EDE3', borderRadius: 10, padding: '8px 12px', marginBottom: 12, fontSize: 12, color: '#7A7868', lineHeight: 1.5 }}>
-              Referências: Alimentação 28–40% · Varejo 45–65% · Fabricação 35–50% · Serviços 10–25%
+              {termos.faixasReferencia}
             </div>
             {calc.cmvCompras > 0 && (
               <div style={{ background: '#FEF3C7', border: '1px solid #FDE68A', borderRadius: 10, padding: '10px 12px', marginBottom: 16, fontSize: 12, color: '#92400E', lineHeight: 1.4 }}>
-                ⚠️ <strong>Atenção:</strong> Você já possui <strong>{formatBRL(calc.cmvCompras)}</strong> em compras lançadas como CMV neste mês. Ao definir um percentual médio estimado (ex: 35%), o sistema passará a usar a estimativa para calcular o CMV na DRE e nas Metas, substituindo os lançamentos reais de compras para fins de cálculo de margem.
+                ⚠️ <strong>Atenção:</strong> Você já possui <strong>{formatBRL(calc.cmvCompras)}</strong> em despesas lançadas como {termos.siglaCusto} neste mês. Ao definir um percentual médio estimado, o sistema passará a usar a estimativa para calcular a margem bruta na DRE e nas Metas, substituindo os lançamentos reais de compras para fins de cálculo de margem.
               </div>
             )}
             <div style={{ marginBottom: 20 }}>
-              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5C5A4F', marginBottom: 4 }}>% do Custo de Mercadoria</label>
+              <label style={{ display: 'block', fontSize: 12, fontWeight: 600, color: '#5C5A4F', marginBottom: 4 }}>% de Custo Direto ({termos.siglaCusto})</label>
               <div style={{ position: 'relative' }}>
                 <input
                   type="number"
                   value={pctCmvStr}
                   onChange={e => setPctCmvStr(e.target.value)}
-                  placeholder="Ex: 35"
+                  placeholder="Ex: 20"
                   min="0" max="100"
                   style={{ width: '100%', padding: '12px 40px 12px 12px', borderRadius: 8, border: '1px solid #D1CFC7', fontSize: 18, fontWeight: 600, boxSizing: 'border-box' }}
                 />
@@ -652,7 +658,7 @@ export function DREScreen({ lancamentos, lancamentosAno, mesAtual, anoAtual, emp
             <div style={{ display: 'flex', gap: 10 }}>
               <button onClick={() => setModalCmvAberto(false)} style={{ flex: 1, padding: 12, borderRadius: 8, border: '1px solid #D1CFC7', background: '#fff', color: '#5C5A4F', fontWeight: 600, cursor: 'pointer' }}>Cancelar</button>
               <button onClick={salvarPctCmv} disabled={salvandoCmv} style={{ flex: 2, padding: 12, borderRadius: 8, border: 'none', background: '#4A3B8A', color: '#fff', fontWeight: 600, cursor: 'pointer' }}>
-                {salvandoCmv ? 'Salvando...' : 'Salvar % CMV'}
+                {salvandoCmv ? 'Salvando...' : `Salvar % ${termos.siglaCusto}`}
               </button>
             </div>
           </div>

@@ -36,6 +36,7 @@ function extrairModulosEmpresa(empresa) {
   let catAgendamento = empresa?.categoria_agendamento;
   let ultimoNum = empresa?.nfse_ultimo_numero;
   let nomeResp = empresa?.nome_responsavel;
+  let segmento = empresa?.segmento;
 
   if (empresa?.plano && typeof empresa.plano === 'string' && empresa.plano.startsWith('{')) {
     try {
@@ -47,6 +48,7 @@ function extrairModulosEmpresa(empresa) {
       if (parsed.categoria_agendamento !== undefined && !catAgendamento) catAgendamento = parsed.categoria_agendamento;
       if (parsed.nfse_ultimo_numero !== undefined && !ultimoNum) ultimoNum = parsed.nfse_ultimo_numero;
       if (parsed.nome_responsavel !== undefined && !nomeResp) nomeResp = parsed.nome_responsavel;
+      if (parsed.segmento !== undefined && !segmento) segmento = parsed.segmento;
     } catch (e) {}
   }
 
@@ -76,6 +78,9 @@ function extrairModulosEmpresa(empresa) {
   if (!nomeResp && empresa?.id) {
     nomeResp = localStorage.getItem(`amp_nome_responsavel_${empresa.id}`) || '';
   }
+  if (!segmento && empresa?.id) {
+    segmento = localStorage.getItem(`amp_segmento_${empresa.id}`) || 'misto';
+  }
 
   return {
     modulo_nfse: !!modNfse,
@@ -85,6 +90,7 @@ function extrairModulosEmpresa(empresa) {
     categoria_agendamento: catAgendamento || 'beleza',
     nfse_ultimo_numero: ultimoNum || 0,
     nome_responsavel: nomeResp || '',
+    segmento: segmento || 'misto',
   };
 }
 

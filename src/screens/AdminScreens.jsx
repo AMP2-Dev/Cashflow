@@ -377,6 +377,7 @@ export function AdminDetalheAssinante({ assinante, onAtualizarDados, onClose, on
   const [moduloAgendamento, setModuloAgendamento] = useState(assinante.modulo_agendamento ?? false);
   const [moduloComprovantes, setModuloComprovantes] = useState(assinante.modulo_comprovantes ?? false);
   const [categoriaAgendamento, setCategoriaAgendamento] = useState(assinante.categoria_agendamento || 'beleza');
+  const [segmento, setSegmento] = useState(assinante.segmento || localStorage.getItem(`amp_segmento_${assinante.id}`) || 'misto');
   const [ultimoNumeroNfse, setUltimoNumeroNfse] = useState(assinante.nfse_ultimo_numero || '');
   const [salvando, setSalvando] = useState(false);
   const [enviandoLink, setEnviandoLink] = useState(false);
@@ -463,6 +464,7 @@ export function AdminDetalheAssinante({ assinante, onAtualizarDados, onClose, on
     localStorage.setItem(`amp_modulo_agendamento_${assinante.id}`, moduloAgendamento ? 'true' : 'false');
     localStorage.setItem(`amp_modulo_comprovantes_${assinante.id}`, moduloComprovantes ? 'true' : 'false');
     localStorage.setItem(`amp_categoria_agendamento_${assinante.id}`, categoriaAgendamento);
+    localStorage.setItem(`amp_segmento_${assinante.id}`, segmento);
 
     const resultado = await onAtualizarDados(assinante.id, {
       status,
@@ -473,6 +475,7 @@ export function AdminDetalheAssinante({ assinante, onAtualizarDados, onClose, on
       modulo_agendamento: moduloAgendamento,
       modulo_comprovantes: moduloComprovantes,
       categoria_agendamento: categoriaAgendamento,
+      segmento,
       nfse_ultimo_numero: ultimoNumeroNfse ? parseInt(ultimoNumeroNfse) : 0,
       razao_social: formEmpresa.trim(),
       nome_fantasia: formFantasia.trim(),
@@ -579,6 +582,19 @@ export function AdminDetalheAssinante({ assinante, onAtualizarDados, onClose, on
               placeholder="(00) 00000-0000"
               style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #CBD5E1', fontSize: 13, boxSizing: 'border-box', background: '#fff' }}
             />
+          </div>
+          <div>
+            <FieldLabel>Segmento / Modelo de Custos</FieldLabel>
+            <select
+              value={segmento}
+              onChange={e => setSegmento(e.target.value)}
+              style={{ width: '100%', padding: '8px 10px', borderRadius: 8, border: '1px solid #CBD5E1', fontSize: 13, boxSizing: 'border-box', background: '#fff', fontWeight: 600, color: '#0F2B27' }}
+            >
+              <option value="misto">🌐 Misto / Geral (CMV / CSP)</option>
+              <option value="servicos">💼 Prestação de Serviços (CSP)</option>
+              <option value="comercio">🛍️ Comércio & Varejo (CMV)</option>
+              <option value="industria">🏭 Indústria & Produção (CPV)</option>
+            </select>
           </div>
         </div>
       </div>

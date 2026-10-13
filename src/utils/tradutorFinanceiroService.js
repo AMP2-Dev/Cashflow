@@ -1,5 +1,6 @@
 import { MESES } from './constants';
 import { formatBRL } from './formatters';
+import { obterTermosSegmento } from './segmentoLabels';
 
 /**
  * Apura os indicadores analíticos de um determinado mês a partir do histórico de lançamentos
@@ -25,7 +26,7 @@ export function apurarMetricasMes(lancamentos, mes, ano, pctCmvPadrao = 0) {
   const financeiras = despesasFin.reduce((s, l) => s + (l.valor || 0), 0);
   const investimentos = despesasInvest.reduce((s, l) => s + (l.valor || 0), 0);
 
-  // CMV DRE (Estimado por % ou Compras)
+  // CMV / CSP DRE (Estimado por % ou Compras)
   let cmv = 0;
   if (pctCmvPadrao > 0) {
     cmv = faturamento * (pctCmvPadrao / 100);
@@ -43,7 +44,7 @@ export function apurarMetricasMes(lancamentos, mes, ano, pctCmvPadrao = 0) {
   const lucroDRE = resultadoOperacional - financeiras - investimentos;
   const totalDespesasPagas = fixas + variaveis + cmvCompras + financeiras + investimentos;
   const saldoCaixa = faturamento - totalDespesasPagas;
-  const diferencaEstoque = cmvCompras - cmv; // positivo se comprou mais do que consumiu
+  const diferencaEstoque = cmvCompras - cmv; // positivo se desembolsou mais do que alocou/consumiu
   const taxaReinvestimentoPct = faturamento > 0 ? (investimentos / faturamento) * 100 : 0;
 
   const pctAtingidoPE = pontoEquilibrio > 0 ? (faturamento / pontoEquilibrio) * 100 : 0;
@@ -80,7 +81,7 @@ export function apurarMetricasMes(lancamentos, mes, ano, pctCmvPadrao = 0) {
 /**
  * Gera a tradução executiva do mês em linguagem humana
  */
-export function gerarDiagnosticoMensal(m, empresaNome = 'Empresa') {
+export function gerarDiagnosticoMensal(m, empresaNome = 'Empresa', empresa = null, lancamentos = []) {
   if (!m || !m.temDados) {
     return {
       titulo: `Sem lançamentos em ${m.nomeMes}`,
@@ -89,18 +90,44 @@ export function gerarDiagnosticoMensal(m, empresaNome = 'Empresa') {
     };
   }
 
+  const termos = obterTermosSegmento(empresa, lancamentos);
   const atingiuPE = m.pctAtingidoPE >= 100;
   const deuLucroDRE = m.lucroDRE > 0;
   const caixaPositivo = m.saldoCaixa >= 0;
 
-  // Análise da discrepância Caixa vs DRE
+  // Análise da discrepância Caixa vs DRE contextualizada por segmento
   let explicacaoEstoque = '';
-  if (m.diferencaEstoque > 100) {
-    explicacaoEstoque = `Você pagou ${formatBRL(m.cmvCompras)} em mercadorias/fornecedores, mas consumiu ${formatBRL(m.cmv)} nas vendas. Essa diferença de ${formatBRL(m.diferencaEstoque)} saiu do caixa e ficou estocada (em produtos) ou quitou compras a prazo passadas.`;
-  } else if (m.diferencaEstoque < -100) {
-    explicacaoEstoque = `Você consumiu ${formatBRL(m.cmv)} em mercadorias, mas desembolsou apenas ${formatBRL(m.cmvCompras)} em compras no mês. Isso significa que girou o estoque que já tinha em casa, aliviando o caixa!`;
+  if (termos.segmento === 'servicos') {
+    if (m.diferencaEstoque > 100) {
+      explicacaoEstoque = `Você desembolsou ${formatBRL(m.cmvCompras)} em custos diretos (subcontratações, terceiros ou insumos operacionais), mas alocou ${formatBRL(m.cmv)} nos serviços executados do mês. Essa diferença de ${formatBRL(m.diferencaEstoque)} saiu do caixa e antecipou insumos/adiantamentos de projetos futuros.`;
+    } else if (m.diferencaEstoque < -100) {
+      explicacaoEstoque = `Você alocou ${formatBRL(m.cmv)} em custos diretos dos projetos/serviços, mas desembolsou apenas ${formatBRL(m.cmvCompras)} no caixa no mês. Isso indica que aproveitou serviços/materiais já contratados anteriormente, aliviando o caixa!`;
+    } else if (m.cmvCompras === 0 && m.cmv === 0) {
+      explicacaoEstoque = `Operação de serviços puros sem custos diretos de terceiros ou insumos aplicados no mês. Toda a receita contribui diretamente para a cobertura dos custos fixos.`;
+    } else {
+      explicacaoEstoque = `Os desembolsos com custos diretos (${formatBRL(m.cmvCompras)}) foram equilibrados com a alocação dos serviços prestados no mês.`;
+    }
   } else {
-    explicacaoEstoque = `As compras de mercadorias no mês (${formatBRL(m.cmvCompras)}) foram equilibradas com o consumo real das vendas.`;
+    // Comércio, Indústria ou Misto
+    if (m.diferencaEstoque > 100) {
+      explicacaoEstoque = `Você pagou ${formatBRL(m.cmvCompras)} em compras/fornecedores diretos, mas consumiu ${formatBRL(m.cmv)} nas vendas. Essa diferença de ${formatBRL(m.diferencaEstoque)} saiu do caixa e ficou em ${termos.rotuloInventario.toLowerCase()} ou quitou compras a prazo passadas.`;
+    } else if (m.diferencaEstoque < -100) {
+      explicacaoEstoque = `Você consumiu ${formatBRL(m.cmv)} em mercadorias/insumos, mas desembolsou apenas ${formatBRL(m.cmvCompras)} em compras no mês. Isso significa que girou o ${termos.rotuloInventario.toLowerCase()} que já tinha em casa, aliviando o caixa!`;
+    } else {
+      explicacaoEstoque = `As aquisições diretas no mês (${formatBRL(m.cmvCompras)}) foram equilibradas com o consumo real das operações.`;
+    }
+  }
+
+  // Recomendação contextualizada
+  let recomendacao = '';
+  if (atingiuPE) {
+    if (termos.segmento === 'servicos') {
+      recomendacao = '• A operação é rentável e gera margem consistente. Foco agora em manter a produtividade da equipe, eficiência dos prestadores e prazos de recebimento.';
+    } else {
+      recomendacao = '• A operação é rentável e gera margem consistente. Foco agora em manter o giro do estoque e prazos com fornecedores.';
+    }
+  } else {
+    recomendacao = '• Prioridade para o próximo mês: alavancar o volume de vendas ou renegociar despesas fixas para alcançar o Ponto de Equilíbrio com folga.';
   }
 
   // Montagem do texto estruturado para WhatsApp
@@ -118,7 +145,7 @@ Olá! Segue a tradução analítica dos resultados de *${m.nomeMes}*:
 
 📈 *2. RESULTADO OPERACIONAL & LUCRATIVIDADE (DRE)*
 • Faturamento Bruto: *${formatBRL(m.faturamento)}*
-• (-) Custo das Vendas (CMV): *-${formatBRL(m.cmv)}*
+• (-) ${termos.rotuloDRE}: *-${formatBRL(m.cmv)}*
 • (-) Despesas Variáveis: *-${formatBRL(m.variaveis)}*
 • (-) Despesas Fixas: *-${formatBRL(m.fixas)}*
 • *(=) Lucro Operacional (EBITDA - Antes de Investir):* *${m.resultadoOperacional >= 0 ? '+' : ''}${formatBRL(m.resultadoOperacional)}* (${m.margemOperacionalPct.toFixed(1)}% de margem)
@@ -131,13 +158,11 @@ ${m.financeiras > 0 ? `• (-) Despesas Financeiras: *-${formatBRL(m.financeiras
 
 💡 *Reconciliação Exata:*
 ${m.investimentos > 0 ? `🚀 *Reinvestimento Estratégico:* A empresa investiu ${formatBRL(m.investimentos)} (${m.taxaReinvestimentoPct.toFixed(1)}% da receita) na modernização / implantação.\n` : ''}${deuLucroDRE && !caixaPositivo 
-  ? `(+) Lucro Líquido DRE: *+${formatBRL(m.lucroDRE)}*\n(-) Compras extras de mercadorias pagas: *-${formatBRL(m.diferencaEstoque)}*\n(=) Saldo Bancário do mês: *${formatBRL(m.saldoCaixa)}*\n\n📌 *Conclusão:* O dinheiro *não sumiu*! ${explicacaoEstoque}`
+  ? `(+) Lucro Líquido DRE: *+${formatBRL(m.lucroDRE)}*\n(-) Desembolsos extras com ${termos.rotuloInsumosCard.toLowerCase()}: *-${formatBRL(m.diferencaEstoque)}*\n(=) Saldo Bancário do mês: *${formatBRL(m.saldoCaixa)}*\n\n📌 *Conclusão:* O dinheiro *não sumiu*! ${explicacaoEstoque}`
   : `Resultado operacional saudável. ${explicacaoEstoque}`}
 
 🚀 *RECOMENDAÇÃO ESTRATÉGICA:*
-${atingiuPE 
-  ? '• A operação é rentável e gera margem consistente. Foco agora em manter o giro do estoque e prazos com fornecedores.' 
-  : '• Prioridade para o próximo mês: alavancar o volume de vendas ou renegociar despesas fixas para alcançar o Ponto de Equilíbrio com folga.'}
+${recomendacao}
 
 Conte com nosso apoio estratégico! Estamos à inteira disposição.`;
 
@@ -148,13 +173,14 @@ Conte com nosso apoio estratégico! Estamos à inteira disposição.`;
     caixaPositivo,
     explicacaoEstoque,
     textoWhatsApp,
+    termos,
   };
 }
 
 /**
  * Gera a tradução comparativa entre dois meses (Mês Atual vs Mês Anterior)
  */
-export function gerarComparativoBimestral(mAtual, mAnterior, empresaNome = 'Empresa') {
+export function gerarComparativoBimestral(mAtual, mAnterior, empresaNome = 'Empresa', empresa = null, lancamentos = []) {
   if (!mAtual || !mAnterior || !mAtual.temDados || !mAnterior.temDados) {
     return {
       temDadosSuficientes: false,
@@ -162,6 +188,7 @@ export function gerarComparativoBimestral(mAtual, mAnterior, empresaNome = 'Empr
     };
   }
 
+  const termos = obterTermosSegmento(empresa, lancamentos);
   const varFatPct = mAnterior.faturamento > 0 
     ? ((mAtual.faturamento - mAnterior.faturamento) / mAnterior.faturamento) * 100 
     : 0;
@@ -169,6 +196,19 @@ export function gerarComparativoBimestral(mAtual, mAnterior, empresaNome = 'Empr
   const varSaldoCaixa = mAtual.saldoCaixa - mAnterior.saldoCaixa;
   const varFixas = mAtual.fixas - mAnterior.fixas;
   const varComprasCmv = mAtual.cmvCompras - mAnterior.cmvCompras;
+
+  let insightComparativo = '';
+  if (varFatPct >= 0 && varSaldoCaixa < 0) {
+    if (termos.segmento === 'servicos') {
+      insightComparativo = `Mesmo faturando ${varFatPct.toFixed(1)}% a mais em ${mAtual.nomeMes}, o saldo bancário reduziu porque os desembolsos diretos com ${termos.rotuloInsumosCard.toLowerCase()} subiram ${formatBRL(varComprasCmv)}. O capital antecipou demandas para viabilizar as próximas entregas.`;
+    } else {
+      insightComparativo = `Mesmo faturando ${varFatPct.toFixed(1)}% a mais em ${mAtual.nomeMes}, o saldo bancário reduziu porque as compras de mercadorias/fornecedores subiram ${formatBRL(varComprasCmv)}. O capital foi aplicado em estoque para viabilizar as próximas vendas.`;
+    }
+  } else if (varFatPct >= 0 && varSaldoCaixa >= 0) {
+    insightComparativo = `Excelente evolução! As receitas cresceram e a geração de caixa acompanhou o ritmo com aumento do saldo financeiro.`;
+  } else {
+    insightComparativo = `Atenção à queda de faturamento em ${mAtual.nomeMes}. Recomendamos ajustar as contratações/compras e focar na redução de custos fixos.`;
+  }
 
   const textoWhatsApp = 
 `📊 *COMPARATIVO FINANCEIRO EXECUTIVO — ${mAnterior.nomeMes.toUpperCase()} vs ${mAtual.nomeMes.toUpperCase()}/${mAtual.ano}*
@@ -185,20 +225,16 @@ Olá! Segue a análise comparativa de desempenho entre os dois últimos meses:
 • Meta ${mAnterior.nomeMes}: *${formatBRL(mAnterior.pontoEquilibrio)}* (${mAnterior.pctAtingidoPE.toFixed(0)}% atingido)
 • Meta ${mAtual.nomeMes}: *${formatBRL(mAtual.pontoEquilibrio)}* (${mAtual.pctAtingidoPE.toFixed(0)}% atingido)
 
-📉 *3. ESTRUTURA DE CUSTOS E COMPRAS*
+📉 *3. ESTRUTURA DE CUSTOS E DESEMBOLSOS*
 • Despesas Fixas: ${varFixas >= 0 ? '+' : ''}${formatBRL(varFixas)} (de ${formatBRL(mAnterior.fixas)} para ${formatBRL(mAtual.fixas)})
-• Compras de Estoque/Fornecedores: ${varComprasCmv >= 0 ? '+' : ''}${formatBRL(varComprasCmv)} (de ${formatBRL(mAnterior.cmvCompras)} para ${formatBRL(mAtual.cmvCompras)})
+• ${termos.rotuloInsumosCard}: ${varComprasCmv >= 0 ? '+' : ''}${formatBRL(varComprasCmv)} (de ${formatBRL(mAnterior.cmvCompras)} para ${formatBRL(mAtual.cmvCompras)})
 
 📈 *4. RESULTADO LÍQUIDO (DRE) vs CAIXA*
 • Lucro Líquido DRE: de *${formatBRL(mAnterior.lucroDRE)}* para *${formatBRL(mAtual.lucroDRE)}* (${varLucroDRE >= 0 ? '+' : ''}${formatBRL(varLucroDRE)})
 • Saldo em Conta Bancária: de *${formatBRL(mAnterior.saldoCaixa)}* para *${formatBRL(mAtual.saldoCaixa)}* (${varSaldoCaixa >= 0 ? '+' : ''}${formatBRL(varSaldoCaixa)})
 
 💡 *INSIGHT EXECUTIVO:*
-${varFatPct >= 0 && varSaldoCaixa < 0
-  ? `Mesmo faturando ${varFatPct.toFixed(1)}% a mais em ${mAtual.nomeMes}, o saldo bancário reduziu porque as compras de mercadorias/fornecedores subiram ${formatBRL(varComprasCmv)}. O capital foi aplicado em estoque para viabilizar as próximas vendas.`
-  : varFatPct >= 0 && varSaldoCaixa >= 0
-  ? `Excelente evolução! As vendas cresceram e a geração de caixa acompanhou o ritmo com aumento do saldo financeiro.`
-  : `Atenção à queda de vendas em ${mAtual.nomeMes}. Recomendamos ajustar as compras e focar na redução de custos fixos.`}
+${insightComparativo}
 
 Qualquer dúvida, estamos à disposição para apoiar nas decisões!`;
 

@@ -8,6 +8,7 @@ import { EspelhoDanfseModal } from '../components/EspelhoDanfseModal';
 import { CATEGORIAS, MESES } from '../utils/constants';
 import { formatBRL } from '../utils/formatters';
 import { gerarChaveAcessoNfse } from '../utils/nfseService';
+import { obterTermosSegmento } from '../utils/segmentoLabels';
 
 export function Dashboard({ 
   lancamentos, 
@@ -31,6 +32,7 @@ export function Dashboard({
   ehAdmin 
 }) {
   const ehDono = papel !== 'funcionario';
+  const termos = useMemo(() => obterTermosSegmento(empresa, lancamentosAno || lancamentos), [empresa, lancamentosAno, lancamentos]);
   const [pctCmv, setPctCmv] = useState(0);
   const [peExpandido, setPeExpandido] = useState(false);
   const [showTradutorModal, setShowTradutorModal] = useState(false);
@@ -494,10 +496,10 @@ export function Dashboard({
                   <AlertTriangle size={15} /> Ponto de Equilíbrio Indisponível (Margem de Contribuição Negativa)
                 </div>
                 <div style={{ marginTop: 4 }}>
-                  Sua empresa possui <strong>{formatBRL(peCalculo.custosFixos)}</strong> em custos fixos cadastrados neste mês. Porém, as compras de mercadorias lançadas como CMV (<strong>{formatBRL(peCalculo.cmvCalculado)}</strong>) superam o faturamento de vendas (<strong>{formatBRL(totalReceita)}</strong>), gerando margem negativa de <strong>{formatBRL(peCalculo.margemContribuicao)}</strong>.
+                  Sua empresa possui <strong>{formatBRL(peCalculo.custosFixos)}</strong> em custos fixos cadastrados neste mês. Porém, {termos.alertaDashboard} (<strong>{formatBRL(peCalculo.cmvCalculado)}</strong>) superam o faturamento de vendas (<strong>{formatBRL(totalReceita)}</strong>), gerando margem negativa de <strong>{formatBRL(peCalculo.margemContribuicao)}</strong>.
                 </div>
                 <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px dashed #FCD34D', fontSize: 11.5 }}>
-                  💡 <strong>Por que isso acontece?</strong> Se essa compra de mercadorias foi para estoque que ainda será vendido nos próximos meses, vá na aba <strong>DRE</strong> e use <strong>"Apurar por Estoque"</strong> ou <strong>"Configurar % CMV"</strong> (ex: 35%). Assim o sistema calcula o custo apenas do que foi vendido e apura sua meta real de vendas!
+                  💡 <strong>Por que isso acontece?</strong> Se esse desembolso foi para estoque/materiais de projetos futuros, vá na aba <strong>DRE</strong> e use <strong>"{termos.rotuloInventario}"</strong> ou <strong>"{termos.rotuloBotaoPct}"</strong> (ex: 20% para serviços com terceiros, ou 45% para comércio). Assim o sistema calcula o custo apenas do faturamento realizado e apura sua meta real de faturamento!
                 </div>
               </div>
             ) : (

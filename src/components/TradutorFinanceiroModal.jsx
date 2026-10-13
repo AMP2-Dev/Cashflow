@@ -10,6 +10,7 @@ import {
   gerarDiagnosticoMensal, 
   gerarComparativoBimestral 
 } from '../utils/tradutorFinanceiroService';
+import { obterTermosSegmento } from '../utils/segmentoLabels';
 
 export function TradutorFinanceiroModal({
   lancamentosAno,
@@ -23,16 +24,17 @@ export function TradutorFinanceiroModal({
   const [copiado, setCopiado] = useState(false);
 
   const empresaNome = empresa?.razao_social || empresa?.nome_fantasia || empresa?.fantasia || 'Nossa Empresa';
+  const termos = obterTermosSegmento(empresa, lancamentosAno);
 
   // 1. Apuração Mês Atual
   const metricasAtual = apurarMetricasMes(lancamentosAno, mesAtual, anoAtual, pctCmvConfig);
-  const diagAtual = gerarDiagnosticoMensal(metricasAtual, empresaNome);
+  const diagAtual = gerarDiagnosticoMensal(metricasAtual, empresaNome, empresa, lancamentosAno);
 
   // 2. Apuração Mês Anterior
   const mesAnteriorIdx = mesAtual > 0 ? mesAtual - 1 : 11;
   const anoAnterior = mesAtual > 0 ? anoAtual : anoAtual - 1;
   const metricasAnterior = apurarMetricasMes(lancamentosAno, mesAnteriorIdx, anoAnterior, pctCmvConfig);
-  const diagComparativo = gerarComparativoBimestral(metricasAtual, metricasAnterior, empresaNome);
+  const diagComparativo = gerarComparativoBimestral(metricasAtual, metricasAnterior, empresaNome, empresa, lancamentosAno);
 
   // Texto atual a ser copiado conforme a aba
   const textoParaCopiar = modoAba === 'comparativo' 
@@ -348,7 +350,7 @@ export function TradutorFinanceiroModal({
                       </div>
 
                       <div style={{ background: '#F8F7F2', padding: '10px', borderRadius: 8 }}>
-                        <div style={{ fontSize: 10.5, color: '#7A7868' }}>Compras de Estoque / Fornec.</div>
+                        <div style={{ fontSize: 10.5, color: '#7A7868' }}>{termos.rotuloInsumosCard}</div>
                         <div style={{ fontSize: 15, fontWeight: 700, color: '#1C2421', marginTop: 2 }}>
                           {formatBRL(metricasAtual.cmvCompras)}
                         </div>
