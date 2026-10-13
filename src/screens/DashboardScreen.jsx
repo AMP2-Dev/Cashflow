@@ -575,6 +575,8 @@ export function Dashboard({
               <ChevronRight size={14} />
             </button>
           </div>
+        )}
+      </div>
       )}
 
       {/* ── BOTÃO DE ATALHO RÁPIDO: SCANNER INTELIGENTE DE COMPROVANTES (OCR IA) ── */}
