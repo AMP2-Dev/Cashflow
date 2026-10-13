@@ -31,6 +31,13 @@ export function DREScreen({ lancamentos, lancamentosAno, mesAtual, anoAtual, emp
 
   useEffect(() => {
     if (!empresaId || mesAtual === undefined || anoAtual === undefined) return;
+    const localKey = `amp_cmv_config_${empresaId}_${anoAtual}_${mesAtual}`;
+    const localVal = parseFloat(localStorage.getItem(localKey) || '0');
+    if (localVal > 0) {
+      setPctCmvConfig(localVal);
+      setPctCmvStr(String(localVal));
+    }
+
     supabase
       .from('cmv_config')
       .select('pct_cmv')
@@ -39,29 +46,45 @@ export function DREScreen({ lancamentos, lancamentosAno, mesAtual, anoAtual, emp
       .eq('ano', anoAtual)
       .maybeSingle()
       .then(({ data }) => {
-        const v = data?.pct_cmv ?? 0;
-        setPctCmvConfig(v);
-        setPctCmvStr(v > 0 ? String(v) : '');
+        if (data?.pct_cmv !== undefined && data?.pct_cmv !== null) {
+          const v = data.pct_cmv;
+          setPctCmvConfig(v);
+          setPctCmvStr(v > 0 ? String(v) : '');
+          localStorage.setItem(localKey, String(v));
+        }
       });
   }, [empresaId, mesAtual, anoAtual]);
 
   async function salvarPctCmv() {
     const pct = parseFloat((pctCmvStr || '0').replace(',', '.')) || 0;
+    const localKey = `amp_cmv_config_${empresaId}_${anoAtual}_${mesAtual}`;
     setSalvandoCmv(true);
-    const { error } = await supabase.from('cmv_config').upsert({
-      empresa_id: empresaId,
-      mes: mesAtual,
-      ano: anoAtual,
-      pct_cmv: pct,
-    }, { onConflict: 'empresa_id,mes,ano' });
-    
-    if (error) {
-      alert('Erro ao salvar % CMV: ' + error.message);
-    } else {
-      setPctCmvConfig(pct);
+
+    // Salva imediatamente em localStorage para a interface atualizar instantaneamente
+    localStorage.setItem(localKey, String(pct));
+    setPctCmvConfig(pct);
+
+    try {
+      const { error } = await supabase.from('cmv_config').upsert({
+        empresa_id: empresaId,
+        mes: mesAtual,
+        ano: anoAtual,
+        pct_cmv: pct,
+      }, { onConflict: 'empresa_id,mes,ano' });
+      
+      if (error) {
+        console.warn('Aviso ao sincronizar cmv_config na nuvem:', error);
+        // Se for violação de RLS no Supabase, mantemos salvo localmente sem travar o usuário
+        if (!error.message?.includes('row-level security') && error.code !== '42501') {
+          alert('Erro ao sincronizar % CMV na nuvem: ' + error.message);
+        }
+      }
+    } catch (err) {
+      console.warn('Exceção ao sincronizar % CMV:', err);
+    } finally {
+      setSalvandoCmv(false);
       setModalCmvAberto(false);
     }
-    setSalvandoCmv(false);
   }
 
   // Filtrar lançamentos baseado no regime

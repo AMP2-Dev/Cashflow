@@ -10,6 +10,10 @@ export function GestaoAVistaScreen({ lancamentosAno = [], mesAtual = new Date().
 
   useEffect(() => {
     if (!empresaId || mesAtual === undefined || anoAtual === undefined) return;
+    const localKey = `amp_cmv_config_${empresaId}_${anoAtual}_${mesAtual}`;
+    const localVal = parseFloat(localStorage.getItem(localKey) || '0');
+    if (localVal > 0) setPctCmv(localVal);
+
     supabase
       .from('cmv_config')
       .select('pct_cmv')
@@ -18,7 +22,10 @@ export function GestaoAVistaScreen({ lancamentosAno = [], mesAtual = new Date().
       .eq('ano', anoAtual)
       .maybeSingle()
       .then(({ data }) => {
-        setPctCmv(data?.pct_cmv ?? 0);
+        if (data?.pct_cmv !== undefined && data?.pct_cmv !== null) {
+          setPctCmv(data.pct_cmv);
+          localStorage.setItem(localKey, String(data.pct_cmv));
+        }
       });
   }, [empresaId, mesAtual, anoAtual]);
 
