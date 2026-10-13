@@ -498,7 +498,11 @@ export function EmitirNfseModal({
       onClose={onClose} 
       titulo={isEdicao 
         ? `Editar NFS-e Nº ${numeroAlvo}` 
-        : (isOficializandoExistente ? `Oficializar NFS-e Nº ${numeroAlvo} na Receita Federal` : "Emitir Nota Fiscal de Serviços (NFS-e)")}
+        : (isOficializandoExistente 
+            ? `Oficializar NFS-e Nº ${numeroAlvo} na Receita Federal` 
+            : (dadosIniciais?.isClonadaParaNova 
+                ? `Nova NFS-e (Reaproveitada da Nota Nº ${dadosIniciais.notaOrigemNumero})` 
+                : "Emitir Nota Fiscal de Serviços (NFS-e)"))}
     >
       <div style={{ maxHeight: '78vh', overflowY: 'auto', paddingRight: 4 }}>
         
@@ -508,10 +512,16 @@ export function EmitirNfseModal({
             ? 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)'
             : (isOficializandoExistente 
                 ? 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)' 
-                : 'linear-gradient(135deg, #EAF4F1 0%, #DDF0EA 100%)'),
+                : (dadosIniciais?.isClonadaParaNova
+                    ? 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)'
+                    : 'linear-gradient(135deg, #EAF4F1 0%, #DDF0EA 100%)')),
           borderRadius: 12,
           padding: '12px 14px',
-          border: isEdicao ? '1px solid #93C5FD' : (isOficializandoExistente ? '1px solid #F59E0B' : '1px solid #B8DDD2'),
+          border: isEdicao 
+            ? '1px solid #93C5FD' 
+            : (isOficializandoExistente 
+                ? '1px solid #F59E0B' 
+                : (dadosIniciais?.isClonadaParaNova ? '1px solid #6EE7B7' : '1px solid #B8DDD2')),
           marginBottom: 16,
           display: 'flex',
           justifyContent: 'space-between',
@@ -519,31 +529,37 @@ export function EmitirNfseModal({
           gap: 10
         }}>
           <div style={{ display: 'flex', gap: 10, alignItems: 'center' }}>
-            <ShieldCheck size={26} color={isEdicao ? "#2563EB" : (isOficializandoExistente ? "#B45309" : "#1F5C52")} style={{ flexShrink: 0 }} />
+            <ShieldCheck size={26} color={isEdicao ? "#2563EB" : (isOficializandoExistente ? "#B45309" : (dadosIniciais?.isClonadaParaNova ? "#059669" : "#1F5C52"))} style={{ flexShrink: 0 }} />
             <div>
-              <div style={{ fontSize: 13, fontWeight: 700, color: isEdicao ? '#1E40AF' : (isSubstituicao ? '#991B1B' : (isOficializandoExistente ? '#92400E' : '#0F2B27')) }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: isEdicao ? '#1E40AF' : (isSubstituicao ? '#991B1B' : (isOficializandoExistente ? '#92400E' : (dadosIniciais?.isClonadaParaNova ? '#065F46' : '#0F2B27'))) }}>
                 {isEdicao 
                   ? `Edição dos Dados da NFS-e Nº ${numeroAlvo}`
                   : (isSubstituicao 
                       ? `Substituição da NFS-e Nº ${numeroSubstituida}`
-                      : (isOficializandoExistente ? `Validação Oficial da Nota Nº ${numeroAlvo}` : 'Emissão Direta Padrão Nacional NFS-e'))}
+                      : (isOficializandoExistente 
+                          ? `Validação Oficial da Nota Nº ${numeroAlvo}` 
+                          : (dadosIniciais?.isClonadaParaNova 
+                              ? `Nova NFS-e (Copiada da Nota Nº ${dadosIniciais.notaOrigemNumero})` 
+                              : 'Emissão Direta Padrão Nacional NFS-e')))}
               </div>
-              <div style={{ fontSize: 11, color: isEdicao ? '#1E3A8A' : (isSubstituicao ? '#991B1B' : (isOficializandoExistente ? '#78350F' : '#2C5A51')), marginTop: 1 }}>
+              <div style={{ fontSize: 11, color: isEdicao ? '#1E3A8A' : (isSubstituicao ? '#991B1B' : (isOficializandoExistente ? '#78350F' : (dadosIniciais?.isClonadaParaNova ? '#047857' : '#2C5A51'))), marginTop: 1 }}>
                 {isEdicao 
                   ? 'Altere o valor, dados do cliente ou discriminação. Ao salvar, a nota e o lançamento financeiro no caixa serão atualizados.'
                   : (isSubstituicao 
                       ? `Esta emissão irá gerar uma nova NFS-e oficial vinculada e cancelará/substituirá a nota Nº ${numeroSubstituida}.`
                       : (isOficializandoExistente 
                           ? 'Esta nota será assinada e transmitida à SEFIN Nacional, substituindo o rascunho sem duplicar o caixa.'
-                          : <>Última nota contábil: <strong>Nº {maiorNumeroExistente}</strong></>))}
+                          : (dadosIniciais?.isClonadaParaNova
+                              ? 'Dados pré-carregados da nota anterior. A competência foi renovada para hoje e todos os campos estão livres para alteração.'
+                              : <>Última nota contábil: <strong>Nº {maiorNumeroExistente}</strong></>)))}
               </div>
             </div>
           </div>
-          <div style={{ textAlign: 'right', background: '#fff', border: isEdicao ? '1px solid #93C5FD' : (isSubstituicao ? '1px solid #FCA5A5' : (isOficializandoExistente ? '1px solid #F59E0B' : '1px solid #B8DDD2')), borderRadius: 8, padding: '4px 10px', flexShrink: 0 }}>
+          <div style={{ textAlign: 'right', background: '#fff', border: isEdicao ? '1px solid #93C5FD' : (isSubstituicao ? '1px solid #FCA5A5' : (isOficializandoExistente ? '1px solid #F59E0B' : (dadosIniciais?.isClonadaParaNova ? '1px solid #6EE7B7' : '1px solid #B8DDD2'))), borderRadius: 8, padding: '4px 10px', flexShrink: 0 }}>
             <div style={{ fontSize: 9.5, fontWeight: 700, color: '#5C5A4F', textTransform: 'uppercase' }}>
               {isEdicao ? 'Modo Edição' : (isSubstituicao ? 'Substituta' : (isOficializandoExistente ? 'Número da Nota' : 'Próxima Nota'))}
             </div>
-            <div style={{ fontSize: 16, fontWeight: 800, color: isEdicao ? '#2563EB' : (isSubstituicao ? '#DC2626' : (isOficializandoExistente ? '#B45309' : '#1F5C52')), fontFamily: 'monospace' }}>
+            <div style={{ fontSize: 16, fontWeight: 800, color: isEdicao ? '#2563EB' : (isSubstituicao ? '#DC2626' : (isOficializandoExistente ? '#B45309' : (dadosIniciais?.isClonadaParaNova ? '#059669' : '#1F5C52'))), fontFamily: 'monospace' }}>
               Nº {isEdicao || isOficializandoExistente ? numeroAlvo : proximoNumeroSugerido}
             </div>
           </div>

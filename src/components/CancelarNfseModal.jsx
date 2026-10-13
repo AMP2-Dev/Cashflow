@@ -14,6 +14,7 @@ export function CancelarNfseModal({ nota, empresa, onClose, onConfirmarCancelame
   const [motivo, setMotivo] = useState('1');
   const [justificativa, setJustificativa] = useState('');
   const [estornarCaixa, setEstornarCaixa] = useState(true);
+  const [reutilizarEmNovaNota, setReutilizarEmNovaNota] = useState(true);
   const [processando, setProcessando] = useState(false);
   const [erro, setErro] = useState('');
 
@@ -33,6 +34,8 @@ export function CancelarNfseModal({ nota, empresa, onClose, onConfirmarCancelame
         motivo,
         justificativa: justificativa.trim(),
         estornarCaixa,
+        reutilizarEmNovaNota,
+        nota,
       });
       onClose();
     } catch (e) {
@@ -68,7 +71,10 @@ export function CancelarNfseModal({ nota, empresa, onClose, onConfirmarCancelame
       <div style={{ background: '#FFFBEB', border: '1px solid #FDE68A', borderRadius: 8, padding: '10px 12px', marginBottom: 14, display: 'flex', gap: 8, alignItems: 'flex-start' }}>
         <AlertTriangle size={18} color="#D97706" style={{ flexShrink: 0, marginTop: 2 }} />
         <div style={{ fontSize: 12, color: '#92400E', lineHeight: 1.4 }}>
-          <strong>Atenção:</strong> O cancelamento de uma nota fiscal é uma operação fiscal definitiva perante o Fisco. Se você precisa corrigir valores ou o tomador para emitir novamente, considere também a opção <strong>Substituir Nota</strong>.
+          <strong>Atenção:</strong> O cancelamento de uma nota fiscal é uma operação fiscal perante a Receita Federal.
+          <div style={{ marginTop: 4, color: '#78350F', fontSize: 11.5 }}>
+            💡 <strong>Regra SEFIN (Erro E0063):</strong> No Simples Nacional, o Fisco proíbe alterar tomador, competência ou valor em notas de substituição. O procedimento legal correto é <strong>cancelar a nota original e emitir uma nova</strong>.
+          </div>
         </div>
       </div>
 
@@ -113,6 +119,22 @@ export function CancelarNfseModal({ nota, empresa, onClose, onConfirmarCancelame
           />
           <label htmlFor="estornar-caixa" style={{ fontSize: 12, fontWeight: 700, color: '#1E293B', cursor: 'pointer' }}>
             Atualizar Fluxo de Caixa (estornar/cancelar receita correspondente a esta nota)
+          </label>
+        </div>
+
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10, background: '#F0FDF4', padding: '11px 13px', borderRadius: 8, border: '1px solid #BBF7D0' }}>
+          <input
+            type="checkbox"
+            id="reutilizar-dados"
+            checked={reutilizarEmNovaNota}
+            onChange={e => setReutilizarEmNovaNota(e.target.checked)}
+            style={{ width: 17, height: 17, cursor: 'pointer', accentColor: '#16A34A', marginTop: 2, flexShrink: 0 }}
+          />
+          <label htmlFor="reutilizar-dados" style={{ fontSize: 12.5, fontWeight: 700, color: '#166534', cursor: 'pointer', lineHeight: 1.4 }}>
+            Reaproveitar dados para emitir uma Nova NFS-e
+            <div style={{ fontSize: 11, fontWeight: 500, color: '#15803D', marginTop: 2 }}>
+              Abre imediatamente a emissão com os dados do cliente e serviço já preenchidos, com competência atualizada e campos livres para alteração sem rejeição E0063.
+            </div>
           </label>
         </div>
 

@@ -228,15 +228,47 @@ export function NfseScreen({
     setShowEmitirModal(true);
   }
 
+  // Dispara a criação de uma NOVA nota fiscal a partir dos dados de uma existente (duplicação/reutilização)
+  function handleClonarParaNovaNota(notaAlvo) {
+    if (!notaAlvo) return;
+    setDadosIniciaisEmissao({
+      isClonadaParaNova: true,
+      notaOrigemNumero: notaAlvo.numero,
+      cpfCnpj: (notaAlvo.tomador?.cpfCnpj === '00.000.000/0000-00') ? '' : (notaAlvo.tomador?.cpfCnpj || ''),
+      razaoSocial: notaAlvo.tomador?.razaoSocial || '',
+      email: notaAlvo.tomador?.email || '',
+      telefone: notaAlvo.tomador?.telefone || '',
+      municipio: notaAlvo.tomador?.municipio || '',
+      uf: notaAlvo.tomador?.uf || '',
+      logradouro: notaAlvo.tomador?.logradouro || notaAlvo.tomador?.endereco || '',
+      numeroEnd: notaAlvo.tomador?.numero || '',
+      bairro: notaAlvo.tomador?.bairro || '',
+      cep: notaAlvo.tomador?.cep || '',
+      codMunicipio: notaAlvo.tomador?.codMunicipio || '',
+      valor: notaAlvo.servico?.valorTotal ? String(notaAlvo.servico.valorTotal) : '',
+      discriminacao: notaAlvo.servico?.discriminacao || '',
+      codigoAtividade: notaAlvo.servico?.codigoAtividade || '01.07',
+      aliquotaIss: notaAlvo.servico?.aliquotaIss ? String(notaAlvo.servico.aliquotaIss).replace('.', ',') : '2,0',
+      mesCompetencia: mesAtual,
+    });
+    setShowEmitirModal(true);
+  }
+
   // Executa o cancelamento oficial da nota
-  async function handleConfirmarCancelamento({ numero, motivo, justificativa, estornarCaixa }) {
+  async function handleConfirmarCancelamento({ numero, motivo, justificativa, estornarCaixa, reutilizarEmNovaNota, nota }) {
     try {
+      const notaAlvoParaClonar = nota || notaParaCancelar;
       await nfseService.cancelarNota(empresa.id, numero, motivo, justificativa, estornarCaixa);
       await recarregarDados();
       if (onRecarregarLancamentos) {
         try {
           await onRecarregarLancamentos();
         } catch (e) {}
+      }
+      if (reutilizarEmNovaNota && notaAlvoParaClonar) {
+        setTimeout(() => {
+          handleClonarParaNovaNota(notaAlvoParaClonar);
+        }, 150);
       }
     } catch (e) {
       alert('Erro ao cancelar a nota: ' + e.message);
@@ -959,6 +991,27 @@ export function NfseScreen({
                               <span>Cancelar</span>
                             </button>
                           )}
+
+                          <button
+                            onClick={() => handleClonarParaNovaNota(n)}
+                            title="Reaproveitar dados desta nota para gerar uma nova NFS-e com competência atual (livre de restrições da Receita Federal)"
+                            style={{
+                              background: '#F0FDF4',
+                              border: '1px solid #BBF7D0',
+                              color: '#166534',
+                              borderRadius: 7,
+                              padding: '5px 9px',
+                              fontSize: 11,
+                              fontWeight: 600,
+                              display: 'inline-flex',
+                              alignItems: 'center',
+                              gap: 4,
+                              cursor: 'pointer'
+                            }}
+                          >
+                            <Copy size={12} />
+                            <span>Duplicar</span>
+                          </button>
 
                           {!n.certificadoInfo?.transmissaoNativaGov && !isCancelada && (
                             <button
