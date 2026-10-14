@@ -1318,20 +1318,6 @@ export const nfseService = {
     }
 
     // 4. Sincroniza a numeração oficial da SEFIN Nacional (Notas 76 a 84 autorizadas na Receita)
-    // Caso exista rascunho local '85' da substituição anterior do SEBRAE SP, converte/remove pois na Receita Federal ela entrou diretamente como NFS-e Nº 84
-    if (mapaNotas.has('85')) {
-      const nota85Local = mapaNotas.get('85');
-      if (!mapaNotas.has('84')) {
-        mapaNotas.set('84', normalizarNotaFiscal({
-          ...nota85Local,
-          id: 'nfse_oficial_84',
-          numero: '84',
-        }));
-      }
-      if (somenteDigitos(nota85Local?.tomador?.cpfCnpj || '') === '43728245000142') {
-        mapaNotas.delete('85');
-      }
-    }
 
     // Garante que todas as notas oficiais 76 a 84 existam no mapa mesmo em navegador limpo
     Object.entries(NOTAS_OFICIAIS_SEFIN_NACIONAL).forEach(([numOficial, dadosOficiais]) => {
