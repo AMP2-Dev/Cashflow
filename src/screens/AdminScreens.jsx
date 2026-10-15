@@ -250,6 +250,11 @@ export function AdminPanel({ assinantes, onAtualizarDados, onSair, onRecuperarSe
                             📁 COFRE DIGITAL
                           </span>
                         )}
+                        {a.modulo_open_banking && (
+                          <span style={{ fontSize: 9.5, fontWeight: 800, color: '#065F46', background: '#D1FAE5', padding: '1px 6px', borderRadius: 4, letterSpacing: 0.3 }}>
+                            🏦 OPEN BANKING
+                          </span>
+                        )}
                       </div>
                       <div style={{ fontSize: 11.5, color: '#4B5563', marginTop: 3 }}>
                         {a.nome ? <strong>{a.nome} · </strong> : ''}{a.cpf || 'Sem documento'} · {a.email || 'sem email'} · desde {a.criadoEm || '—'}
@@ -376,6 +381,7 @@ export function AdminDetalheAssinante({ assinante, onAtualizarDados, onClose, on
   const [moduloTradutor, setModuloTradutor] = useState(assinante.modulo_tradutor ?? false);
   const [moduloAgendamento, setModuloAgendamento] = useState(assinante.modulo_agendamento ?? false);
   const [moduloComprovantes, setModuloComprovantes] = useState(assinante.modulo_comprovantes ?? false);
+  const [moduloOpenBanking, setModuloOpenBanking] = useState(assinante.modulo_open_banking ?? false);
   const [categoriaAgendamento, setCategoriaAgendamento] = useState(assinante.categoria_agendamento || 'beleza');
   const [segmento, setSegmento] = useState(assinante.segmento || localStorage.getItem(`amp_segmento_${assinante.id}`) || 'misto');
   const [ultimoNumeroNfse, setUltimoNumeroNfse] = useState(assinante.nfse_ultimo_numero || '');
@@ -463,6 +469,7 @@ export function AdminDetalheAssinante({ assinante, onAtualizarDados, onClose, on
     localStorage.setItem(`amp_modulo_tradutor_${assinante.id}`, moduloTradutor ? 'true' : 'false');
     localStorage.setItem(`amp_modulo_agendamento_${assinante.id}`, moduloAgendamento ? 'true' : 'false');
     localStorage.setItem(`amp_modulo_comprovantes_${assinante.id}`, moduloComprovantes ? 'true' : 'false');
+    localStorage.setItem(`amp_modulo_open_banking_${assinante.id}`, moduloOpenBanking ? 'true' : 'false');
     localStorage.setItem(`amp_categoria_agendamento_${assinante.id}`, categoriaAgendamento);
     localStorage.setItem(`amp_segmento_${assinante.id}`, segmento);
 
@@ -474,6 +481,7 @@ export function AdminDetalheAssinante({ assinante, onAtualizarDados, onClose, on
       modulo_tradutor: moduloTradutor,
       modulo_agendamento: moduloAgendamento,
       modulo_comprovantes: moduloComprovantes,
+      modulo_open_banking: moduloOpenBanking,
       categoria_agendamento: categoriaAgendamento,
       segmento,
       nfse_ultimo_numero: ultimoNumeroNfse ? parseInt(ultimoNumeroNfse) : 0,
@@ -755,6 +763,27 @@ export function AdminDetalheAssinante({ assinante, onAtualizarDados, onClose, on
             checked={moduloComprovantes}
             onChange={e => setModuloComprovantes(e.target.checked)}
             style={{ accentColor: '#475569', width: 20, height: 20, cursor: 'pointer' }}
+          />
+        </label>
+      </div>
+
+      {/* ── CHAVE DE ATIVAÇÃO DO MÓDULO OPEN BANKING / SICOOB (ADD-ON COBRADO) ── */}
+      <div style={{ background: '#FAF8F3', border: '1.5px solid #059669', borderRadius: 12, padding: '14px', marginBottom: 20 }}>
+        <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', cursor: 'pointer' }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#0F2B27', display: 'flex', alignItems: 'center', gap: 6 }}>
+              🏦 Conexão Bancária & Open Banking
+              <span style={{ fontSize: 9.5, background: '#059669', color: '#fff', padding: '1px 6px', borderRadius: 4, fontWeight: 700 }}>PRO</span>
+            </div>
+            <div style={{ fontSize: 11, color: '#5C5A4F', marginTop: 2 }}>
+              Habilita leitura e conciliação direta via API do Sicoob, C6 e BTG Pactual sem arquivos manuais
+            </div>
+          </div>
+          <input
+            type="checkbox"
+            checked={moduloOpenBanking}
+            onChange={e => setModuloOpenBanking(e.target.checked)}
+            style={{ accentColor: '#059669', width: 20, height: 20, cursor: 'pointer' }}
           />
         </label>
       </div>

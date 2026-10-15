@@ -33,6 +33,7 @@ function extrairModulosEmpresa(empresa) {
   let modTradutor = empresa?.modulo_tradutor;
   let modAgendamento = empresa?.modulo_agendamento;
   let modComprovantes = empresa?.modulo_comprovantes;
+  let modOpenBanking = empresa?.modulo_open_banking;
   let catAgendamento = empresa?.categoria_agendamento;
   let ultimoNum = empresa?.nfse_ultimo_numero;
   let nomeResp = empresa?.nome_responsavel;
@@ -45,6 +46,7 @@ function extrairModulosEmpresa(empresa) {
       if (parsed.modulo_tradutor !== undefined && (modTradutor === undefined || modTradutor === null || parsed.modulo_tradutor === true)) modTradutor = parsed.modulo_tradutor;
       if (parsed.modulo_agendamento !== undefined && (modAgendamento === undefined || modAgendamento === null || parsed.modulo_agendamento === true)) modAgendamento = parsed.modulo_agendamento;
       if (parsed.modulo_comprovantes !== undefined && (modComprovantes === undefined || modComprovantes === null || parsed.modulo_comprovantes === true)) modComprovantes = parsed.modulo_comprovantes;
+      if (parsed.modulo_open_banking !== undefined && (modOpenBanking === undefined || modOpenBanking === null || parsed.modulo_open_banking === true)) modOpenBanking = parsed.modulo_open_banking;
       if (parsed.categoria_agendamento !== undefined && !catAgendamento) catAgendamento = parsed.categoria_agendamento;
       if (parsed.nfse_ultimo_numero !== undefined && !ultimoNum) ultimoNum = parsed.nfse_ultimo_numero;
       if (parsed.nome_responsavel !== undefined && !nomeResp) nomeResp = parsed.nome_responsavel;
@@ -69,6 +71,14 @@ function extrairModulosEmpresa(empresa) {
     const local = localStorage.getItem(`amp_modulo_comprovantes_${empresa.id}`);
     if (local !== null) modComprovantes = local === 'true';
   }
+  if (modOpenBanking === undefined && empresa?.id) {
+    const local = localStorage.getItem(`amp_modulo_open_banking_${empresa.id}`);
+    if (local !== null) {
+      modOpenBanking = local === 'true';
+    } else if (empresa?.cnpj && empresa.cnpj.includes('10682233000175')) {
+      modOpenBanking = true;
+    }
+  }
   if (!catAgendamento && empresa?.id) {
     catAgendamento = localStorage.getItem(`amp_categoria_agendamento_${empresa.id}`) || 'beleza';
   }
@@ -87,6 +97,7 @@ function extrairModulosEmpresa(empresa) {
     modulo_tradutor: !!modTradutor,
     modulo_agendamento: !!modAgendamento,
     modulo_comprovantes: !!modComprovantes,
+    modulo_open_banking: !!modOpenBanking,
     categoria_agendamento: catAgendamento || 'beleza',
     nfse_ultimo_numero: ultimoNum || 0,
     nome_responsavel: nomeResp || '',

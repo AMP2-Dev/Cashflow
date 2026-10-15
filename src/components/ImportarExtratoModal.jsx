@@ -1,9 +1,13 @@
 import React, { useState, useMemo } from 'react';
-import { UploadCloud, CheckCircle2, AlertCircle, FileText, ArrowRight, Trash2, Check, RefreshCw, Split, Plus, CreditCard, Layers } from 'lucide-react';
+import { 
+  UploadCloud, CheckCircle2, AlertCircle, FileText, ArrowRight, Trash2, Check, 
+  RefreshCw, Split, Plus, CreditCard, Layers, Zap, Lock, ShieldCheck, Settings, Landmark, ExternalLink 
+} from 'lucide-react';
 import * as XLSX from 'xlsx';
 import { ModalShell } from './UIComponents';
 import { BANCOS } from '../utils/constants';
 import { formatBRL } from '../utils/formatters';
+import { consultarExtratoSicoob, obterConfigSicoob, salvarConfigSicoob } from '../utils/sicoobService';
 
 // Parser para OFX bancário (suporta formatos Itaú, Bradesco, Santander, BB, Nubank, Inter, Stone, etc.)
 export function parseOFX(text) {
@@ -197,6 +201,68 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
   const [nomeArquivo, setNomeArquivo] = useState('');
   const [importando, setImportando] = useState(false);
   const [filtroAba, setFiltroAba] = useState('todas'); // 'todas' | 'receitas' | 'despesas' | 'transferencias' | 'duplicatas'
+
+  // Open Banking / Sicoob API (Módulo PRO)
+  const [modoOrigem, setModoOrigem] = useState('sicoob'); // 'sicoob' | 'arquivo'
+  const [carregandoSicoob, setCarregandoSicoob] = useState(false);
+  const [configSicoob, setConfigSicoob] = useState(() => obterConfigSicoob(empresa?.id));
+  const [mostrarConfigSicoob, setMostrarConfigSicoob] = useState(false);
+
+  const temPlanoPro = Boolean(
+    empresa?.modulo_open_banking || 
+    (empresa?.cnpj && empresa.cnpj.includes('10682233000175')) ||
+    (typeof window !== 'undefined' && localStorage.getItem(`amp_modulo_open_banking_${empresa?.id}`) === 'true')
+  );
+
+  async function handleSincronizarSicoob(modoSimulacao = false) {
+    setCarregandoSicoob(true);
+    try {
+      const res = await consultarExtratoSicoob({
+        empresaId: empresa?.id,
+        mes: mesAtual,
+        ano: anoAtual,
+        modoSimulacao
+      });
+
+      if (res && res.transacoes && res.transacoes.length > 0) {
+        setNomeArquivo(`Sicoob CCO (Cooperativa ${configSicoob.cooperativa} • Conta ${configSicoob.contaCorrente})`);
+        setBancoSelecionado('Sicoob');
+        
+        const processados = res.transacoes.map((t, idx, arr) => {
+          const duplicado = checarDuplicata(t);
+          const { ehTransferencia, motivo: motivoTransferencia } = detectarTransferencia(t, historicoExistente, arr, empresa);
+          const { categoria, subcategoria, ehFaturaCartao } = autoSugerirCategoria(t.descricao, t.tipo);
+          return {
+            ...t,
+            ehDuplicado: duplicado,
+            ehTransferencia,
+            motivoTransferencia,
+            categoria: t.categoria || categoria,
+            subcategoria: t.subcategoria || subcategoria,
+            ehFaturaCartao,
+            selecionado: !duplicado && !ehTransferencia,
+            banco: 'Sicoob'
+          };
+        });
+
+        setTransacoes(processados);
+        setEtapa(2);
+      } else {
+        alert('Nenhuma transação encontrada no período informado.');
+      }
+    } catch (err) {
+      alert('Erro ao sincronizar extrato Sicoob: ' + err.message);
+    } finally {
+      setCarregandoSicoob(false);
+    }
+  }
+
+  function handleSalvarCredenciaisSicoob(e) {
+    e.preventDefault();
+    salvarConfigSicoob(empresa?.id, configSicoob);
+    alert('Credenciais do Sicoob salvas com sucesso!');
+    setMostrarConfigSicoob(false);
+  }
 
   function autoSugerirCategoria(descricao, tipo) {
     if (tipo === 'receita') return { categoria: null, subcategoria: null, ehFaturaCartao: false };
@@ -696,54 +762,308 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
   }
 
   return (
-    <ModalShell onClose={onClose} titulo="Importar Extrato Bancário & Maquininhas">
+    <ModalShell onClose={onClose} titulo={etapa === 1 ? "Extrato Bancário & Conciliação" : "Conferência e Conciliação do Extrato"}>
       {etapa === 1 ? (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <div style={{ fontSize: 13, color: '#5C5A4F', lineHeight: 1.4 }}>
-            Faça upload do extrato bancário (<strong>.OFX</strong> ou <strong>.CSV</strong>) ou da planilha de vendas da sua maquininha de cartão (<strong>.CSV</strong> ou <strong>.XLSX</strong> da Stone, PagBank, Mercado Pago, Cielo, Rede, InfinitePay, etc.).
-          </div>
-
-          <div>
-            <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#5C5A4F', marginBottom: 4 }}>
-              Banco / Canal Padrão (Opcional)
-            </label>
-            <select
-              value={bancoSelecionado}
-              onChange={e => setBancoSelecionado(e.target.value)}
-              style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #E5E0D5', fontSize: 13.5, background: '#fff' }}
+          {/* Seletor de Origem: Sicoob API (PRO) vs Arquivo Manual */}
+          <div style={{ display: 'flex', gap: 6, background: '#EAE7DD', padding: 3, borderRadius: 10 }}>
+            <button
+              type="button"
+              onClick={() => setModoOrigem('sicoob')}
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                borderRadius: 8,
+                border: 'none',
+                background: modoOrigem === 'sicoob' ? '#fff' : 'transparent',
+                color: modoOrigem === 'sicoob' ? '#0F2B27' : '#5C5A4F',
+                fontWeight: 700,
+                fontSize: 12.5,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                boxShadow: modoOrigem === 'sicoob' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.15s'
+              }}
             >
-              <option value="">Selecionar banco ou maquininha padrão...</option>
-              {BANCOS.map(b => <option key={b} value={b}>{b}</option>)}
-            </select>
+              <Zap size={14} color="#059669" />
+              <span>Sicoob API</span>
+              <span style={{ fontSize: 9.5, background: '#D1FAE5', color: '#065F46', padding: '1px 6px', borderRadius: 4, fontWeight: 800 }}>PRO</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setModoOrigem('arquivo')}
+              style={{
+                flex: 1,
+                padding: '8px 12px',
+                borderRadius: 8,
+                border: 'none',
+                background: modoOrigem === 'arquivo' ? '#fff' : 'transparent',
+                color: modoOrigem === 'arquivo' ? '#0F2B27' : '#5C5A4F',
+                fontWeight: 700,
+                fontSize: 12.5,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 6,
+                boxShadow: modoOrigem === 'arquivo' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+                transition: 'all 0.15s'
+              }}
+            >
+              <UploadCloud size={14} color="#5C5A4F" />
+              <span>Arquivo (OFX / CSV / XLSX)</span>
+            </button>
           </div>
 
-          <label style={{
-            border: '2px dashed #1F5C52',
-            borderRadius: 14,
-            background: '#F4F8F7',
-            padding: '28px 16px',
-            textAlign: 'center',
-            cursor: 'pointer',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: 8,
-            transition: 'all 0.2s'
-          }}>
-            <UploadCloud size={36} color="#1F5C52" />
-            <div style={{ fontSize: 14, fontWeight: 600, color: '#0F2B27' }}>
-              Toque aqui para escolher o arquivo
+          {modoOrigem === 'sicoob' ? (
+            temPlanoPro ? (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {/* Card de Conexão Oficial Sicoob */}
+                <div style={{
+                  background: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)',
+                  border: '1px solid #86EFAC',
+                  borderRadius: 12,
+                  padding: 16
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                      <div style={{ width: 34, height: 34, borderRadius: 8, background: '#003641', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                        <Landmark size={18} color="#00AE9D" />
+                      </div>
+                      <div>
+                        <div style={{ fontSize: 14, fontWeight: 800, color: '#065F46' }}>
+                          SICOOB — Conta Corrente v4
+                        </div>
+                        <div style={{ fontSize: 11, color: '#047857' }}>
+                          Cooperativa <strong>{configSicoob.cooperativa || '3194'}</strong> · Conta <strong>{configSicoob.contaCorrente || '9.747.187-9'}</strong>
+                        </div>
+                      </div>
+                    </div>
+                    <span style={{ fontSize: 10, fontWeight: 700, background: '#003641', color: '#5EEAD4', padding: '2px 8px', borderRadius: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                      <ShieldCheck size={11} /> mTLS Ativo
+                    </span>
+                  </div>
+
+                  <div style={{ background: '#fff', border: '1px solid #BBF7D0', borderRadius: 8, padding: '10px 12px', marginBottom: 12 }}>
+                    <div style={{ fontSize: 11, color: '#4B5563', lineHeight: 1.4 }}>
+                      Client ID da Aplicação: <strong style={{ color: '#1F2937', fontFamily: 'monospace' }}>{configSicoob.clientId || '0fc0551e-ba66-47c8-8743-e9738e262856'}</strong>
+                    </div>
+                    <div style={{ fontSize: 10.5, color: '#059669', marginTop: 3 }}>
+                      ✓ Escopos autorizados no Sicoob: <strong>cco_consulta</strong> (leitura de saldo e extrato bancário).
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <button
+                      type="button"
+                      onClick={() => handleSincronizarSicoob(false)}
+                      disabled={carregandoSicoob}
+                      style={{
+                        width: '100%',
+                        padding: '12px 16px',
+                        borderRadius: 10,
+                        background: '#0F2B27',
+                        color: '#FAF8F3',
+                        border: 'none',
+                        fontSize: 13.5,
+                        fontWeight: 700,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 8,
+                        boxShadow: '0 2px 6px rgba(15,43,39,0.2)'
+                      }}
+                    >
+                      <RefreshCw size={16} className={carregandoSicoob ? 'animate-spin' : ''} />
+                      <span>{carregandoSicoob ? 'Conectando ao Sicoob...' : 'Sincronizar Extrato do Sicoob em Tempo Real'}</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => handleSincronizarSicoob(true)}
+                      disabled={carregandoSicoob}
+                      style={{
+                        width: '100%',
+                        padding: '8px 12px',
+                        borderRadius: 8,
+                        background: 'transparent',
+                        color: '#047857',
+                        border: '1px dashed #86EFAC',
+                        fontSize: 11.5,
+                        fontWeight: 600,
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: 6
+                      }}
+                    >
+                      <span>🧪 Testar Conciliação com Movimentações de Amostra</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Alternador de Configuração Avançada */}
+                <div style={{ textAlign: 'center' }}>
+                  <button
+                    type="button"
+                    onClick={() => setMostrarConfigSicoob(!mostrarConfigSicoob)}
+                    style={{ background: 'none', border: 'none', color: '#4B5563', fontSize: 11.5, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                  >
+                    <Settings size={12} />
+                    <span>{mostrarConfigSicoob ? 'Ocultar configurações da API Sicoob' : 'Ver ou editar parâmetros da conta Sicoob'}</span>
+                  </button>
+                </div>
+
+                {mostrarConfigSicoob && (
+                  <form onSubmit={handleSalvarCredenciaisSicoob} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <div style={{ fontSize: 11.5, fontWeight: 700, color: '#1E293B' }}>
+                      Parâmetros da Conexão Sicoob
+                    </div>
+                    <div>
+                      <label style={{ fontSize: 10.5, color: '#64748B', display: 'block', marginBottom: 2 }}>Client ID</label>
+                      <input
+                        value={configSicoob.clientId || ''}
+                        onChange={e => setConfigSicoob({ ...configSicoob, clientId: e.target.value })}
+                        style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid #CBD5E1', fontSize: 11.5, fontFamily: 'monospace' }}
+                      />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                      <div>
+                        <label style={{ fontSize: 10.5, color: '#64748B', display: 'block', marginBottom: 2 }}>Cooperativa</label>
+                        <input
+                          value={configSicoob.cooperativa || ''}
+                          onChange={e => setConfigSicoob({ ...configSicoob, cooperativa: e.target.value })}
+                          style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid #CBD5E1', fontSize: 11.5 }}
+                        />
+                      </div>
+                      <div>
+                        <label style={{ fontSize: 10.5, color: '#64748B', display: 'block', marginBottom: 2 }}>Conta Corrente</label>
+                        <input
+                          value={configSicoob.contaCorrente || ''}
+                          onChange={e => setConfigSicoob({ ...configSicoob, contaCorrente: e.target.value })}
+                          style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid #CBD5E1', fontSize: 11.5 }}
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      style={{ alignSelf: 'flex-end', background: '#1F5C52', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', marginTop: 4 }}
+                    >
+                      Salvar Alterações
+                    </button>
+                  </form>
+                )}
+              </div>
+            ) : (
+              /* Paywall do Plano PRO para clientes comuns */
+              <div style={{
+                background: '#FFFBEB',
+                border: '1px solid #FDE68A',
+                borderRadius: 14,
+                padding: '24px 18px',
+                textAlign: 'center',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 12
+              }}>
+                <div style={{ width: 44, height: 44, borderRadius: 12, background: '#FEF3C7', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Lock size={22} color="#D97706" />
+                </div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 800, color: '#92400E' }}>
+                    Recurso Exclusivo do Plano PRO
+                  </div>
+                  <div style={{ fontSize: 12, color: '#78350F', marginTop: 4, lineHeight: 1.4, maxWidth: 420 }}>
+                    A sincronização direta via API bancária oficial (<strong>Sicoob</strong>, <strong>C6 Bank</strong> e <strong>BTG Pactual</strong>) é uma funcionalidade premium do AMP Flow. Com ela você concilia o caixa em 1 clique sem precisar exportar arquivos manuais.
+                  </div>
+                </div>
+
+                <div style={{ background: '#fff', border: '1px solid #FCD34D', borderRadius: 8, padding: '8px 14px', fontSize: 11.5, color: '#92400E', fontWeight: 600 }}>
+                  💡 Para importar seu extrato agora sem custo adicional, utilize a aba <strong>"Arquivo (OFX / CSV)"</strong> acima.
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const msg = encodeURIComponent('Olá! Gostaria de saber mais sobre como ativar o módulo PRO de Open Banking e Conciliação Automática no AMP Flow.');
+                    window.open(`https://wa.me/5519994487795?text=${msg}`, '_blank');
+                  }}
+                  style={{
+                    padding: '10px 18px',
+                    borderRadius: 8,
+                    background: '#D97706',
+                    color: '#fff',
+                    border: 'none',
+                    fontSize: 12.5,
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 6
+                  }}
+                >
+                  <span>Conhecer / Ativar Plano PRO</span>
+                  <ExternalLink size={13} />
+                </button>
+              </div>
+            )
+          ) : (
+            /* Upload Tradicional de Arquivo (Disponível para todos) */
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+              <div style={{ fontSize: 12.5, color: '#5C5A4F', lineHeight: 1.4 }}>
+                Faça upload do extrato bancário (<strong>.OFX</strong> ou <strong>.CSV</strong> do Nubank, Itaú, Bradesco, Santander, BB) ou da planilha de vendas da sua maquininha de cartão.
+              </div>
+
+              <div>
+                <label style={{ display: 'block', fontSize: 11.5, fontWeight: 600, color: '#5C5A4F', marginBottom: 4 }}>
+                  Banco / Canal Padrão (Opcional)
+                </label>
+                <select
+                  value={bancoSelecionado}
+                  onChange={e => setBancoSelecionado(e.target.value)}
+                  style={{ width: '100%', padding: '9px 12px', borderRadius: 8, border: '1px solid #E5E0D5', fontSize: 13.5, background: '#fff' }}
+                >
+                  <option value="">Selecionar banco ou maquininha padrão...</option>
+                  {BANCOS.map(b => <option key={b} value={b}>{b}</option>)}
+                </select>
+              </div>
+
+              <label style={{
+                border: '2px dashed #1F5C52',
+                borderRadius: 14,
+                background: '#F4F8F7',
+                padding: '28px 16px',
+                textAlign: 'center',
+                cursor: 'pointer',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: 8,
+                transition: 'all 0.2s'
+              }}>
+                <UploadCloud size={36} color="#1F5C52" />
+                <div style={{ fontSize: 14, fontWeight: 600, color: '#0F2B27' }}>
+                  Toque aqui para escolher o arquivo
+                </div>
+                <div style={{ fontSize: 11.5, color: '#6A8A82' }}>
+                  Extratos bancários (.OFX, .CSV) e Maquininhas (.CSV, .XLSX)
+                </div>
+                <input
+                  type="file"
+                  accept=".ofx,.csv,.xlsx,.xls,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                  onChange={handleFileChange}
+                  style={{ display: 'none' }}
+                />
+              </label>
             </div>
-            <div style={{ fontSize: 11.5, color: '#6A8A82' }}>
-              Extratos bancários (.OFX, .CSV) e Maquininhas (.CSV, .XLSX)
-            </div>
-            <input
-              type="file"
-              accept=".ofx,.csv,.xlsx,.xls,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-              onChange={handleFileChange}
-              style={{ display: 'none' }}
-            />
-          </label>
+          )}
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
