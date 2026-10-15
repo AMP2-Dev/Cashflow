@@ -8,6 +8,7 @@ import { ModalShell } from './UIComponents';
 import { BANCOS } from '../utils/constants';
 import { formatBRL } from '../utils/formatters';
 import { consultarExtratoSicoob, obterConfigSicoob, salvarConfigSicoob } from '../utils/sicoobService';
+import { consultarExtratoC6, obterConfigC6, salvarConfigC6 } from '../utils/c6Service';
 
 // Parser para OFX bancário (suporta formatos Itaú, Bradesco, Santander, BB, Nubank, Inter, Stone, etc.)
 export function parseOFX(text) {
@@ -202,11 +203,16 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
   const [importando, setImportando] = useState(false);
   const [filtroAba, setFiltroAba] = useState('todas'); // 'todas' | 'receitas' | 'despesas' | 'transferencias' | 'duplicatas'
 
-  // Open Banking / Sicoob API (Módulo PRO)
-  const [modoOrigem, setModoOrigem] = useState('sicoob'); // 'sicoob' | 'arquivo'
+  // Open Banking / Sicoob & C6 API (Módulo PRO)
+  const [modoOrigem, setModoOrigem] = useState('sicoob'); // 'sicoob' (API) | 'arquivo'
+  const [bancoApiAtivo, setBancoApiAtivo] = useState('sicoob'); // 'sicoob' | 'c6'
   const [carregandoSicoob, setCarregandoSicoob] = useState(false);
   const [configSicoob, setConfigSicoob] = useState(() => obterConfigSicoob(empresa?.id));
   const [mostrarConfigSicoob, setMostrarConfigSicoob] = useState(false);
+
+  const [carregandoC6, setCarregandoC6] = useState(false);
+  const [configC6, setConfigC6] = useState(() => obterConfigC6(empresa?.id));
+  const [mostrarConfigC6, setMostrarConfigC6] = useState(false);
 
   const temPlanoPro = Boolean(
     empresa?.modulo_open_banking || 
@@ -262,6 +268,56 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
     salvarConfigSicoob(empresa?.id, configSicoob);
     alert('Credenciais do Sicoob salvas com sucesso!');
     setMostrarConfigSicoob(false);
+  }
+
+  async function handleSincronizarC6(modoSimulacao = false) {
+    setCarregandoC6(true);
+    try {
+      const res = await consultarExtratoC6({
+        empresaId: empresa?.id,
+        mes: mesAtual,
+        ano: anoAtual,
+        modoSimulacao
+      });
+
+      if (res && res.transacoes && res.transacoes.length > 0) {
+        setNomeArquivo(`C6 Empresas API (${configC6.contaCorrente ? `Conta ${configC6.contaCorrente}` : 'Conta PJ'})`);
+        setBancoSelecionado('C6 Bank');
+
+        const processados = res.transacoes.map((t, idx, arr) => {
+          const duplicado = checarDuplicata(t);
+          const { ehTransferencia, motivo: motivoTransferencia } = detectarTransferencia(t, historicoExistente, arr, empresa);
+          const { categoria, subcategoria, ehFaturaCartao } = autoSugerirCategoria(t.descricao, t.tipo);
+          return {
+            ...t,
+            ehDuplicado: duplicado,
+            ehTransferencia,
+            motivoTransferencia,
+            categoria: t.categoria || categoria,
+            subcategoria: t.subcategoria || subcategoria,
+            ehFaturaCartao,
+            selecionado: !duplicado && !ehTransferencia,
+            banco: 'C6 Bank'
+          };
+        });
+
+        setTransacoes(processados);
+        setEtapa(2);
+      } else {
+        alert('Nenhuma transação encontrada no período informado.');
+      }
+    } catch (err) {
+      alert('Erro ao sincronizar extrato C6 Bank: ' + err.message);
+    } finally {
+      setCarregandoC6(false);
+    }
+  }
+
+  function handleSalvarCredenciaisC6(e) {
+    e.preventDefault();
+    salvarConfigC6(empresa?.id, configC6);
+    alert('Credenciais do C6 Bank salvas com sucesso!');
+    setMostrarConfigC6(false);
   }
 
   function autoSugerirCategoria(descricao, tipo) {
@@ -789,7 +845,7 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
               }}
             >
               <Zap size={14} color="#059669" />
-              <span>Sicoob API</span>
+              <span>Conexão API Bancária</span>
               <span style={{ fontSize: 9.5, background: '#D1FAE5', color: '#065F46', padding: '1px 6px', borderRadius: 4, fontWeight: 800 }}>PRO</span>
             </button>
 
@@ -822,142 +878,315 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
           {modoOrigem === 'sicoob' ? (
             temPlanoPro ? (
               <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                {/* Card de Conexão Oficial Sicoob */}
-                <div style={{
-                  background: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)',
-                  border: '1px solid #86EFAC',
-                  borderRadius: 12,
-                  padding: 16
-                }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                      <div style={{ width: 34, height: 34, borderRadius: 8, background: '#003641', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <Landmark size={18} color="#00AE9D" />
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 14, fontWeight: 800, color: '#065F46' }}>
-                          SICOOB — Conta Corrente v4
-                        </div>
-                        <div style={{ fontSize: 11, color: '#047857' }}>
-                          Cooperativa <strong>{configSicoob.cooperativa || '3194'}</strong> · Conta <strong>{configSicoob.contaCorrente || '9.747.187-9'}</strong>
-                        </div>
-                      </div>
-                    </div>
-                    <span style={{ fontSize: 10, fontWeight: 700, background: '#003641', color: '#5EEAD4', padding: '2px 8px', borderRadius: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                      <ShieldCheck size={11} /> mTLS Ativo
-                    </span>
-                  </div>
-
-                  <div style={{ background: '#fff', border: '1px solid #BBF7D0', borderRadius: 8, padding: '10px 12px', marginBottom: 12 }}>
-                    <div style={{ fontSize: 11, color: '#4B5563', lineHeight: 1.4 }}>
-                      Client ID da Aplicação: <strong style={{ color: '#1F2937', fontFamily: 'monospace' }}>{configSicoob.clientId || '0fc0551e-ba66-47c8-8743-e9738e262856'}</strong>
-                    </div>
-                    <div style={{ fontSize: 10.5, color: '#059669', marginTop: 3 }}>
-                      ✓ Escopos autorizados no Sicoob: <strong>cco_consulta</strong> (leitura de saldo e extrato bancário).
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <button
-                      type="button"
-                      onClick={() => handleSincronizarSicoob(false)}
-                      disabled={carregandoSicoob}
-                      style={{
-                        width: '100%',
-                        padding: '12px 16px',
-                        borderRadius: 10,
-                        background: '#0F2B27',
-                        color: '#FAF8F3',
-                        border: 'none',
-                        fontSize: 13.5,
-                        fontWeight: 700,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 8,
-                        boxShadow: '0 2px 6px rgba(15,43,39,0.2)'
-                      }}
-                    >
-                      <RefreshCw size={16} className={carregandoSicoob ? 'animate-spin' : ''} />
-                      <span>{carregandoSicoob ? 'Conectando ao Sicoob...' : 'Sincronizar Extrato do Sicoob em Tempo Real'}</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => handleSincronizarSicoob(true)}
-                      disabled={carregandoSicoob}
-                      style={{
-                        width: '100%',
-                        padding: '8px 12px',
-                        borderRadius: 8,
-                        background: 'transparent',
-                        color: '#047857',
-                        border: '1px dashed #86EFAC',
-                        fontSize: 11.5,
-                        fontWeight: 600,
-                        cursor: 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: 6
-                      }}
-                    >
-                      <span>🧪 Testar Conciliação com Movimentações de Amostra</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Alternador de Configuração Avançada */}
-                <div style={{ textAlign: 'center' }}>
+                {/* Seletor de Instituição Financeira (Sicoob vs C6 Bank) */}
+                <div style={{ display: 'flex', gap: 8 }}>
                   <button
                     type="button"
-                    onClick={() => setMostrarConfigSicoob(!mostrarConfigSicoob)}
-                    style={{ background: 'none', border: 'none', color: '#4B5563', fontSize: 11.5, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                    onClick={() => setBancoApiAtivo('sicoob')}
+                    style={{
+                      flex: 1,
+                      padding: '9px 12px',
+                      borderRadius: 10,
+                      border: bancoApiAtivo === 'sicoob' ? '2px solid #003641' : '1px solid #CBD5E1',
+                      background: bancoApiAtivo === 'sicoob' ? '#F0FDF4' : '#fff',
+                      color: bancoApiAtivo === 'sicoob' ? '#003641' : '#64748B',
+                      fontWeight: 700,
+                      fontSize: 12.5,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6
+                    }}
                   >
-                    <Settings size={12} />
-                    <span>{mostrarConfigSicoob ? 'Ocultar configurações da API Sicoob' : 'Ver ou editar parâmetros da conta Sicoob'}</span>
+                    <Landmark size={15} color={bancoApiAtivo === 'sicoob' ? '#00AE9D' : '#64748B'} />
+                    <span>SICOOB</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setBancoApiAtivo('c6')}
+                    style={{
+                      flex: 1,
+                      padding: '9px 12px',
+                      borderRadius: 10,
+                      border: bancoApiAtivo === 'c6' ? '2px solid #1E293B' : '1px solid #CBD5E1',
+                      background: bancoApiAtivo === 'c6' ? '#F8FAFC' : '#fff',
+                      color: bancoApiAtivo === 'c6' ? '#0F172A' : '#64748B',
+                      fontWeight: 700,
+                      fontSize: 12.5,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: 6
+                    }}
+                  >
+                    <CreditCard size={15} color={bancoApiAtivo === 'c6' ? '#D97706' : '#64748B'} />
+                    <span>C6 BANK EMPRESAS</span>
                   </button>
                 </div>
 
-                {mostrarConfigSicoob && (
-                  <form onSubmit={handleSalvarCredenciaisSicoob} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    <div style={{ fontSize: 11.5, fontWeight: 700, color: '#1E293B' }}>
-                      Parâmetros da Conexão Sicoob
-                    </div>
-                    <div>
-                      <label style={{ fontSize: 10.5, color: '#64748B', display: 'block', marginBottom: 2 }}>Client ID</label>
-                      <input
-                        value={configSicoob.clientId || ''}
-                        onChange={e => setConfigSicoob({ ...configSicoob, clientId: e.target.value })}
-                        style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid #CBD5E1', fontSize: 11.5, fontFamily: 'monospace' }}
-                      />
-                    </div>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
-                      <div>
-                        <label style={{ fontSize: 10.5, color: '#64748B', display: 'block', marginBottom: 2 }}>Cooperativa</label>
-                        <input
-                          value={configSicoob.cooperativa || ''}
-                          onChange={e => setConfigSicoob({ ...configSicoob, cooperativa: e.target.value })}
-                          style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid #CBD5E1', fontSize: 11.5 }}
-                        />
+                {bancoApiAtivo === 'sicoob' ? (
+                  <>
+                    {/* Card de Conexão Oficial Sicoob */}
+                    <div style={{
+                      background: 'linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%)',
+                      border: '1px solid #86EFAC',
+                      borderRadius: 12,
+                      padding: 16
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 10 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div style={{ width: 34, height: 34, borderRadius: 8, background: '#003641', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                            <Landmark size={18} color="#00AE9D" />
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 800, color: '#065F46' }}>
+                              SICOOB — Conta Corrente v4
+                            </div>
+                            <div style={{ fontSize: 11, color: '#047857' }}>
+                              Cooperativa <strong>{configSicoob.cooperativa || '3194'}</strong> · Conta <strong>{configSicoob.contaCorrente || '9.747.187-9'}</strong>
+                            </div>
+                          </div>
+                        </div>
+                        <span style={{ fontSize: 10, fontWeight: 700, background: '#003641', color: '#5EEAD4', padding: '2px 8px', borderRadius: 12, display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                          <ShieldCheck size={11} /> mTLS Ativo
+                        </span>
                       </div>
-                      <div>
-                        <label style={{ fontSize: 10.5, color: '#64748B', display: 'block', marginBottom: 2 }}>Conta Corrente</label>
-                        <input
-                          value={configSicoob.contaCorrente || ''}
-                          onChange={e => setConfigSicoob({ ...configSicoob, contaCorrente: e.target.value })}
-                          style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid #CBD5E1', fontSize: 11.5 }}
-                        />
+
+                      <div style={{ background: '#fff', border: '1px solid #BBF7D0', borderRadius: 8, padding: '10px 12px', marginBottom: 12 }}>
+                        <div style={{ fontSize: 11, color: '#4B5563', lineHeight: 1.4 }}>
+                          Client ID da Aplicação: <strong style={{ color: '#1F2937', fontFamily: 'monospace' }}>{configSicoob.clientId || '0fc0551e-ba66-47c8-8743-e9738e262856'}</strong>
+                        </div>
+                        <div style={{ fontSize: 10.5, color: '#059669', marginTop: 3 }}>
+                          ✓ Escopos autorizados no Sicoob: <strong>cco_consulta</strong> (leitura de saldo e extrato bancário).
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <button
+                          type="button"
+                          onClick={() => handleSincronizarSicoob(false)}
+                          disabled={carregandoSicoob}
+                          style={{
+                            width: '100%',
+                            padding: '12px 16px',
+                            borderRadius: 10,
+                            background: '#0F2B27',
+                            color: '#FAF8F3',
+                            border: 'none',
+                            fontSize: 13.5,
+                            fontWeight: 700,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 8,
+                            boxShadow: '0 2px 6px rgba(15,43,39,0.2)'
+                          }}
+                        >
+                          <RefreshCw size={16} className={carregandoSicoob ? 'animate-spin' : ''} />
+                          <span>{carregandoSicoob ? 'Conectando ao Sicoob...' : 'Sincronizar Extrato do Sicoob em Tempo Real'}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleSincronizarSicoob(true)}
+                          disabled={carregandoSicoob}
+                          style={{
+                            width: '100%',
+                            padding: '8px 12px',
+                            borderRadius: 8,
+                            background: 'transparent',
+                            color: '#047857',
+                            border: '1px dashed #86EFAC',
+                            fontSize: 11.5,
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 6
+                          }}
+                        >
+                          <span>🧪 Testar Conciliação com Movimentações de Amostra</span>
+                        </button>
                       </div>
                     </div>
-                    <button
-                      type="submit"
-                      style={{ alignSelf: 'flex-end', background: '#1F5C52', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', marginTop: 4 }}
-                    >
-                      Salvar Alterações
-                    </button>
-                  </form>
+
+                    {/* Alternador de Configuração Avançada Sicoob */}
+                    <div style={{ textAlign: 'center' }}>
+                      <button
+                        type="button"
+                        onClick={() => setMostrarConfigSicoob(!mostrarConfigSicoob)}
+                        style={{ background: 'none', border: 'none', color: '#4B5563', fontSize: 11.5, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+                      >
+                        <Settings size={12} />
+                        <span>{mostrarConfigSicoob ? 'Ocultar configurações da API Sicoob' : 'Ver ou editar parâmetros da conta Sicoob'}</span>
+                      </button>
+                    </div>
+
+                    {mostrarConfigSicoob && (
+                      <form onSubmit={handleSalvarCredenciaisSicoob} style={{ background: '#F8FAFC', border: '1px solid #E2E8F0', borderRadius: 10, padding: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div style={{ fontSize: 11.5, fontWeight: 700, color: '#1E293B' }}>
+                          Parâmetros da Conexão Sicoob
+                        </div>
+                        <div>
+                          <label style={{ fontSize: 10.5, color: '#64748B', display: 'block', marginBottom: 2 }}>Client ID</label>
+                          <input
+                            value={configSicoob.clientId || ''}
+                            onChange={e => setConfigSicoob({ ...configSicoob, clientId: e.target.value })}
+                            style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid #CBD5E1', fontSize: 11.5, fontFamily: 'monospace' }}
+                          />
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                          <div>
+                            <label style={{ fontSize: 10.5, color: '#64748B', display: 'block', marginBottom: 2 }}>Cooperativa</label>
+                            <input
+                              value={configSicoob.cooperativa || ''}
+                              onChange={e => setConfigSicoob({ ...configSicoob, cooperativa: e.target.value })}
+                              style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid #CBD5E1', fontSize: 11.5 }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: 10.5, color: '#64748B', display: 'block', marginBottom: 2 }}>Conta Corrente</label>
+                            <input
+                              value={configSicoob.contaCorrente || ''}
+                              onChange={e => setConfigSicoob({ ...configSicoob, contaCorrente: e.target.value })}
+                              style={{ width: '100%', padding: '6px 8px', borderRadius: 6, border: '1px solid #CBD5E1', fontSize: 11.5 }}
+                            />
+                          </div>
+                        </div>
+                        <button
+                          type="submit"
+                          style={{ alignSelf: 'flex-end', background: '#1F5C52', color: '#fff', border: 'none', borderRadius: 6, padding: '6px 12px', fontSize: 11.5, fontWeight: 600, cursor: 'pointer', marginTop: 4 }}
+                        >
+                          Salvar Alterações
+                        </button>
+                      </form>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    {/* Card de Conexão Oficial C6 Bank Empresas */}
+                    <div style={{
+                      background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
+                      border: '1px solid #334155',
+                      borderRadius: 12,
+                      padding: 16,
+                      color: '#F8FAFC'
+                    }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                          <div style={{ width: 34, height: 34, borderRadius: 8, background: '#E8A33D', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 13, color: '#0F172A' }}>
+                            C6
+                          </div>
+                          <div>
+                            <div style={{ fontSize: 14, fontWeight: 800, color: '#FAF8F3' }}>
+                              C6 BANK EMPRESAS — Extrato & Saldo API
+                            </div>
+                            <div style={{ fontSize: 11, color: '#94A3B8' }}>
+                              {configC6.contaCorrente ? `Agência 0001 · Conta ${configC6.contaCorrente}` : 'Configure seu Client ID e Client Secret do Web Banking C6'}
+                            </div>
+                          </div>
+                        </div>
+                        <span style={{ fontSize: 10, fontWeight: 700, background: configC6.clientId ? '#065F46' : '#334155', color: configC6.clientId ? '#6EE7B7' : '#CBD5E1', padding: '2px 8px', borderRadius: 12 }}>
+                          {configC6.clientId ? '● Chave Configurada' : '○ Aguardando Chave'}
+                        </span>
+                      </div>
+
+                      <form onSubmit={handleSalvarCredenciaisC6} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, padding: 12, marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                          <div>
+                            <label style={{ fontSize: 10.5, color: '#CBD5E1', display: 'block', marginBottom: 3 }}>Client ID (C6 API)</label>
+                            <input
+                              value={configC6.clientId || ''}
+                              onChange={e => setConfigC6({ ...configC6, clientId: e.target.value })}
+                              placeholder="Cole o Client ID do C6..."
+                              style={{ width: '100%', padding: '7px 9px', borderRadius: 6, border: '1px solid #475569', background: '#0F172A', color: '#fff', fontSize: 11.5, fontFamily: 'monospace', boxSizing: 'border-box' }}
+                            />
+                          </div>
+                          <div>
+                            <label style={{ fontSize: 10.5, color: '#CBD5E1', display: 'block', marginBottom: 3 }}>Client Secret</label>
+                            <input
+                              type="password"
+                              value={configC6.clientSecret || ''}
+                              onChange={e => setConfigC6({ ...configC6, clientSecret: e.target.value })}
+                              placeholder="Cole o Client Secret..."
+                              style={{ width: '100%', padding: '7px 9px', borderRadius: 6, border: '1px solid #475569', background: '#0F172A', color: '#fff', fontSize: 11.5, fontFamily: 'monospace', boxSizing: 'border-box' }}
+                            />
+                          </div>
+                        </div>
+                        <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
+                          <div style={{ flex: 1 }}>
+                            <label style={{ fontSize: 10.5, color: '#CBD5E1', display: 'block', marginBottom: 3 }}>Conta Corrente C6 (Opcional)</label>
+                            <input
+                              value={configC6.contaCorrente || ''}
+                              onChange={e => setConfigC6({ ...configC6, contaCorrente: e.target.value })}
+                              placeholder="Ex: 12345678-9"
+                              style={{ width: '100%', padding: '7px 9px', borderRadius: 6, border: '1px solid #475569', background: '#0F172A', color: '#fff', fontSize: 11.5, boxSizing: 'border-box' }}
+                            />
+                          </div>
+                          <button
+                            type="submit"
+                            style={{ background: '#E8A33D', color: '#0F172A', border: 'none', borderRadius: 6, padding: '8px 14px', fontSize: 11.5, fontWeight: 700, cursor: 'pointer' }}
+                          >
+                            Salvar Chave C6
+                          </button>
+                        </div>
+                      </form>
+
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                        <button
+                          type="button"
+                          onClick={() => handleSincronizarC6(false)}
+                          disabled={carregandoC6}
+                          style={{
+                            width: '100%',
+                            padding: '12px 16px',
+                            borderRadius: 10,
+                            background: '#E8A33D',
+                            color: '#0F172A',
+                            border: 'none',
+                            fontSize: 13.5,
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 8
+                          }}
+                        >
+                          <RefreshCw size={16} className={carregandoC6 ? 'animate-spin' : ''} />
+                          <span>{carregandoC6 ? 'Conectando ao C6 Bank...' : 'Sincronizar Extrato do C6 Bank Agora'}</span>
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => handleSincronizarC6(true)}
+                          disabled={carregandoC6}
+                          style={{
+                            width: '100%',
+                            padding: '8px 12px',
+                            borderRadius: 8,
+                            background: 'transparent',
+                            color: '#E2E8F0',
+                            border: '1px dashed #475569',
+                            fontSize: 11.5,
+                            fontWeight: 600,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: 6
+                          }}
+                        >
+                          <span>🧪 Testar Conciliação C6 com Movimentações de Amostra</span>
+                        </button>
+                      </div>
+                    </div>
+                  </>
                 )}
               </div>
             ) : (
