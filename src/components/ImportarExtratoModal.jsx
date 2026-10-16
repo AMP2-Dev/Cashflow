@@ -8,7 +8,7 @@ import { ModalShell } from './UIComponents';
 import { BANCOS } from '../utils/constants';
 import { formatBRL } from '../utils/formatters';
 import { consultarExtratoSicoob, obterConfigSicoob, salvarConfigSicoob } from '../utils/sicoobService';
-import { consultarExtratoC6, obterConfigC6, salvarConfigC6 } from '../utils/c6Service';
+import { consultarExtratoBtg, obterConfigBtg, salvarConfigBtg } from '../utils/btgService';
 
 // Parser para OFX bancário (suporta formatos Itaú, Bradesco, Santander, BB, Nubank, Inter, Stone, etc.)
 export function parseOFX(text) {
@@ -203,16 +203,15 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
   const [importando, setImportando] = useState(false);
   const [filtroAba, setFiltroAba] = useState('todas'); // 'todas' | 'receitas' | 'despesas' | 'transferencias' | 'duplicatas'
 
-  // Open Banking / Sicoob & C6 API (Módulo PRO)
+  // Open Banking / Sicoob & BTG API (Módulo PRO)
   const [modoOrigem, setModoOrigem] = useState('sicoob'); // 'sicoob' (API) | 'arquivo'
-  const [bancoApiAtivo, setBancoApiAtivo] = useState('sicoob'); // 'sicoob' | 'c6'
+  const [bancoApiAtivo, setBancoApiAtivo] = useState('sicoob'); // 'sicoob' | 'btg'
   const [carregandoSicoob, setCarregandoSicoob] = useState(false);
   const [configSicoob, setConfigSicoob] = useState(() => obterConfigSicoob(empresa?.id));
   const [mostrarConfigSicoob, setMostrarConfigSicoob] = useState(false);
 
-  const [carregandoC6, setCarregandoC6] = useState(false);
-  const [configC6, setConfigC6] = useState(() => obterConfigC6(empresa?.id));
-  const [mostrarConfigC6, setMostrarConfigC6] = useState(false);
+  const [carregandoBtg, setCarregandoBtg] = useState(false);
+  const [configBtg, setConfigBtg] = useState(() => obterConfigBtg(empresa?.id));
 
   const temPlanoPro = Boolean(
     empresa?.modulo_open_banking || 
@@ -270,10 +269,10 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
     setMostrarConfigSicoob(false);
   }
 
-  async function handleSincronizarC6(modoSimulacao = false) {
-    setCarregandoC6(true);
+  async function handleSincronizarBtg(modoSimulacao = false) {
+    setCarregandoBtg(true);
     try {
-      const res = await consultarExtratoC6({
+      const res = await consultarExtratoBtg({
         empresaId: empresa?.id,
         mes: mesAtual,
         ano: anoAtual,
@@ -281,8 +280,8 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
       });
 
       if (res && res.transacoes && res.transacoes.length > 0) {
-        setNomeArquivo(`C6 Empresas API (${configC6.contaCorrente ? `Conta ${configC6.contaCorrente}` : 'Conta PJ'})`);
-        setBancoSelecionado('C6 Bank');
+        setNomeArquivo(`BTG Pactual Empresas API (${configBtg.contaCorrente ? `Conta ${configBtg.contaCorrente}` : 'Conta PJ'})`);
+        setBancoSelecionado('BTG Pactual');
 
         const processados = res.transacoes.map((t, idx, arr) => {
           const duplicado = checarDuplicata(t);
@@ -297,7 +296,7 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
             subcategoria: t.subcategoria || subcategoria,
             ehFaturaCartao,
             selecionado: !duplicado && !ehTransferencia,
-            banco: 'C6 Bank'
+            banco: 'BTG Pactual'
           };
         });
 
@@ -307,17 +306,16 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
         alert('Nenhuma transação encontrada no período informado.');
       }
     } catch (err) {
-      alert('Erro ao sincronizar extrato C6 Bank: ' + err.message);
+      alert('Erro ao sincronizar extrato BTG Pactual: ' + err.message);
     } finally {
-      setCarregandoC6(false);
+      setCarregandoBtg(false);
     }
   }
 
-  function handleSalvarCredenciaisC6(e) {
+  function handleSalvarCredenciaisBtg(e) {
     e.preventDefault();
-    salvarConfigC6(empresa?.id, configC6);
-    alert('Credenciais do C6 Bank salvas com sucesso!');
-    setMostrarConfigC6(false);
+    salvarConfigBtg(empresa?.id, configBtg);
+    alert('Credenciais do BTG Pactual salvas com sucesso!');
   }
 
   function autoSugerirCategoria(descricao, tipo) {
@@ -905,14 +903,14 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
 
                   <button
                     type="button"
-                    onClick={() => setBancoApiAtivo('c6')}
+                    onClick={() => setBancoApiAtivo('btg')}
                     style={{
                       flex: 1,
                       padding: '9px 12px',
                       borderRadius: 10,
-                      border: bancoApiAtivo === 'c6' ? '2px solid #1E293B' : '1px solid #CBD5E1',
-                      background: bancoApiAtivo === 'c6' ? '#F8FAFC' : '#fff',
-                      color: bancoApiAtivo === 'c6' ? '#0F172A' : '#64748B',
+                      border: bancoApiAtivo === 'btg' ? '2px solid #003399' : '1px solid #CBD5E1',
+                      background: bancoApiAtivo === 'btg' ? '#EFF6FF' : '#fff',
+                      color: bancoApiAtivo === 'btg' ? '#1E3A8A' : '#64748B',
                       fontWeight: 700,
                       fontSize: 12.5,
                       cursor: 'pointer',
@@ -922,8 +920,8 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
                       gap: 6
                     }}
                   >
-                    <CreditCard size={15} color={bancoApiAtivo === 'c6' ? '#D97706' : '#64748B'} />
-                    <span>C6 BANK EMPRESAS</span>
+                    <Landmark size={15} color={bancoApiAtivo === 'btg' ? '#003399' : '#64748B'} />
+                    <span>BTG PACTUAL EMPRESAS</span>
                   </button>
                 </div>
 
@@ -1069,70 +1067,70 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
                   </>
                 ) : (
                   <>
-                    {/* Card de Conexão Oficial C6 Bank Empresas */}
+                    {/* Card de Conexão Oficial BTG Pactual Empresas */}
                     <div style={{
-                      background: 'linear-gradient(135deg, #1E293B 0%, #0F172A 100%)',
-                      border: '1px solid #334155',
+                      background: 'linear-gradient(135deg, #0A192F 0%, #112240 100%)',
+                      border: '1px solid #1E3A8A',
                       borderRadius: 12,
                       padding: 16,
                       color: '#F8FAFC'
                     }}>
                       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                          <div style={{ width: 34, height: 34, borderRadius: 8, background: '#E8A33D', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 13, color: '#0F172A' }}>
-                            C6
+                          <div style={{ width: 38, height: 34, borderRadius: 8, background: '#1D4ED8', display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 900, fontSize: 12, color: '#FFF', letterSpacing: 0.5 }}>
+                            BTG
                           </div>
                           <div>
                             <div style={{ fontSize: 14, fontWeight: 800, color: '#FAF8F3' }}>
-                              C6 BANK EMPRESAS — Extrato & Saldo API
+                              BTG PACTUAL EMPRESAS — Open Banking First Party
                             </div>
-                            <div style={{ fontSize: 11, color: '#94A3B8' }}>
-                              {configC6.contaCorrente ? `Agência 0001 · Conta ${configC6.contaCorrente}` : 'Configure seu Client ID e Client Secret do Web Banking C6'}
+                            <div style={{ fontSize: 11, color: '#93C5FD' }}>
+                              {configBtg.contaCorrente ? `Agência ${configBtg.agencia || '0050'} · Conta ${configBtg.contaCorrente}` : 'Credenciais próprias (First Party) via Portal Developers BTG'}
                             </div>
                           </div>
                         </div>
-                        <span style={{ fontSize: 10, fontWeight: 700, background: configC6.clientId ? '#065F46' : '#334155', color: configC6.clientId ? '#6EE7B7' : '#CBD5E1', padding: '2px 8px', borderRadius: 12 }}>
-                          {configC6.clientId ? '● Chave Configurada' : '○ Aguardando Chave'}
+                        <span style={{ fontSize: 10, fontWeight: 700, background: configBtg.clientId ? '#065F46' : '#1E3A8A', color: configBtg.clientId ? '#6EE7B7' : '#BFDBFE', padding: '2px 8px', borderRadius: 12 }}>
+                          {configBtg.clientId ? '● Chave Configurada' : '○ Aguardando Chave'}
                         </span>
                       </div>
 
-                      <form onSubmit={handleSalvarCredenciaisC6} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)', borderRadius: 10, padding: 12, marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
+                      <form onSubmit={handleSalvarCredenciaisBtg} style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.14)', borderRadius: 10, padding: 12, marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 8 }}>
                         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
                           <div>
-                            <label style={{ fontSize: 10.5, color: '#CBD5E1', display: 'block', marginBottom: 3 }}>Client ID (C6 API)</label>
+                            <label style={{ fontSize: 10.5, color: '#CBD5E1', display: 'block', marginBottom: 3 }}>Client ID (BTG Developers)</label>
                             <input
-                              value={configC6.clientId || ''}
-                              onChange={e => setConfigC6({ ...configC6, clientId: e.target.value })}
-                              placeholder="Cole o Client ID do C6..."
-                              style={{ width: '100%', padding: '7px 9px', borderRadius: 6, border: '1px solid #475569', background: '#0F172A', color: '#fff', fontSize: 11.5, fontFamily: 'monospace', boxSizing: 'border-box' }}
+                              value={configBtg.clientId || ''}
+                              onChange={e => setConfigBtg({ ...configBtg, clientId: e.target.value })}
+                              placeholder="Cole o Client ID do BTG..."
+                              style={{ width: '100%', padding: '7px 9px', borderRadius: 6, border: '1px solid #3B82F6', background: '#0A192F', color: '#fff', fontSize: 11.5, fontFamily: 'monospace', boxSizing: 'border-box' }}
                             />
                           </div>
                           <div>
                             <label style={{ fontSize: 10.5, color: '#CBD5E1', display: 'block', marginBottom: 3 }}>Client Secret</label>
                             <input
                               type="password"
-                              value={configC6.clientSecret || ''}
-                              onChange={e => setConfigC6({ ...configC6, clientSecret: e.target.value })}
+                              value={configBtg.clientSecret || ''}
+                              onChange={e => setConfigBtg({ ...configBtg, clientSecret: e.target.value })}
                               placeholder="Cole o Client Secret..."
-                              style={{ width: '100%', padding: '7px 9px', borderRadius: 6, border: '1px solid #475569', background: '#0F172A', color: '#fff', fontSize: 11.5, fontFamily: 'monospace', boxSizing: 'border-box' }}
+                              style={{ width: '100%', padding: '7px 9px', borderRadius: 6, border: '1px solid #3B82F6', background: '#0A192F', color: '#fff', fontSize: 11.5, fontFamily: 'monospace', boxSizing: 'border-box' }}
                             />
                           </div>
                         </div>
                         <div style={{ display: 'flex', gap: 8, alignItems: 'flex-end' }}>
                           <div style={{ flex: 1 }}>
-                            <label style={{ fontSize: 10.5, color: '#CBD5E1', display: 'block', marginBottom: 3 }}>Conta Corrente C6 (Opcional)</label>
+                            <label style={{ fontSize: 10.5, color: '#CBD5E1', display: 'block', marginBottom: 3 }}>Conta Corrente BTG (Opcional)</label>
                             <input
-                              value={configC6.contaCorrente || ''}
-                              onChange={e => setConfigC6({ ...configC6, contaCorrente: e.target.value })}
-                              placeholder="Ex: 12345678-9"
-                              style={{ width: '100%', padding: '7px 9px', borderRadius: 6, border: '1px solid #475569', background: '#0F172A', color: '#fff', fontSize: 11.5, boxSizing: 'border-box' }}
+                              value={configBtg.contaCorrente || ''}
+                              onChange={e => setConfigBtg({ ...configBtg, contaCorrente: e.target.value })}
+                              placeholder="Ex: 00123456-7"
+                              style={{ width: '100%', padding: '7px 9px', borderRadius: 6, border: '1px solid #334155', background: '#0A192F', color: '#fff', fontSize: 11.5, boxSizing: 'border-box' }}
                             />
                           </div>
                           <button
                             type="submit"
-                            style={{ background: '#E8A33D', color: '#0F172A', border: 'none', borderRadius: 6, padding: '8px 14px', fontSize: 11.5, fontWeight: 700, cursor: 'pointer' }}
+                            style={{ background: '#2563EB', color: '#FFF', border: 'none', borderRadius: 6, padding: '8px 14px', fontSize: 11.5, fontWeight: 700, cursor: 'pointer' }}
                           >
-                            Salvar Chave C6
+                            Salvar Chave BTG
                           </button>
                         </div>
                       </form>
@@ -1140,14 +1138,14 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         <button
                           type="button"
-                          onClick={() => handleSincronizarC6(false)}
-                          disabled={carregandoC6}
+                          onClick={() => handleSincronizarBtg(false)}
+                          disabled={carregandoBtg}
                           style={{
                             width: '100%',
                             padding: '12px 16px',
                             borderRadius: 10,
-                            background: '#E8A33D',
-                            color: '#0F172A',
+                            background: '#2563EB',
+                            color: '#FFF',
                             border: 'none',
                             fontSize: 13.5,
                             fontWeight: 800,
@@ -1158,21 +1156,21 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
                             gap: 8
                           }}
                         >
-                          <RefreshCw size={16} className={carregandoC6 ? 'animate-spin' : ''} />
-                          <span>{carregandoC6 ? 'Conectando ao C6 Bank...' : 'Sincronizar Extrato do C6 Bank Agora'}</span>
+                          <RefreshCw size={16} className={carregandoBtg ? 'animate-spin' : ''} />
+                          <span>{carregandoBtg ? 'Conectando ao BTG Pactual...' : 'Sincronizar Extrato do BTG Pactual Agora'}</span>
                         </button>
 
                         <button
                           type="button"
-                          onClick={() => handleSincronizarC6(true)}
-                          disabled={carregandoC6}
+                          onClick={() => handleSincronizarBtg(true)}
+                          disabled={carregandoBtg}
                           style={{
                             width: '100%',
                             padding: '8px 12px',
                             borderRadius: 8,
                             background: 'transparent',
-                            color: '#E2E8F0',
-                            border: '1px dashed #475569',
+                            color: '#BFDBFE',
+                            border: '1px dashed #3B82F6',
                             fontSize: 11.5,
                             fontWeight: 600,
                             cursor: 'pointer',
@@ -1182,7 +1180,7 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
                             gap: 6
                           }}
                         >
-                          <span>🧪 Testar Conciliação C6 com Movimentações de Amostra</span>
+                          <span>🧪 Testar Conciliação BTG com Movimentações de Amostra</span>
                         </button>
                       </div>
                     </div>
@@ -1210,7 +1208,7 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
                     Recurso Exclusivo do Plano PRO
                   </div>
                   <div style={{ fontSize: 12, color: '#78350F', marginTop: 4, lineHeight: 1.4, maxWidth: 420 }}>
-                    A sincronização direta via API bancária oficial (<strong>Sicoob</strong>, <strong>C6 Bank</strong> e <strong>BTG Pactual</strong>) é uma funcionalidade premium do AMP Flow. Com ela você concilia o caixa em 1 clique sem precisar exportar arquivos manuais.
+                    A sincronização direta via API bancária oficial (<strong>Sicoob</strong> e <strong>BTG Pactual Empresas</strong>) é uma funcionalidade premium do AMP Flow. Com ela você concilia o caixa em 1 clique sem precisar exportar arquivos manuais.
                   </div>
                 </div>
 
