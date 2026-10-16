@@ -10,9 +10,28 @@ import { formatBRL } from '../utils/formatters';
 import { consultarExtratoSicoob, obterConfigSicoob, salvarConfigSicoob } from '../utils/sicoobService';
 import { consultarExtratoBtg, obterConfigBtg, salvarConfigBtg } from '../utils/btgService';
 
-// Parser para OFX bancário (suporta formatos Itaú, Bradesco, Santander, BB, Nubank, Inter, Stone, etc.)
+// Parser para OFX bancário (suporta formatos BTG Pactual, Sicoob, C6 Bank, Nubank, Itaú, Bradesco, Santander, BB, Inter, etc.)
 export function parseOFX(text) {
   const transacoes = [];
+
+  // Identificar banco automaticamente pelo BANKID ou ORG do arquivo OFX
+  let bancoDetectado = '';
+  const bankIdMatch = /<BANKID>0*(\d+)/i.exec(text);
+  const orgMatch = /<ORG>([^<\r\n]+)/i.exec(text);
+  const bId = bankIdMatch ? bankIdMatch[1] : '';
+  const orgStr = orgMatch ? orgMatch[1].toUpperCase() : '';
+
+  if (bId === '208' || orgStr.includes('BTG')) bancoDetectado = 'BTG Pactual';
+  else if (bId === '756' || orgStr.includes('SICOOB') || orgStr.includes('BANCOOB')) bancoDetectado = 'Sicoob';
+  else if (bId === '336' || orgStr.includes('C6')) bancoDetectado = 'C6 Bank';
+  else if (bId === '260' || orgStr.includes('NU PAGAMENTOS') || orgStr.includes('NUBANK')) bancoDetectado = 'Nubank';
+  else if (bId === '341' || orgStr.includes('ITAU')) bancoDetectado = 'Itaú';
+  else if (bId === '237' || orgStr.includes('BRADESCO')) bancoDetectado = 'Bradesco';
+  else if (bId === '33' || orgStr.includes('SANTANDER')) bancoDetectado = 'Santander';
+  else if (bId === '1' || orgStr.includes('BRASIL')) bancoDetectado = 'Banco do Brasil';
+  else if (bId === '77' || orgStr.includes('INTER')) bancoDetectado = 'Inter';
+  else if (bId === '104' || orgStr.includes('CAIXA')) bancoDetectado = 'Caixa Econômica Federal';
+  else if (bId === '748' || orgStr.includes('SICREDI')) bancoDetectado = 'Sicredi';
   
   // Limpeza de tags
   const trnRegex = /<STMTTRN>([\s\S]*?)<\/STMTTRN>/gi;
@@ -55,6 +74,7 @@ export function parseOFX(text) {
         mes,
         ano: ano || new Date().getFullYear(),
         dataLancamento: dataFormatada,
+        banco: bancoDetectado,
         selecionado: true,
       });
     }
@@ -565,13 +585,18 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
       return;
     }
 
+    const bancoAuto = parsed[0]?.banco || bancoSelecionado || '';
+    if (parsed[0]?.banco && !bancoSelecionado) {
+      setBancoSelecionado(parsed[0].banco);
+    }
+
     const processados = parsed.map((t, idx, arr) => {
       const duplicado = checarDuplicata(t);
       const { ehTransferencia, motivo: motivoTransferencia } = detectarTransferencia(t, historicoExistente, arr, empresa);
       const { categoria, subcategoria, ehFaturaCartao } = autoSugerirCategoria(t.descricao, t.tipo);
       return {
         ...t,
-        banco: t.banco || bancoSelecionado || '',
+        banco: t.banco || bancoAuto,
         categoria,
         subcategoria,
         ehFaturaCartao: !!ehFaturaCartao,
@@ -1245,7 +1270,7 @@ export function ImportarExtratoModal({ mesAtual, anoAtual, historicoExistente = 
             /* Upload Tradicional de Arquivo (Disponível para todos) */
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
               <div style={{ fontSize: 12.5, color: '#5C5A4F', lineHeight: 1.4 }}>
-                Faça upload do extrato bancário (<strong>.OFX</strong> ou <strong>.CSV</strong> do Nubank, Itaú, Bradesco, Santander, BB) ou da planilha de vendas da sua maquininha de cartão.
+                Faça upload do extrato bancário (<strong>.OFX</strong> ou <strong>.CSV</strong> do <strong>BTG Pactual</strong>, <strong>C6 Bank</strong>, <strong>Nubank</strong>, <strong>Sicoob</strong>, Itaú, Bradesco, Santander, BB) ou da planilha da sua maquininha de cartão. O sistema identifica o banco automaticamente pelo arquivo <code>.OFX</code>.
               </div>
 
               <div>

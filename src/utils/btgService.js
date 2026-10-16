@@ -10,7 +10,7 @@ export const BTG_CONFIG_PADRAO = {
   ambiente: 'producao', // 'producao' | 'sandbox'
   authUrl: 'https://id.btgpactual.com/oauth2/token',
   apiUrl: 'https://api.empresas.btgpactual.com/v1',
-  escopo: 'brn:btg:empresas:banking:accounts',
+  escopo: 'openid brn:btg:empresas:companies.readonly empresas.btgpactual.com/accounts.readonly brn:btg:empresas:openfinance:accounts:info.readonly brn:btg:empresas:openfinance:accounts:balances.readonly',
   ativo: true,
 };
 
