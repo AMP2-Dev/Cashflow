@@ -1,5 +1,4 @@
 import React from 'react';
-import { INSTITUTION_DATA } from '../data/apaeData';
 import { useApae } from '../context/ApaeContext';
 import { 
   Heart, 
@@ -10,25 +9,38 @@ import {
   MapPin, 
   Lock, 
   ArrowUp,
-  ExternalLink
+  ExternalLink,
+  Layers,
+  Database,
+  ShieldAlert
 } from 'lucide-react';
 
 export function ApaeFooter() {
-  const { scrollToSection, openDonationModal, setIsAdminOpen, isAdminOpen } = useApae();
+  const { 
+    scrollToSection, 
+    openDonationModal, 
+    setIsAdminOpen, 
+    isAdminOpen,
+    setComplianceModalOpen,
+    setEsicModalOpen,
+    setLgpdModalOpen,
+    setDataDictionaryModalOpen,
+    institution
+  } = useApae();
 
   const handleScrollTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (
-    <footer aria-label="Rodapé Oficial APAE" className="bg-slate-950 text-slate-300 border-t border-slate-800 pt-16 pb-12">
+    <footer aria-label="Rodapé Oficial APAE Santa Cruz das Palmeiras" className="bg-slate-950 text-slate-300 border-t border-slate-800 pt-16 pb-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Grade Superior de Certificações e Selos Oficiais */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pb-12 border-b border-slate-800">
-          {INSTITUTION_DATA.certifications.map((cert, idx) => (
+          {institution.certifications.map((cert, idx) => (
             <div key={idx} className="bg-slate-900/80 border border-slate-800 rounded-2xl p-4 flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-apae-blue-600/30 text-apae-yellow-400 flex items-center justify-center flex-shrink-0">
+              <div className="w-10 h-10 rounded-xl bg-[#0072C6]/20 text-amber-400 flex items-center justify-center flex-shrink-0">
                 <Award className="w-5 h-5" />
               </div>
               <div>
@@ -46,7 +58,7 @@ export function ApaeFooter() {
           {/* Coluna 1: Marca e Missão */}
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-apae-blue-600 flex items-center justify-center font-black text-white">
+              <div className="w-10 h-10 rounded-xl bg-[#0072C6] flex items-center justify-center font-black text-white">
                 <svg viewBox="0 0 100 100" className="w-6 h-6">
                   <ellipse cx="50" cy="35" rx="6" ry="12" fill="#F5A623" />
                   <ellipse cx="50" cy="65" rx="6" ry="12" fill="#F5A623" />
@@ -56,18 +68,19 @@ export function ApaeFooter() {
                 </svg>
               </div>
               <div>
-                <span className="text-lg font-black text-white tracking-tight">APAE Oficial</span>
-                <p className="text-[11px] text-slate-400">Associação de Pais e Amigos dos Excepcionais</p>
+                <span className="text-base font-black text-white tracking-tight">{institution.shortName}</span>
+                <p className="text-[11px] text-slate-400">{institution.schoolName}</p>
               </div>
             </div>
 
             <p className="text-xs text-slate-400 leading-relaxed">
-              Entidade filantrópica sem fins lucrativos, declarada de Utilidade Pública Federal, Estadual e Municipal. Dedicada à inclusão social e reabilitação de pessoas com deficiência intelectual e múltipla.
+              Entidade filantrópica sem fins lucrativos fundada em 31/08/1976 por Luiz Affonso Mendes ("Dudízio"). Reconhecida de Utilidade Pública Federal, Estadual e Municipal. 50 anos de dedicação ininterrupta à pessoa com deficiência em Santa Cruz das Palmeiras.
             </p>
 
             <div className="pt-2 text-xs text-slate-400 font-mono space-y-1">
-              <div><strong>CNPJ:</strong> {INSTITUTION_DATA.cnpj}</div>
-              <div><strong>Endereço:</strong> {INSTITUTION_DATA.address}, {INSTITUTION_DATA.city}</div>
+              <div><strong>CNPJ:</strong> {institution.cnpj}</div>
+              <div><strong>Endereço:</strong> {institution.address}, {institution.neighborhood}, {institution.city} — CEP {institution.zipCode}</div>
+              <div><strong>Horário:</strong> {institution.openingHours}</div>
             </div>
           </div>
 
@@ -77,22 +90,22 @@ export function ApaeFooter() {
             <ul className="space-y-2 text-xs text-slate-400">
               <li>
                 <button onClick={() => scrollToSection('institucional')} className="hover:text-white transition-colors">
-                  História e Marcos
+                  História & Patrono Dudízio
                 </button>
               </li>
               <li>
                 <button onClick={() => scrollToSection('institucional')} className="hover:text-white transition-colors">
-                  Corpo Técnico Multidisciplinar
+                  Escola "Luiz Affonso Mendes"
                 </button>
               </li>
               <li>
                 <button onClick={() => scrollToSection('institucional')} className="hover:text-white transition-colors">
-                  Instalações e Unidades
+                  Diretoria & Conselhos
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollToSection('transparencia')} className="hover:text-white transition-colors">
-                  Portal da Transparência (Lei 13.019)
+                <button onClick={() => scrollToSection('institucional')} className="hover:text-white transition-colors">
+                  Corpo Clínico & AEE
                 </button>
               </li>
               <li>
@@ -103,33 +116,38 @@ export function ApaeFooter() {
             </ul>
           </div>
 
-          {/* Coluna 3: Projetos e Doações */}
+          {/* Coluna 3: Transparência & Compliance LAI */}
           <div className="space-y-3">
-            <h4 className="text-xs font-black text-white uppercase tracking-wider">Como Ajudar</h4>
+            <h4 className="text-xs font-black text-white uppercase tracking-wider">Transparência & LAI</h4>
             <ul className="space-y-2 text-xs text-slate-400">
               <li>
-                <button onClick={() => openDonationModal(60, 'recorrente')} className="text-apae-yellow-400 hover:text-white font-bold transition-colors">
-                  Doação Online (PIX / Cartão)
+                <button onClick={() => scrollToSection('transparencia')} className="hover:text-white transition-colors">
+                  Contas Públicas e Balanços
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollToSection('projetos')} className="hover:text-white transition-colors">
-                  Apadrinhar um Projeto
+                <button onClick={() => setComplianceModalOpen(true)} className="text-blue-400 hover:text-white font-bold transition-colors">
+                  Checklist de Transparência
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollToSection('participe')} className="hover:text-white transition-colors">
-                  Seja um Voluntário
+                <button onClick={() => setDataDictionaryModalOpen(true)} className="hover:text-white transition-colors">
+                  Dicionário de Dados Abertos
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollToSection('participe')} className="hover:text-white transition-colors">
-                  Parcerias Corporativas (ESG)
+                <button onClick={() => setEsicModalOpen(true)} className="hover:text-white transition-colors">
+                  Serviço e-SIC (LAI 12.527)
                 </button>
               </li>
               <li>
-                <button onClick={() => scrollToSection('doacoes')} className="hover:text-white transition-colors">
-                  Doação de Cupom Fiscal
+                <button onClick={() => setEsicModalOpen(true)} className="hover:text-rose-400 transition-colors">
+                  Canal de Denúncias Sigiloso
+                </button>
+              </li>
+              <li>
+                <button onClick={() => setLgpdModalOpen(true)} className="hover:text-emerald-400 transition-colors">
+                  LGPD & Privacidade
                 </button>
               </li>
             </ul>
@@ -137,20 +155,35 @@ export function ApaeFooter() {
 
           {/* Coluna 4: Contato & Gestor */}
           <div className="space-y-3">
-            <h4 className="text-xs font-black text-white uppercase tracking-wider">Atendimento</h4>
-            <div className="space-y-2 text-xs text-slate-400">
-              <p>{INSTITUTION_DATA.phone}</p>
-              <p>{INSTITUTION_DATA.email}</p>
-              <p className="text-[11px] text-slate-500">{INSTITUTION_DATA.openingHours}</p>
+            <h4 className="text-xs font-black text-white uppercase tracking-wider">Atendimento & Gestão</h4>
+            <div className="space-y-1.5 text-xs text-slate-400">
+              <p className="flex items-center gap-1.5">
+                <Phone className="w-3.5 h-3.5 text-[#0072C6]" />
+                <span>{institution.phone}</span>
+              </p>
+              <p className="flex items-center gap-1.5">
+                <Mail className="w-3.5 h-3.5 text-[#0072C6]" />
+                <span className="truncate">{institution.email}</span>
+              </p>
             </div>
 
-            <div className="pt-3">
+            <div className="pt-2">
+              <button
+                onClick={() => openDonationModal(60, 'recorrente')}
+                className="w-full py-2 px-3 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs transition-colors flex items-center justify-center gap-1.5"
+              >
+                <Heart className="w-3.5 h-3.5 fill-current" />
+                <span>Doar Agora (PIX)</span>
+              </button>
+            </div>
+
+            <div className="pt-1">
               <button
                 onClick={() => setIsAdminOpen(!isAdminOpen)}
-                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-apae-yellow-400 transition-colors border border-slate-800 rounded-xl px-3 py-2 bg-slate-900"
+                className="w-full py-2 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold text-xs transition-colors flex items-center justify-center gap-1.5"
               >
-                <Lock className="w-3.5 h-3.5" />
-                <span>{isAdminOpen ? 'Fechar Painel Gestor' : 'Área Administrativa'}</span>
+                <Lock className="w-3.5 h-3.5 text-slate-400" />
+                <span>{isAdminOpen ? 'Fechar Painel' : 'Painel do Gestor (CMS)'}</span>
               </button>
             </div>
           </div>
@@ -159,7 +192,7 @@ export function ApaeFooter() {
 
         {/* Rodapé Inferior */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
-          <p>© 2026 {INSTITUTION_DATA.name}. Todos os direitos reservados. 100% de dedicação à inclusão social.</p>
+          <p>© 2026 {institution.name}. 50 Anos de História e Inclusão (1976 - 2026).</p>
 
           <button
             onClick={handleScrollTop}

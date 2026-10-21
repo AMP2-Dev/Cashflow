@@ -29,8 +29,8 @@ export function ContactAndLocationSection() {
   };
 
   const handleOpenWhatsApp = () => {
-    const text = encodeURIComponent("Olá! Gostaria de obter informações sobre o atendimento e projetos da APAE.");
-    window.open(`https://wa.me/5511987654321?text=${text}`, '_blank');
+    const text = encodeURIComponent("Olá! Gostaria de obter informações sobre o atendimento e projetos da APAE de Santa Cruz das Palmeiras.");
+    window.open(`https://wa.me/551936721576?text=${text}`, '_blank');
   };
 
   return (

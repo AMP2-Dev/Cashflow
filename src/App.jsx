@@ -4,6 +4,7 @@ import CashFlowApp from './CashFlowApp';
 import DrywallApp from './drywall/DrywallApp';
 import PalmeirenseApp from './palmeirense/PalmeirenseApp';
 import FmaApp from './fma/FmaApp';
+import ApaeApp from './apae/ApaeApp';
 
 import { AmpProvider, useAmp } from './context/AmpContext';
 import { AmpNavbar } from './components/amp/AmpNavbar';
@@ -220,6 +221,9 @@ export default function App() {
     if (hostname.includes('amplificadora') || params.get('app') === 'radio') {
       return 'radio';
     }
+    if (hostname.includes('apae') || params.get('app') === 'apae') {
+      return 'apae';
+    }
     if (params.get('app') === 'portal') {
       return 'portal';
     }
@@ -245,6 +249,8 @@ export default function App() {
         setActiveMode('drywall');
       } else if (hostname.includes('amplificadora') || params.get('app') === 'radio') {
         setActiveMode('radio');
+      } else if (hostname.includes('apae') || params.get('app') === 'apae') {
+        setActiveMode('apae');
       } else if (params.get('app') === 'portal') {
         setActiveMode('portal');
       } else {
@@ -271,6 +277,8 @@ export default function App() {
     } else if (activeMode === 'radio') {
       document.title = 'Rádio Amplificadora • Ampliando sua onda musical';
       if (favEl) favEl.href = '/favicon-amplificadora.jpg';
+    } else if (activeMode === 'apae') {
+      document.title = 'APAE Santa Cruz das Palmeiras • Escola Luiz Affonso Mendes | 50 Anos';
     } else if (activeMode === 'portal') {
       document.title = 'AMP Institucional • Ecossistema Full-Stack';
       if (favEl) favEl.href = '/amp-mesh-logo.png';
@@ -282,6 +290,7 @@ export default function App() {
 
   return (
     <GlobalErrorBoundary>
+      {activeMode === 'apae' && <ApaeApp />}
       {activeMode === 'fma' && <FmaApp />}
       {activeMode === 'palmeirense' && <PalmeirenseApp />}
       {activeMode === 'drywall' && <DrywallApp />}

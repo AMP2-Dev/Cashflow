@@ -1,6 +1,6 @@
 import React from 'react';
 import { useApae } from '../context/ApaeContext';
-import { TRANSPARENCY_DATA } from '../data/apaeData';
+import { TRANSPARENCY_METRICS, INSTITUTION_DATA } from '../data/apaeData';
 import { 
   X, 
   FileText, 
@@ -8,7 +8,8 @@ import {
   ShieldCheck, 
   CheckCircle2, 
   Calendar, 
-  FileSpreadsheet 
+  FileSpreadsheet,
+  Hash
 } from 'lucide-react';
 
 export function TransparencyDocModal() {
@@ -72,7 +73,7 @@ export function TransparencyDocModal() {
           <div className="bg-slate-100 rounded-2xl p-6 border-2 border-dashed border-slate-300 text-slate-700 font-mono text-xs space-y-4 shadow-inner">
             <div className="flex items-center justify-between border-b border-slate-300 pb-3">
               <div className="font-sans font-black text-sm text-slate-900">
-                ASSOCIAÇÃO DE PAIS E AMIGOS DOS EXCEPCIONAIS
+                {INSTITUTION_DATA.name.toUpperCase()}
               </div>
               <span className="text-[10px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-sans font-bold">
                 DOCUMENTO OFICIAL REGISTRADO
@@ -80,13 +81,18 @@ export function TransparencyDocModal() {
             </div>
 
             <p className="leading-relaxed font-sans text-xs text-slate-600">
-              Certificamos que as demonstrações contábeis e relatórios de atividades da APAE referentes ao exercício de {selectedDoc.year} foram elaborados em conformidade com as normas brasileiras de contabilidade (NBC TG 1000) e a legislação do Terceiro Setor (Lei 13.019/2014).
+              Certificamos que as demonstrações contábeis e relatórios de atividades da APAE de Santa Cruz das Palmeiras referentes ao exercício de {selectedDoc.year} foram elaborados em conformidade com as normas brasileiras de contabilidade (NBC TG 1000) e a legislação do Terceiro Setor (Lei 13.019/2014 - MROSC).
             </p>
 
-            <div className="bg-white p-4 rounded-xl border border-slate-200 font-sans text-xs space-y-1">
-              <div className="font-bold text-slate-900">Auditoria Independente: {TRANSPARENCY_DATA.auditorCompany}</div>
-              <div className="text-emerald-700 font-bold">Parecer Técnico: {TRANSPARENCY_DATA.auditOpinion}</div>
-              <div className="text-[11px] text-slate-500">Hash de Verificação Digital: 8f4e91a0b38c291845f0194828da</div>
+            <div className="bg-white p-4 rounded-xl border border-slate-200 font-sans text-xs space-y-1.5">
+              <div className="font-bold text-slate-900">Auditoria / Controle: {TRANSPARENCY_METRICS.auditorCompany}</div>
+              <div className="text-emerald-700 font-bold">Parecer Técnico: {TRANSPARENCY_METRICS.auditOpinion}</div>
+              {selectedDoc.publicValue && (
+                <div className="text-blue-700 font-bold text-xs">Montante Pactuado: {selectedDoc.publicValue}</div>
+              )}
+              <div className="text-[11px] text-slate-500 font-mono break-all pt-1">
+                Hash SHA-256 (Inviolabilidade Digital): {selectedDoc.sha256 || '9f83a4d8b67c4e2098d5c7f1e4b8a213456789abcdef0123456789abcdef0123'}
+              </div>
             </div>
           </div>
 

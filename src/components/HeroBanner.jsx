@@ -59,9 +59,9 @@ export function HeroBanner() {
   }, [heroSlides.length]);
 
   const handleCopyPix = () => {
-    navigator.clipboard.writeText("12.345.678/0001-90");
+    navigator.clipboard.writeText(INSTITUTION_DATA.cnpj);
     setCopiedPix(true);
-    showToast("Chave PIX da APAE (CNPJ: 12.345.678/0001-90) copiada com sucesso!");
+    showToast(`Chave PIX da APAE de Santa Cruz das Palmeiras (CNPJ: ${INSTITUTION_DATA.cnpj}) copiada!`);
     setTimeout(() => setCopiedPix(false), 3000);
   };
 

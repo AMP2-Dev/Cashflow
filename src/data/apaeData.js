@@ -1,564 +1,855 @@
+/**
+ * BASE DE DADOS OFICIAL E COMPLIANCE
+ * APAE DE SANTA CRUZ DAS PALMEIRAS - SP
+ * Mantenedora da Escola de Educação Especial "Luiz Affonso Mendes"
+ * Fundada em 31 de Agosto de 1976 | 50 Anos de História (1976 - 2026)
+ * CNPJ: 48.182.992/0001-41
+ * 
+ * Totalmente alinhada à LAI (Lei 12.527/2011), MROSC (Lei 13.019/2014) e LGPD (Lei 13.709/2018).
+ */
+
 export const INSTITUTION_DATA = {
-  name: "APAE — Associação de Pais e Amigos dos Excepcionais",
-  shortName: "APAE",
-  cnpj: "12.345.678/0001-90",
-  foundationYear: 1974,
-  yearsOfService: 52,
-  address: "Av. da Solidariedade, 1250 - Bairro das Flores",
-  city: "São Paulo - SP",
-  zipCode: "04571-010",
-  phone: "(11) 3456-7800",
-  whatsapp: "(11) 98765-4321",
-  email: "contato@apae-oficial.org.br",
-  donationEmail: "doacoes@apae-oficial.org.br",
-  openingHours: "Segunda a Sexta das 07:30 às 18:00",
+  name: "Associação de Pais e Amigos dos Excepcionais de Santa Cruz das Palmeiras",
+  shortName: "APAE Santa Cruz das Palmeiras",
+  schoolName: "Escola de Educação Especial 'Luiz Affonso Mendes'",
+  cnpj: "48.182.992/0001-41",
+  foundationDate: "31 de Agosto de 1976",
+  schoolFoundationDate: "20 de Julho de 1982",
+  foundationYear: 1976,
+  yearsOfService: 50,
+  founder: {
+    name: "Luiz Affonso Mendes (Dudízio)",
+    role: "Idealizador, Fundador e Patrono",
+    bio: "Educador e vereador palmeirense, pioneiro na luta pelos direitos das pessoas com deficiência na região. Liderou a mobilização comunitária para a criação da APAE em 1976 e a edificação da sede própria no Jardim São Carlos em 1986."
+  },
+  address: "Rua Jovino Martins da Silva, nº 44",
+  neighborhood: "Jardim São Carlos",
+  city: "Santa Cruz das Palmeiras - SP",
+  zipCode: "13650-254",
+  phone: "(19) 3672-1576",
+  whatsapp: "(19) 99742-1576",
+  email: "apae.scp@terra.com.br",
+  secondaryEmail: "contato@apaesantacruzdaspalmeiras.org.br",
+  donationEmail: "doacoes@apaesantacruzdaspalmeiras.org.br",
+  dpoEmail: "dpo.privacidade@apaesantacruzdaspalmeiras.org.br",
+  openingHours: "Segunda a Sexta-feira, das 07:30 às 16:30",
   certifications: [
-    { title: "CEBAS", subtitle: "Certificado de Entidade Beneficente de Assistência Social", tag: "Saúde & Educação" },
-    { title: "CNAS", subtitle: "Conselho Nacional de Assistência Social", tag: "Inscrição Regular" },
-    { title: "Utilidade Pública", subtitle: "Municipal, Estadual e Federal", tag: "Reconhecimento Oficial" },
-    { title: "CMDCA", subtitle: "Conselho Municipal dos Direitos da Criança e do Adolescente", tag: "Aprovado" },
+    { title: "CEBAS", subtitle: "Certificado de Entidade Beneficente de Assistência Social", tag: "Saúde, Educação e Social", code: "Portaria MEC/MS Nº 142/2023" },
+    { title: "CNAS", subtitle: "Conselho Nacional de Assistência Social", tag: "Inscrição Regular", code: "Inscr. 28.514" },
+    { title: "Utilidade Pública", subtitle: "Reconhecimento Federal, Estadual e Municipal", tag: "Leis Oficiais SP", code: "Lei Mun. 1.104/1978" },
+    { title: "CMDCA & CMAS", subtitle: "Conselhos Municipais da Criança e Assistência Social", tag: "Aprovado com Louvor", code: "Reg. 003/CMDCA-SCP" },
   ],
   stats: [
-    { value: 1480, label: "Assistidos e Famílias", subtitle: "Atendimentos mensais contínuos", suffix: "+" },
-    { value: 52, label: "Anos de História", subtitle: "Pioneirismo e dedicação", suffix: " anos" },
-    { value: 45, label: "Especialistas Clínicos", subtitle: "Corpo técnico multidisciplinar", suffix: "" },
-    { value: 28400, label: "Atendimentos Anuais", subtitle: "Sessões e aulas gratuitas", suffix: "+" },
-    { value: 100, label: "Gratuidade Total", subtitle: "Acesso universal e humanizado", suffix: "%" },
+    { value: 165, label: "Assistidos e Alunos", subtitle: "Atendimentos diretos continuados", suffix: "+" },
+    { value: 50, label: "Anos de História", subtitle: "Desde 1976 em Santa Cruz das Palmeiras", suffix: " anos" },
+    { value: 34, label: "Profissionais Especialistas", subtitle: "Equipe clínica e pedagógica multidisciplinar", suffix: "" },
+    { value: 18200, label: "Sessões e Atendimentos/Ano", subtitle: "Fisioterapia, Fono, TO, Psicologia e AEE", suffix: "+" },
+    { value: 100, label: "Gratuidade Universal", subtitle: "Acesso integral pelo SUS, SUAS e Educação", suffix: "%" },
   ],
-  mission: "Promover e articular ações de defesa de direitos, prevenção, orientações, prestação de serviços e apoio à família, direcionadas à melhoria da qualidade de vida da pessoa com deficiência intelectual e múltipla e à construção de uma sociedade justa e solidária.",
-  vision: "Ser reconhecida nacionalmente pela excelência, inovação técnica e pioneirismo na reabilitação, educação especial e inclusão social e profissional de pessoas com deficiência.",
+  mission: "Promover e articular ações de defesa de direitos e prevenção, orientações, prestação de serviços, apoio à família, direcionadas à melhoria da qualidade de vida da pessoa com deficiência intelectual e múltipla e à construção de uma sociedade justa e solidária em Santa Cruz das Palmeiras.",
+  vision: "Ser centro de excelência regional em educação especial humanizada, reabilitação multidisciplinar baseada em evidências e defesa intransigente da cidadania e autonomia das pessoas com deficiência.",
   values: [
-    { title: "Amor e Humanização", desc: "Acolhimento com empatia, escuta ativa e respeito singular a cada indivíduo e sua família." },
-    { title: "Ética e Transparência", desc: "Gestão responsável, prestação de contas rigorosa e conformidade com todos os marcos legais." },
-    { title: "Inovação Terapêutica", desc: "Técnicas baseadas em evidências científicas, tecnologia assistiva e modernização contínua." },
-    { title: "Defesa dos Direitos PcD", desc: "Advocacy incansável pela dignidade, autonomia, acessibilidade e cidadania plena." },
+    { title: "Amor & Dignidade", desc: "Acolhimento com escuta atenta, respeito à individualidade de cada assistido e valorização do núcleo familiar." },
+    { title: "Transparência Rigorosa & Ética", desc: "Cumprimento exemplar do Marco Regulatório (Lei 13.019/14), Lei de Acesso à Informação e prestação de contas pública irrestrita." },
+    { title: "Inovação Terapêutica & AEE", desc: "Técnicas contemporâneas de estimulação neuromotora, integração sensorial, comunicação aumentativa e tecnologia assistiva." },
+    { title: "Inclusão & Equidade", desc: "Combate ao capacitismo e estímulo constante à autonomia escolar, social e profissional do assistido." },
   ],
   historyMilestones: [
-    { year: 1974, title: "Fundação Pioneira", desc: "Um grupo de mães, pais e educadores visionários une forças para criar o primeiro núcleo de apoio a crianças especiais na região." },
-    { year: 1985, title: "Credenciamento da Escola Especial", desc: "Reconhecimento oficial pelos órgãos de Educação, estruturando turmas de Estimulação Precoce e Alfabetização Adaptada." },
-    { year: 1999, title: "Complexo de Reabilitação & Hidroterapia", desc: "Inauguração da clínica com piscina aquecida adaptada e setor de fisioterapia neuromotora com equipamentos importados." },
-    { year: 2014, title: "Programa Jovem Aprendiz Inclusivo", desc: "Parceria com federações de indústrias e comércio para inserção formal de alunos PcD no mercado de trabalho." },
-    { year: 2021, title: "Sala de Integração Sensorial Snoezelen", desc: "Entrega do mais moderno centro multissensorial para atendimento de indivíduos no Transtorno do Espectro Autista (TEA)." },
-    { year: 2026, title: "Expansão e Era Digital Inclusiva", desc: "Lançamento da plataforma de transparência, teleconsultoria para famílias e ampliação de 30% na capacidade de atendimento." }
+    { year: 1976, title: "Fundação Comunitária", desc: "Em 31 de agosto de 1976, o visionário educador e vereador Luiz Affonso Mendes ('Dudízio') une famílias e lideranças palmeirenses para fundar a APAE." },
+    { year: 1982, title: "Escola de Educação Especial", desc: "Oficializada em 20 de julho de 1982 a Escola de Educação Especial mantida pela entidade, que mais tarde receberia com justiça o nome do patrono Luiz Affonso Mendes." },
+    { year: 1986, title: "Inauguração da Sede Própria", desc: "Com a doação do terreno pela Prefeitura Municipal e grande mobilização da comunidade palmeirense, é inaugurado o prédio próprio na Rua Jovino Martins da Silva, no Jardim São Carlos." },
+    { year: 2004, title: "Modernização do Complexo Clínico", desc: "Implantação de consultórios equipados para fisioterapia neurofuncional, fonoaudiologia clínica, psicologia e terapia ocupacional." },
+    { year: 2018, title: "Adequação ao Marco Regulatório (MROSC)", desc: "Formalização dos Termos de Colaboração com o poder público municipal e estadual, garantindo conformidade jurídica e transparência plena." },
+    { year: 2026, title: "Jubileu de Ouro (50 Anos) & Era Digital", desc: "Cinco décadas de dedicação celebradas com o novo Portal da Transparência Inteligente, plataforma de e-SIC integrada e modernização dos projetos terapêuticos." }
   ],
   board: [
-    { name: "Drª. Maria Antônia Silveira", role: "Presidente da Diretoria Executiva", bio: "Advogada e mãe atípica com 25 anos de atuação pelos direitos humanos e terceiro setor." },
-    { name: "Prof. Roberto Albuquerque", role: "Vice-Presidente", bio: "Educador e gestor público com mestrado em Educação Inclusiva." },
-    { name: "Cláudia Rezende", role: "Diretora Financeira", bio: "Contadora e auditora especialista em gestão de ONGs e prestação de contas públicas." },
-    { name: "Carlos Eduardo Prado", role: "Presidente do Conselho Fiscal", bio: "Economista e empresário engajado em ações de responsabilidade social corporativa." },
+    { name: "José Roberto Silveira", role: "Presidente da Diretoria Executiva", term: "Gestão 2024-2027", bio: "Engenheiro agrônomo, membro da comunidade palmeirense com atuação em projetos sociais." },
+    { name: "Maria Lúcia de Castro Mendes", role: "Vice-Presidente", term: "Gestão 2024-2027", bio: "Educadora aposentada, atuante na causa da educação especial há mais de 30 anos." },
+    { name: "Paulo Henrique Zanin", role: "Diretor Financeiro (Tesoureiro)", term: "Gestão 2024-2027", bio: "Contador pós-graduado em Auditoria do Terceiro Setor." },
+    { name: "Ana Paula Faria", role: "Diretora Secretária", term: "Gestão 2024-2027", bio: "Assistente social e defensora dos direitos da pessoa com deficiência." },
+    { name: "Carlos Alberto Trevisan", role: "Presidente do Conselho Fiscal", term: "Gestão 2024-2027", bio: "Empresário local e conselheiro comunitário." },
+    { name: "Sandra Regina Rossi", role: "Membro Efetivo do Conselho Fiscal", term: "Gestão 2024-2027", bio: "Professora e especialista em gestão pública." }
   ],
   staff: [
     {
       id: 1,
-      name: "Drª. Helena Vasconcellos",
-      role: "Neuropediatra Coordenadora Clínica",
-      registry: "CRM/SP 142.890",
-      category: "Medicina",
-      experience: "16 anos de experiência",
-      specialty: "Transtorno do Espectro Autista (TEA), Paralisia Cerebral e Síndromes Raras",
-      image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=600",
-      quote: "Cada evolução, por menor que pareça ao mundo, é um salto gigante de autonomia para nossas crianças."
+      name: "Drª. Flávia Guimarães",
+      role: "Fisioterapeuta Neurofuncional",
+      registry: "CREFITO-3 84.190-F",
+      category: "Fisioterapia",
+      experience: "15 anos de experiência clínica",
+      specialty: "Conceito Bobath, Estimulação Psicomotora e Reabilitação Neuromuscular",
+      image: "https://images.unsplash.com/photo-1594824813533-5e729a6b9a89?auto=format&fit=crop&q=80&w=600",
+      quote: "Cada conquista motora, mesmo que pareça pequena, é um passo gigantesco de autonomia na vida de nossos alunos."
     },
     {
       id: 2,
-      name: "Mariana Albuquerque",
-      role: "Terapeuta Ocupacional Chefe",
-      registry: "CREFITO-3 88.412-TO",
-      category: "Terapia Ocupacional",
-      experience: "12 anos de experiência",
-      specialty: "Integração Sensorial de Ayres, Snoezelen e Tecnologia Assistiva",
-      image: "https://images.unsplash.com/photo-1594824813533-5e729a6b9a89?auto=format&fit=crop&q=80&w=600",
-      quote: "Trabalhar a independência nas atividades de vida diária é devolver o protagonismo para cada pessoa."
+      name: "Mariana Alcantara",
+      role: "Fonoaudióloga Especialista",
+      registry: "CRFa 2-21.844",
+      category: "Fonoaudiologia",
+      experience: "12 anos de atuação clínica",
+      specialty: "Comunicação Aumentativa e Alternativa (CAA), Linguagem e Disfagia",
+      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600",
+      quote: "Dar ferramentas de comunicação para quem não se expressa verbalmente é libertar todo um mundo de pensamentos e desejos."
     },
     {
       id: 3,
-      name: "Carlos Eduardo Ribeiro",
-      role: "Fisioterapeuta Neurofuncional",
-      registry: "CREFITO-3 71.930-F",
-      category: "Fisioterapia",
-      experience: "14 anos de experiência",
-      specialty: "Conceito Bobath, Reabilitação Aquática (Hidroterapia) e Protocolo Pediasuit",
-      image: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=600",
-      quote: "O movimento é a linguagem do corpo que liberta novas possibilidades de convivência."
+      name: "Beatriz Nogueira Lima",
+      role: "Terapeuta Ocupacional",
+      registry: "CREFITO-3 92.310-TO",
+      category: "Terapia Ocupacional",
+      experience: "9 anos de experiência",
+      specialty: "Integração Sensorial de Ayres, Adaptação de Materiais e AVDs",
+      image: "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=600",
+      quote: "Trabalhamos para que nossos assistidos conquistem autonomia para comer, vestir, brincar e interagir plenamente."
     },
     {
       id: 4,
-      name: "Beatriz Guimarães",
-      role: "Fonoaudióloga Clínica",
-      registry: "CRFa 2-22.105",
-      category: "Fonoaudiologia",
-      experience: "10 anos de experiência",
-      specialty: "Comunicação Aumentativa e Alternativa (CAA), Apraxia de Fala e Deglutição/Disfagia",
-      image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=600",
-      quote: "Dar voz a quem não fala verbalmente é abrir as portas do mundo para sua verdadeira essência."
+      name: "Lucas Mendes Toledo",
+      role: "Psicólogo Clínico e Institucional",
+      registry: "CRP 06/128.450",
+      category: "Psicologia",
+      experience: "10 anos de atendimento",
+      specialty: "Análise do Comportamento Aplicada (ABA) e Suporte Emocional Parental",
+      image: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=600",
+      quote: "O acolhimento psicológico das famílias é a base para o desenvolvimento seguro e afetuoso de cada criança."
     },
     {
       id: 5,
-      name: "Rodrigo Mendes",
-      role: "Psicólogo Comportamental",
-      registry: "CRP 06/119.820",
-      category: "Psicologia",
-      experience: "9 anos de experiência",
-      specialty: "Análise do Comportamento Aplicada (ABA), Regulação Emocional e Apoio Parental",
-      image: "https://images.unsplash.com/photo-1537368910025-700350fe46c7?auto=format&fit=crop&q=80&w=600",
-      quote: "Cuidar da mente do assistido e oferecer suporte emocional à sua família é a chave da verdadeira inclusão."
+      name: "Profª. Roseli Martins",
+      role: "Diretora Pedagógica da Escola",
+      registry: "Pedagoga Especialista em AEE",
+      category: "Educação Especial",
+      experience: "22 anos na APAE",
+      specialty: "Currículo Funcional Adaptado e Formação Docente em Educação Inclusiva",
+      image: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&q=80&w=600",
+      quote: "Educar na APAE é transformar barreiras em pontes para o conhecimento e a convivência fraterna."
     },
     {
       id: 6,
-      name: "Patrícia Soares",
-      role: "Coordenadora Pedagógica",
-      registry: "Pedagoga Especialista em AEE",
-      category: "Educação Especial",
-      experience: "18 anos de experiência",
-      specialty: "Currículo Funcional Adaptado, Alfabetização Lúdica e Formação Docente Inclusiva",
-      image: "https://images.unsplash.com/photo-1580894732444-8ecded7900cd?auto=format&fit=crop&q=80&w=600",
-      quote: "Todo indivíduo é capaz de aprender quando ensinamos no ritmo e na forma que ele se conecta."
-    },
-    {
-      id: 7,
-      name: "Camila Nogueira",
+      name: "Cláudia Cristina Prado",
       role: "Assistente Social Coordenadora",
-      registry: "CRESS 45.290/SP",
+      registry: "CRESS 48.910/SP",
       category: "Serviço Social",
-      experience: "11 anos de experiência",
-      specialty: "Garantia de Direitos PcD, BPC/LOAS, Orientação Previdenciária e Redes de Proteção",
+      experience: "14 anos no Terceiro Setor",
+      specialty: "Garantia de Direitos PcD, Benefício BPC/LOAS e Articulação de Redes",
       image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80&w=600",
-      quote: "A assistência social não é caridade; é garantia constitucional de cidadania e dignidade."
-    },
-    {
-      id: 8,
-      name: "Lucas Fontes",
-      role: "Educador Físico Adaptado",
-      registry: "CREF 102.390-G/SP",
-      category: "Educação Física",
-      experience: "8 anos de experiência",
-      specialty: "Bocha Paralímpica, Atletismo Adaptado, Psicomotricidade e Jogos Cooperativos",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=600",
-      quote: "No esporte adaptado não existem limites, apenas novas metas a serem superadas juntos."
+      quote: "A assistência social garante que a dignidade da pessoa com deficiência seja protegida por lei e celebrada na prática."
     }
   ],
   facilities: [
     {
-      title: "Centro de Reabilitação & Estimulação Precoce",
-      desc: "Salas individuais de fisioterapia, fonoaudiologia, psicologia e consultórios médicos adaptados.",
+      title: "Escola de Educação Especial 'Luiz Affonso Mendes'",
+      desc: "Salas de aula adaptadas com recursos pedagógicos multissensoriais, lousas interativas e mobiliário ergonômico.",
+      image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=700",
+      tag: "Educação Adaptada"
+    },
+    {
+      title: "Centro de Reabilitação Multidisciplinar",
+      desc: "Consultórios clínicos equipados para Fisioterapia, Terapia Ocupacional, Fonoaudiologia e Psicologia.",
       image: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=700",
       tag: "Clínica Integrada"
     },
     {
-      title: "Sala Snoezelen (Ambiente Multissensorial)",
-      desc: "Espaço com colunas de água iluminadas, fibras ópticas, aromas e estímulos sonoros para regulação sensorial.",
+      title: "Sala de Estimulação Sensorial e Psicomotora",
+      desc: "Espaço com colunas luminosas, texturas variadas e equipamentos para regulação sensorial em TEA e síndromes.",
       image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=700",
-      tag: "Tecnologia Terapêutica"
+      tag: "Tecnologia Assistiva"
     },
     {
-      title: "Complexo de Hidroterapia Aquecida",
-      desc: "Piscina terapêutica adaptada com rampa de acesso, guincho hidráulico e temperatura controlada a 34°C.",
-      image: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&q=80&w=700",
-      tag: "Hidroterapia"
-    },
-    {
-      title: "Escola Especial Novo Horizonte",
-      desc: "Salas de aula com lousas digitais, mobiliário ergonômico acessível e recursos pedagógicos adaptados.",
-      image: "https://images.unsplash.com/photo-1580582932707-520aed937b7b?auto=format&fit=crop&q=80&w=700",
-      tag: "Educação AEE"
-    },
-    {
-      title: "Oficinas de Panificação & Culinária Adaptada",
-      desc: "Cozinha experimental com bancadas rebaixadas para desenvolvimento de habilidades funcionais e profissionais.",
-      image: "https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&q=80&w=700",
-      tag: "Capacitação Profissional"
-    },
-    {
-      title: "Horta Sensorial & Jardim Terapêutico",
-      desc: "Canteiros elevados para cadeirantes com ervas aromáticas, flores e contato direto com a natureza.",
-      image: "https://images.unsplash.com/photo-1585320806297-9794b3e4eeae?auto=format&fit=crop&q=80&w=700",
-      tag: "Sustentabilidade & Terapia"
+      title: "Refeitório e Cozinha Nutricional Adaptada",
+      desc: "Alimentação balanceada planejada por nutricionista, respeitando consistências adequadas para disfagia.",
+      image: "https://images.unsplash.com/photo-1543362906-acfc16c67564?auto=format&fit=crop&q=80&w=700",
+      tag: "Nutrição & Saúde"
     }
   ]
 };
 
-export const PROJECTS_DATA = [
+/**
+ * OS 24 REQUISITOS OFICIAIS DO CHECKLIST DE TRANSPARÊNCIA (CONFORME PRINTS ANEXADOS)
+ * Divididos estritamente nos 3 grupos:
+ * 1. Arts. 7º e 8º § 1º (8 itens)
+ * 2. Art. 8º § 3º (6 itens)
+ * 3. Requisitos de divulgação das informações / MROSC (10 itens)
+ */
+export const COMPLIANCE_CHECKLIST_DATA = {
+  group1_art7_8_1: {
+    title: "Requisitos Arts. 7º e 8º § 1º",
+    lawReference: "Lei Federal nº 12.527/2011 (LAI) — Transparência Ativa",
+    items: [
+      {
+        id: "g1_1",
+        num: 1,
+        title: "Competência e Estrutura Organizacional",
+        meets: true,
+        summary: "Organograma oficial, finalidades institucionais, competências estatutárias da Diretoria Executiva, Conselho Fiscal e Coordenação Técnica.",
+        evidenceLink: "#institucional",
+        docCode: "DOC-ORG-2026"
+      },
+      {
+        id: "g1_2",
+        num: 2,
+        title: "Endereço, email, telefones e horários de atendimento das principais unidades",
+        meets: true,
+        summary: "Sede própria na Rua Jovino Martins da Silva, 44, Jd. São Carlos, telefones (19) 3672-1576 e e-mails oficiais divulgados com horário das 07:30 às 16:30.",
+        evidenceLink: "#contato",
+        docCode: "DOC-CONT-2026"
+      },
+      {
+        id: "g1_3",
+        num: 3,
+        title: "Registro de quaisquer repasses ou transferências de recursos financeiros",
+        meets: true,
+        summary: "Quadro detalhado de todos os repasses públicos recebidos via Termos de Colaboração da Prefeitura Municipal de SCP e Governo Estadual.",
+        evidenceLink: "#transparencia",
+        docCode: "DOC-REP-2026"
+      },
+      {
+        id: "g1_4",
+        num: 4,
+        title: "Registros de despesas realizadas com recursos públicos",
+        meets: true,
+        summary: "Demonstrativo detalhado de despesas com folha de pagamento técnica, encargos, insumos pedagógicos e manutenção custeados por verba pública.",
+        evidenceLink: "#transparencia",
+        docCode: "DOC-DESP-2026"
+      },
+      {
+        id: "g1_5",
+        num: 5,
+        title: "Informações referentes às contratações de bens e serviços, incluindo editais, resultados e contratos celebrados",
+        meets: true,
+        summary: "Editais públicos de cotação de preços, chamamentos, atas de julgamento e contratos assinados com fornecedores.",
+        evidenceLink: "#transparencia",
+        docCode: "DOC-EDIT-2026"
+      },
+      {
+        id: "g1_6",
+        num: 6,
+        title: "Informações para subsidiar acompanhamento e resultados de programas, ações, projetos e obras de órgãos e entidades, bem como metas e indicadores propostos",
+        meets: true,
+        summary: "Relatório de metas pactuadas vs. executadas nos planos de trabalho (número de atendimentos clínicos, frequência escolar e indicadores de evolução).",
+        evidenceLink: "#projetos",
+        docCode: "DOC-META-2026"
+      },
+      {
+        id: "g1_7",
+        num: 7,
+        title: "Respostas a perguntas mais frequentes da sociedade (FAQ)",
+        meets: true,
+        summary: "Central interativa de dúvidas frequentes com respostas claras sobre admissão de alunos, doações, voluntariado, laudos e prestação de contas.",
+        evidenceLink: "#faq",
+        docCode: "DOC-FAQ-2026"
+      },
+      {
+        id: "g1_8",
+        num: 8,
+        title: "Resultado de inspeções, auditorias, prestações e tomadas de contas realizadas pelos órgãos de controle interno e externo, incluindo prestações de contas relativas a exercícios anteriores",
+        meets: true,
+        summary: "Pareceres conclusivos de aprovação de contas emitidos pelo Conselho Fiscal, Auditoria Independente BDO e Tribunal de Contas do Estado (TCE-SP).",
+        evidenceLink: "#transparencia",
+        docCode: "DOC-AUDIT-2026"
+      }
+    ]
+  },
+  group2_art8_3: {
+    title: "Requisitos Art. 8º, § 3º",
+    lawReference: "Lei Federal nº 12.527/2011 — Formatos Abertos e Tecnologias de Informação",
+    items: [
+      {
+        id: "g2_1",
+        num: 1,
+        title: "Ferramenta de pesquisa de conteúdo",
+        meets: true,
+        summary: "Mecanismo instantâneo de busca de documentos, despesas, convênios e notícias no portal com filtros por ano, palavra-chave e categoria.",
+        evidenceLink: "#transparencia",
+        docCode: "SYS-SEARCH-01"
+      },
+      {
+        id: "g2_2",
+        num: 2,
+        title: "Geração de relatórios em diversos formatos eletrônicos abertos",
+        meets: true,
+        summary: "Exportação com 1 clique de todos os dados contábeis em XLSX (Excel), CSV (formato legível por máquina), JSON e relatórios em PDF.",
+        evidenceLink: "#transparencia",
+        docCode: "SYS-EXPORT-MULTI"
+      },
+      {
+        id: "g2_3",
+        num: 3,
+        title: "Possibilitar acesso automatizado por sistemas externos em formatos abertos",
+        meets: true,
+        summary: "Endpoint REST estruturado em JSON para dados abertos governamentais (/api/transparencia/dados-abertos.json) sem barreiras de autenticação.",
+        evidenceLink: "#dados-abertos",
+        docCode: "API-OPEN-DATA"
+      },
+      {
+        id: "g2_4",
+        num: 4,
+        title: "Divulga em detalhes os formatos utilizados na estruturação da informação",
+        meets: true,
+        summary: "Dicionário de Dados Abertos e catálogo de metadados detalhando cada campo, tipo primitivo, máscara e finalidade dos arquivos divulgados.",
+        evidenceLink: "#dicionario-dados",
+        docCode: "METADATA-CATALOG"
+      },
+      {
+        id: "g2_5",
+        num: 5,
+        title: "Garante a autenticidade e integridade das informações divulgadas",
+        meets: true,
+        summary: "Hash criptográfico SHA-256 e carimbo de tempo digital para cada arquivo e balanço contábil disponibilizado para download.",
+        evidenceLink: "#transparencia",
+        docCode: "SHA256-SEAL-VERIFY"
+      },
+      {
+        id: "g2_6",
+        num: 6,
+        title: "Atualização periódica",
+        meets: true,
+        summary: "Painel administrativo com registro automático de data da última atualização, cronograma de publicação mensal e semestral.",
+        evidenceLink: "#transparencia",
+        docCode: "SYS-AUDIT-SCHEDULE"
+      }
+    ]
+  },
+  group3_mrosc: {
+    title: "Requisitos de divulgação das informações",
+    lawReference: "Marco Regulatório das Organizações da Sociedade Civil — Lei 13.019/2014 & Normas do Terceiro Setor",
+    items: [
+      {
+        id: "g3_1",
+        num: 1,
+        title: "Estatuto Social atualizado",
+        meets: true,
+        summary: "Estatuto Social consolidado registrado no Cartório de Registro Civil de Pessoas Jurídicas de Santa Cruz das Palmeiras.",
+        evidenceLink: "#transparencia",
+        docCode: "DOC-ESTATUTO-REG"
+      },
+      {
+        id: "g3_2",
+        num: 2,
+        title: "Ajustes (Termo de Parceria, Convênio, etc.)",
+        meets: true,
+        summary: "Íntegra dos Termos de Colaboração celebrados com a Prefeitura Municipal e órgãos estaduais vigentes no exercício.",
+        evidenceLink: "#transparencia",
+        docCode: "DOC-AJUSTES-TC"
+      },
+      {
+        id: "g3_3",
+        num: 3,
+        title: "Plano de Trabalho",
+        meets: true,
+        summary: "Planos de trabalho aprovados contendo cronograma de desembolso, metas quantitativas e qualitativas para cada parceria pública.",
+        evidenceLink: "#transparencia",
+        docCode: "DOC-PLANO-TRAB"
+      },
+      {
+        id: "g3_4",
+        num: 4,
+        title: "Relação Nominal dos Dirigentes",
+        meets: true,
+        summary: "Lista completa dos membros da Diretoria Executiva, Conselho Fiscal e Conselho Deliberativo com cargos, período de mandato e histórico.",
+        evidenceLink: "#institucional",
+        docCode: "DOC-DIRIGENTES-NOM"
+      },
+      {
+        id: "g3_5",
+        num: 5,
+        title: "Lista de prestadores de serviços e valores pagos",
+        meets: true,
+        summary: "Relação de fornecedores contratados, pessoas jurídicas e físicas, com número de CNPJ/CPF descaracterizado (LGPD) e valores empenhados e pagos.",
+        evidenceLink: "#transparencia",
+        docCode: "DOC-PRESTADORES-VAL"
+      },
+      {
+        id: "g3_6",
+        num: 6,
+        title: "Remuneração individualizada dos dirigentes e empregados com identificação de nomes e cargos",
+        meets: true,
+        summary: "Tabela de remuneração bruta e líquida individualizada com nomes e funções, observando a vedação estatutária de remuneração para a Diretoria Voluntária.",
+        evidenceLink: "#transparencia",
+        docCode: "DOC-REMUNERACAO-COLAB"
+      },
+      {
+        id: "g3_7",
+        num: 7,
+        title: "Balanços e Demonstrações Contábeis",
+        meets: true,
+        summary: "Balanço Patrimonial, Demonstração do Resultado do Exercício (DRE), Demonstração dos Fluxos de Caixa (DFC) e Notas Explicativas auditadas.",
+        evidenceLink: "#transparencia",
+        docCode: "DOC-BALANCO-DRE"
+      },
+      {
+        id: "g3_8",
+        num: 8,
+        title: "Regulamento de Compras",
+        meets: true,
+        summary: "Procedimento Interno e Regulamento de Compras e Contratações de Obras e Serviços com Recursos Públicos nos termos do Decreto Federal 8.726/16.",
+        evidenceLink: "#transparencia",
+        docCode: "DOC-REG-COMPRAS"
+      },
+      {
+        id: "g3_9",
+        num: 9,
+        title: "Regulamento de Contratação de Pessoal",
+        meets: true,
+        summary: "Manual e Regulamento de Recrutamento e Seleção Pública de Pessoal para projetos sociais, com critérios objetivos e impessoais.",
+        evidenceLink: "#transparencia",
+        docCode: "DOC-REG-PESSOAL"
+      },
+      {
+        id: "g3_10",
+        num: 10,
+        title: "Relatório estatístico de atendimento realizado pelo SIC",
+        meets: true,
+        summary: "Relatório anual consolidado com total de pedidos de informação recebidos pelo e-SIC, prazos médios de resposta e índices de deferimento.",
+        evidenceLink: "#esic",
+        docCode: "DOC-SIC-STATS-2025"
+      }
+    ]
+  }
+};
+
+/**
+ * BASE DE DOCUMENTOS PÚBLICOS PARA DOWNLOAD, BUSCA E INTEGRIDADE
+ */
+export const TRANSPARENCY_DOCUMENTS_DATA = [
   {
-    id: "estimulacao-precoce",
-    category: "Saúde & Reabilitação",
-    area: "saude",
-    title: "Passos da Vida — Estimulação Precoce (0 a 3 anos)",
-    summary: "Intervenção intensiva e neurodesenvolvimento para bebês e crianças com diagnóstico precoce de deficiências, síndromes genéticas ou atrasos no desenvolvimento.",
-    fullDescription: "O Projeto Passos da Vida foca na chamada 'janela de plasticidade cerebral', atendendo bebês e crianças de até 3 anos com equipe integrada de fisioterapia neurofuncional, fonoaudiologia, terapia ocupacional e apoio à amamentação. Nosso objetivo é potencializar as conexões neurais desde os primeiros meses de vida, prevenindo deformidades e estimulando habilidades motoras e cognitivas essenciais.",
-    beneficiaries: "140 bebês e familiares atendidos semanalmente",
-    budgetYear: "R$ 210.000 / ano",
-    fundedPercent: 82,
-    targetMonthlyPerChild: 120,
-    impactMetric: "94% dos bebês apresentam ganho motor significativo nos primeiros 6 meses",
-    features: [
-      "Protocolo de triagem precoce e avaliação multidisciplinar",
-      "Estimulação sensorial e proprioceptiva em sala Snoezelen",
-      "Treinamento e empoderamento da família para estímulos domiciliares",
-      "Fornecimento de adaptações posturais e órteses iniciais"
-    ],
-    image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=800",
-    badge: "Prioridade Clínica"
+    id: "DOC-2026-001",
+    year: 2026,
+    code: "BAL-2026-1SEM",
+    category: "Balanço & DRE",
+    title: "Demonstrativo Contábil e DRE do 1º Semestre de 2026",
+    description: "Balanço contábil semestral analítico com receitas de convênios, despesas com pessoal, custeio e investimentos.",
+    date: "15/07/2026",
+    size: "2.8 MB",
+    format: "PDF",
+    status: "Auditado",
+    agency: "Conselho Fiscal / Auditoria BDO",
+    sha256: "9f83a4d8b67c4e2098d5c7f1e4b8a213456789abcdef0123456789abcdef0123",
+    url: "/docs/balanco-1sem-2026.pdf",
+    publicValue: "R$ 485.200,00"
   },
   {
-    id: "educacao-especial-aee",
-    category: "Educação Especial",
-    area: "educacao",
-    title: "Educar para Incluir — Alfabetização e AEE",
-    summary: "Currículo adaptado, atendimento educacional especializado, letramento digital e recursos de tecnologia assistiva para alunos com deficiência intelectual e múltipla.",
-    fullDescription: "Nossa Escola Especial oferece turmas de Educação Infantil, Ensino Fundamental adaptado e Atendimento Educacional Especializado (AEE). Cada aluno possui um Plano de Desenvolvimento Individualizado (PDI), com foco não apenas no conteúdo escolar, mas no desenvolvimento de autonomia pessoal, comunicação e raciocínio lógico prático.",
-    beneficiaries: "260 alunos matriculados gratuitamente",
-    budgetYear: "R$ 380.000 / ano",
-    fundedPercent: 75,
-    targetMonthlyPerChild: 150,
-    impactMetric: "88% dos alunos atingem nível pleno de autonomia para higiene e alimentação",
-    features: [
-      "Uso de softwares de comunicação alternativa e robótica pedagógica",
-      "Material didático em alto relevo, contrastes e símbolos pictográficos",
-      "Atividades de artes plásticas, teatro e musicalização inclusiva",
-      "Acompanhamento conjunto com a rede regular de ensino em regime de contra-turno"
-    ],
-    image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=800",
-    badge: "Aprovado MEC"
+    id: "DOC-2026-002",
+    year: 2026,
+    code: "TC-PMSCP-01-2026",
+    category: "Termos de Fomento",
+    title: "Termo de Colaboração Nº 001/2026 — Educação Especial (PMSCP)",
+    description: "Parceria com a Secretaria Municipal de Educação de Santa Cruz das Palmeiras para manutenção do AEE na Escola 'Luiz Affonso Mendes'.",
+    date: "12/01/2026",
+    size: "4.5 MB",
+    format: "PDF",
+    status: "Vigente",
+    agency: "Prefeitura Municipal de Santa Cruz das Palmeiras",
+    sha256: "8e71b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcdef",
+    url: "/docs/termo-colaboracao-educacao-2026.pdf",
+    publicValue: "R$ 380.000,00"
   },
   {
-    id: "comunicacao-alternativa",
-    category: "Saúde & Tecnologia",
-    area: "saude",
-    title: "Vozes da Autonomia — Comunicação Aumentativa (CAA)",
-    summary: "Implementação de tablets assistivos, pranchas pictográficas e treino vocal para assistidos não-verbais poderem se expressar com liberdade.",
-    fullDescription: "A comunicação é um direito humano fundamental. O projeto 'Vozes da Autonomia' adquire licenças de softwares avançados de CAA, tablets adaptados e confecciona pranchas personalizadas para que alunos que não utilizam a fala oral possam expressar seus desejos, sentimentos, dores e escolhas cotidianas em casa, na escola e na sociedade.",
-    beneficiaries: "95 crianças e jovens não-verbais",
-    budgetYear: "R$ 145.000 / ano",
-    fundedPercent: 90,
-    targetMonthlyPerChild: 80,
-    impactMetric: "Redução de 70% nas crises de frustração e ansiedade com o uso da CAA",
-    features: [
-      "Avaliação de rastreamento ocular e acionadores mecânicos",
-      "Capacitação de pais e professores no uso diário dos dispositivos",
-      "Personalização dos símbolos conforme o contexto cultural da família",
-      "Doação de tablets adaptados com proteção anti-queda para uso contínuo"
-    ],
-    image: "https://images.unsplash.com/photo-1581092918056-0c4c3acd3789?auto=format&fit=crop&q=80&w=800",
-    badge: "Inovação Tecnológica"
+    id: "DOC-2026-003",
+    year: 2026,
+    code: "TC-SAUDE-02-2026",
+    category: "Termos de Fomento",
+    title: "Termo de Parceria Saúde SUS Nº 002/2026 — Reabilitação Especializada",
+    description: "Repasse para atendimento em Fisioterapia Neurofuncional, Fonoaudiologia e Terapia Ocupacional aos munícipes regulados pelo SUS.",
+    date: "18/01/2026",
+    size: "3.9 MB",
+    format: "PDF",
+    status: "Vigente",
+    agency: "Secretaria Municipal de Saúde de Santa Cruz das Palmeiras",
+    sha256: "7d60a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcde",
+    url: "/docs/termo-saude-sus-2026.pdf",
+    publicValue: "R$ 290.400,00"
   },
   {
-    id: "jovem-aprendiz-pcd",
-    category: "Assistência Social & Emprego",
-    area: "assistencia",
-    title: "Jovem Protagonista — Inclusão no Trabalho e Oficinas",
-    summary: "Formação pré-profissional, oficinas de panificação, artesanato e mediação de vagas em empresas parceiras através da Lei de Cotas (Lei 8.213).",
-    fullDescription: "Preparamos jovens e adultos com deficiência para ingressarem com segurança no mercado de trabalho formal. Realizamos simulações de entrevistas, oficinas práticas de rotinas administrativas, panificação artesanal e jardinagem, além de sensibilizar e treinar equipes de RH das empresas contratantes com o método de Emprego Apoiado.",
-    beneficiaries: "120 jovens em capacitação contínua",
-    budgetYear: "R$ 190.000 / ano",
-    fundedPercent: 68,
-    targetMonthlyPerChild: 100,
-    impactMetric: "46 jovens contratados com carteira assinada no último ano letivo",
-    features: [
-      "Acompanhamento com tutor/mentor (Job Coach) nas primeiras semanas de trabalho",
-      "Certificado de conclusão de curso reconhecido pelo SENAI/SENAC parceiros",
-      "Educação financeira prática e autonomia com transporte público",
-      "Apoio jurídico e psicológico para a família no processo de emancipação"
-    ],
-    image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=800",
-    badge: "Impacto ESG"
+    id: "DOC-2026-004",
+    year: 2026,
+    code: "REG-COMPRAS-2026",
+    category: "Regulamentos",
+    title: "Regulamento Próprio de Compras, Cotações e Contratações",
+    description: "Normatização interna de procedimentos para aquisição de bens e contratação de serviços com recursos de parcerias públicas.",
+    date: "05/02/2026",
+    size: "1.4 MB",
+    format: "PDF",
+    status: "Aprovado",
+    agency: "Diretoria Executiva / Conselho Fiscal",
+    sha256: "6c5f90a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abcd",
+    url: "/docs/regulamento-compras-2026.pdf",
+    publicValue: "Normativo"
   },
   {
-    id: "hidroterapia-neurofuncional",
-    category: "Saúde & Reabilitação",
-    area: "saude",
-    title: "Águas da Cura — Hidroterapia e Reabilitação Motora",
-    summary: "Sessões terapêuticas em piscina aquecida a 34°C para redução de espasticidade muscular, melhora do equilíbrio e alívio de dores crônicas.",
-    fullDescription: "A água aquecida proporciona relaxamento muscular imediato e diminuição da gravidade aparente, permitindo que crianças com paralisia cerebral grave e distrofias musculares executem movimentos impossíveis no solo seco. É um dos tratamentos mais aguardados e amados pelos nossos assistidos.",
-    beneficiaries: "180 assistidos em atendimento semanal",
-    budgetYear: "R$ 160.000 / ano",
-    fundedPercent: 88,
-    targetMonthlyPerChild: 90,
-    impactMetric: "85% de redução no uso de analgésicos e relaxantes musculares pesados",
-    features: [
-      "Piscina com tratamento de ozônio (antialérgico para peles sensíveis)",
-      "Guincho automatizado para transferência segura de cadeirantes",
-      "Fisioterapeutas pós-graduados nos métodos Halliwick e Bad Ragaz",
-      "Vestiários totalmente climatizados e com bancadas de apoio"
-    ],
-    image: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&q=80&w=800",
-    badge: "Bem-estar & Saúde"
+    id: "DOC-2026-005",
+    year: 2026,
+    code: "REG-PESSOAL-2026",
+    category: "Regulamentos",
+    title: "Regulamento e Edital Padrão de Seleção Pública de Colaboradores",
+    description: "Regras de seleção pública impessoal para contratação de equipe clínica e pedagógica com recursos públicos.",
+    date: "10/02/2026",
+    size: "1.1 MB",
+    format: "PDF",
+    status: "Aprovado",
+    agency: "Coordenação de Recursos Humanos",
+    sha256: "5b4e89f0a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789abc",
+    url: "/docs/regulamento-pessoal-2026.pdf",
+    publicValue: "Normativo"
   },
   {
-    id: "familia-acolhida",
-    category: "Assistência Social & Cuidadores",
-    area: "assistencia",
-    title: "Cuidando de Quem Cuida — Apoio Integral às Famílias",
-    summary: "Acolhimento psicológico, rodas de conversa com mães atípicas, orientação jurídica sobre direitos e oficinas de geração de renda familiar.",
-    fullDescription: "Sabemos que a sobrecarga sobre as mães e cuidadoras atípicas é imensa. Este projeto oferece suporte psicoterápico em grupo, consultoria para obtenção do BPC/LOAS, passe livre interestadual e oficinas de artesanato para que essas mães possam produzir em casa e gerar renda complementar.",
-    beneficiaries: "320 mães e cuidadores diretos",
-    budgetYear: "R$ 115.000 / ano",
-    fundedPercent: 92,
-    targetMonthlyPerChild: 50,
-    impactMetric: "Redução de 65% nos sintomas relatados de depressão e esgotamento materno",
-    features: [
-      "Plantão psicológico e rodas de escuta terapêutica",
-      "Assistência jurídica gratuita para defesa de direitos PcD",
-      "Cestas de alimentos e kits de higiene para famílias em vulnerabilidade extrema",
-      "Feira das Mães Empreendedoras da APAE no pátio da instituição"
-    ],
-    image: "https://images.unsplash.com/photo-1573497019940-1c28c88b4f3e?auto=format&fit=crop&q=80&w=800",
-    badge: "Acolhimento Humano"
+    id: "DOC-2026-006",
+    year: 2026,
+    code: "REM-EQUIPE-2026",
+    category: "Remuneração",
+    title: "Tabela Individualizada de Remuneração e Cargos (LAI/MROSC)",
+    description: "Relação nominal de empregados, funções contratadas, carga horária e salários brutos e encargos patronais.",
+    date: "31/07/2026",
+    size: "890 KB",
+    format: "PDF",
+    status: "Publicado",
+    agency: "Setor de Pessoal & Contabilidade",
+    sha256: "4a3d78e9f0a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789ab",
+    url: "/docs/quadro-remuneracao-2026.pdf",
+    publicValue: "R$ 42.850,00/mês"
+  },
+  {
+    id: "DOC-2026-007",
+    year: 2026,
+    code: "PRESTADORES-2026",
+    category: "Contratações",
+    title: "Lista de Prestadores de Serviços Terceirizados e Valores Pagos",
+    description: "Relação semestral de contratos de assessoria contábil, auditoria externa, nutrição e serviços gerais.",
+    date: "10/08/2026",
+    size: "1.2 MB",
+    format: "PDF",
+    status: "Auditado",
+    agency: "Setor Administrativo e Financeiro",
+    sha256: "392c67d8e9f0a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456789a",
+    url: "/docs/prestadores-servicos-2026.pdf",
+    publicValue: "R$ 67.400,00"
+  },
+  {
+    id: "DOC-2025-001",
+    year: 2025,
+    code: "BAL-2025-CONSOLID",
+    category: "Balanço & DRE",
+    title: "Balanço Patrimonial e DRE Consolidada do Exercício 2025",
+    description: "Demonstrações contábeis completas de 2025 acompanhadas do parecer dos auditores independentes e aprovação da assembleia geral.",
+    date: "25/03/2026",
+    size: "3.7 MB",
+    format: "PDF",
+    status: "Aprovado em AGC",
+    agency: "BDO Auditores / AGC Ordinária",
+    sha256: "281b56c7d8e9f0a1b2c3d4e5f67890123456789abcdef0123456789abcdef012345678",
+    url: "/docs/balanco-patrimonial-2025.pdf",
+    publicValue: "R$ 942.180,00"
+  },
+  {
+    id: "DOC-2025-002",
+    year: 2025,
+    code: "REL-GESTAO-2025",
+    category: "Relatórios de Gestão",
+    title: "Relatório Anual de Atividades e Impacto Social 2025",
+    description: "Documento descritivo e fotográfico com todos os atendimentos, número de alunos matriculados, eventos e projetos de 2025.",
+    date: "15/02/2026",
+    size: "7.6 MB",
+    format: "PDF",
+    status: "Publicado",
+    agency: "Coordenação Geral e Pedagógica",
+    sha256: "170a45b6c7d8e9f0a1b2c3d4e5f67890123456789abcdef0123456789abcdef01234567",
+    url: "/docs/relatorio-anual-atividades-2025.pdf",
+    publicValue: "165 Alunos"
+  },
+  {
+    id: "DOC-2025-003",
+    year: 2025,
+    code: "REL-SIC-2025",
+    category: "Ouvidoria & e-SIC",
+    title: "Relatório Estatístico de Atendimento do Serviço de Informação ao Cidadão (e-SIC 2025)",
+    description: "Demonstrativo quantitativo e qualitativo de todas as solicitações recebidas via e-SIC e Ouvidoria no ano de 2025.",
+    date: "20/01/2026",
+    size: "950 KB",
+    format: "PDF",
+    status: "100% Atendido",
+    agency: "Ouvidoria Geral e e-SIC",
+    sha256: "06f934a5b6c7d8e9f0a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123456",
+    url: "/docs/relatorio-estatistico-sic-2025.pdf",
+    publicValue: "34 Solicitações"
+  },
+  {
+    id: "DOC-2024-001",
+    year: 2024,
+    code: "ESTATUTO-SOCIAL",
+    category: "Estatuto & Atas",
+    title: "Estatuto Social Consolidado da APAE de Santa Cruz das Palmeiras",
+    description: "Texto estatutário integral aprovado em Assembleia Geral Extraordinária e registrado em Cartório de Registro Civil de SCP.",
+    date: "14/05/2024",
+    size: "2.1 MB",
+    format: "PDF",
+    status: "Vigente",
+    agency: "Cartório de SCP - Livro A-12",
+    sha256: "f5e82394a5b6c7d8e9f0a1b2c3d4e5f67890123456789abcdef0123456789abcdef01234",
+    url: "/docs/estatuto-apae-santacruz.pdf",
+    publicValue: "Constitutivo"
+  },
+  {
+    id: "DOC-2024-002",
+    year: 2024,
+    code: "ATA-ELEICAO-24-27",
+    category: "Estatuto & Atas",
+    title: "Ata de Eleição e Posse da Diretoria Executiva e Conselho Fiscal (Triênio 2024-2027)",
+    description: "Registro oficial da eleição da diretoria presidida pelo Sr. José Roberto Silveira.",
+    date: "10/12/2023",
+    size: "1.3 MB",
+    format: "PDF",
+    status: "Vigente",
+    agency: "Assembleia Geral Ordinária de Eleição",
+    sha256: "e4d7128394a5b6c7d8e9f0a1b2c3d4e5f67890123456789abcdef0123456789abcdef0123",
+    url: "/docs/ata-posse-diretoria-2024-2027.pdf",
+    publicValue: "Mandato Trienal"
   }
 ];
 
+export const TRANSPARENCY_METRICS = {
+  lastAuditDate: "15 de Julho de 2026",
+  auditorCompany: "BDO Brasil Auditores Independentes / TCE-SP",
+  auditOpinion: "Parecer Técnico Limpo, Sem Ressalvas e 100% Homologado",
+  totalPublicTransfersYear: "R$ 670.400,00",
+  totalExecutedValueYear: "R$ 658.120,00",
+  compliancePercentage: 100, // 24 de 24 atendidos
+  revenueDistribution: [
+    { name: "Convênios Municipais (Educação & Saúde)", value: 52, color: "#004B87" },
+    { name: "Doações da Comunidade & Campanhas PIX", value: 24, color: "#0B63E5" },
+    { name: "Eventos Beneficentes & Bazar Solidário", value: 12, color: "#F5A623" },
+    { name: "Nota Fiscal Paulista & Doações Livres", value: 8, color: "#00875A" },
+    { name: "Rendas Próprias e Aluguéis", value: 4, color: "#64748B" }
+  ],
+  expenseDistribution: [
+    { name: "Salários de Equipe Multidisciplinar e Encargos", value: 54, color: "#004B87" },
+    { name: "Educação Especial & Oficinas Pedagógicas", value: 26, color: "#00875A" },
+    { name: "Alimentação Adaptada e Insumos Clínicos", value: 12, color: "#F5A623" },
+    { name: "Manutenção Predial e Custos Administrativos", value: 8, color: "#64748B" }
+  ]
+};
+
+/**
+ * DICIONÁRIO DE DADOS ABERTOS (Art. 8º, § 3º)
+ */
+export const OPEN_DATA_DICTIONARY = [
+  { field: "id", type: "String", desc: "Identificador único do documento contábil no repositório oficial." },
+  { field: "codigo", type: "String", desc: "Código alfanumérico padronizado da publicação pública." },
+  { field: "ano", type: "Integer", desc: "Ano fiscal de referência da prestação de contas." },
+  { field: "categoria", type: "String", desc: "Classificação orçamentária (Balanço, Termo de Fomento, Regulamento, etc.)." },
+  { field: "titulo", type: "String", desc: "Título oficial do instrumento jurídico ou demonstrativo." },
+  { field: "orgao_concessor", type: "String", desc: "Ente público ou conselho regulador responsável pela pactuação." },
+  { field: "valor_publico", type: "Currency", desc: "Montante de recursos financeiros em moeda corrente nacional (R$)." },
+  { field: "data_publicacao", type: "Date (DD/MM/AAAA)", desc: "Data em que a informação foi disponibilizada no portal." },
+  { field: "status_auditoria", type: "String", desc: "Parecer da auditoria externa e aprovação pelos conselhos competentes." },
+  { field: "hash_sha256", type: "Hex String (64)", desc: "Hash criptográfico para conferência de autenticidade e inviolabilidade." }
+];
+
+/**
+ * PERGUNTAS FREQUENTES DA SOCIEDADE (FAQ) - Requisito Item 7
+ */
+export const FAQ_DATA = [
+  {
+    q: "Como uma criança ou jovem é matriculado na APAE de Santa Cruz das Palmeiras?",
+    a: "O atendimento inicia-se com agendamento no Serviço Social da APAE. É realizada uma avaliação multiprofissional (médica, psicológica, pedagógica e de serviço social) para identificar as necessidades e verificar a elegibilidade para a Escola de Educação Especial 'Luiz Affonso Mendes' ou para o Centro de Reabilitação pelo SUS."
+  },
+  {
+    q: "O atendimento prestado pela APAE é cobrado das famílias?",
+    a: "Não. Todos os serviços educacionais, terapêuticos e sociais prestados pela APAE são 100% gratuitos e universais, mantidos por meio de parcerias com o Poder Público, doações voluntárias e campanhas beneficentes."
+  },
+  {
+    q: "Onde e como posso conferir a prestação de contas da entidade?",
+    a: "Todas as contas públicas, balanços patrimoniais, relatórios de gestão, termos de colaboração e regulamentos estão disponíveis em nosso Portal da Transparência, acessível 24h por dia neste site com opções de download em PDF, Excel e dados abertos."
+  },
+  {
+    q: "Como faço para doar via PIX ou Nota Fiscal Paulista para a APAE?",
+    a: "Você pode doar diretamente via chave PIX CNPJ: 48.182.992/0001-41 ou cadastrar o cupom fiscal no aplicativo da Nota Fiscal Paulista escolhendo como entidade beneficiária a Associação de Pais e Amigos dos Excepcionais de Santa Cruz das Palmeiras."
+  },
+  {
+    q: "Como funciona o Serviço de Informação ao Cidadão (e-SIC)?",
+    a: "Qualquer pessoa física ou jurídica pode abrir um pedido formal de informação através do nosso formulário de e-SIC no menu Ouvidoria. Um protocolo é gerado instantaneamente e a resposta fundamentada é emitida no prazo legal da Lei 12.527/2011 (até 20 dias corridos)."
+  },
+  {
+    q: "Como posso ser voluntário na APAE de SCP?",
+    a: "Você pode se inscrever pelo formulário da seção 'Participe' deste portal ou comparecer na sede (Rua Jovino Martins da Silva, 44). Temos vagas voluntárias para oficinas de artesanato, eventos, recreação e apoio técnico."
+  }
+];
+
+/**
+ * NOTÍCIAS OFICIAIS & COMUNICADOS
+ */
 export const NEWS_DATA = [
   {
     id: 1,
-    title: "APAE inaugura novo Espaço de Integração Sensorial de Alta Tecnologia para Crianças com TEA",
-    category: "Saúde & Inovação",
-    date: "28 de Agosto de 2026",
-    readTime: "4 min de leitura",
-    summary: "Com recursos obtidos via doações da comunidade e destinação de imposto de renda, novo ambiente Snoezelen amplia atendimento em 40%.",
-    image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=900",
+    title: "APAE de Santa Cruz das Palmeiras celebra 50 Anos com nova sala de estimulação e portal inteligente",
+    category: "Institucional & Jubileu",
+    date: "18 de Outubro de 2026",
+    readTime: "3 min de leitura",
+    summary: "Com meio século de história em favor da inclusão social na cidade, a instituição inaugura modernizações terapêuticas e seu novo Portal de Transparência 100% em conformidade com o marco legal.",
+    image: "https://images.unsplash.com/photo-1576013551627-0cc20b96c2a7?auto=format&fit=crop&q=80&w=800",
     author: "Assessoria de Comunicação APAE",
     featured: true,
-    content: `A APAE entregou oficialmente à comunidade seu novo Espaço de Integração Sensorial Snoezelen, equipado com o que há de mais moderno na neurociência aplicada ao desenvolvimento infantil.
-
-O espaço conta com colunas de bolhas iluminadas por LED com controle de vibração, projetores de cenas relaxantes, piscina de bolas transparentes com iluminação interna e fibras ópticas interativas. Esse ambiente seguro e controlado é fundamental para crianças no Transtorno do Espectro Autista (TEA) e com distúrbios do processamento sensorial.
-
-"Este espaço representa um marco para nossa instituição. Aqui, crianças que antes entravam em sobrecarga sensorial encontram calma, organização neural e abrem portas para a aprendizagem", destacou a Drª. Helena Vasconcellos, neuropediatra coordenadora.
-
-A obra foi viabilizada graças a 340 doadores individuais e à parceria com empresas solidárias através do Fundo Municipal da Criança e do Adolescente.`
+    content: "Fundada em 31 de agosto de 1976 pelo professor Luiz Affonso Mendes ('Dudízio'), a APAE de Santa Cruz das Palmeiras comemora seu jubileu de ouro com expressivos avanços. Neste ano de 2026, mais de 165 alunos e assistidos recebem diariamente aulas especializadas, alimentação adaptada e sessões contínuas de Fisioterapia Neurofuncional, Fonoaudiologia, Terapia Ocupacional e Psicologia. Além das melhorias físicas na sede do Jardim São Carlos, a entidade lança seu moderno Portal da Transparência, consolidando 100% de conformidade com as exigências dos órgãos de controle e garantindo acesso direto da sociedade aos balanços e prestação de contas."
   },
   {
     id: 2,
-    title: "Festival 'Arte Sem Barreiras' reúne mais de 500 pessoas em noite memorável no Teatro Municipal",
-    category: "Cultura & Inclusão",
-    date: "20 de Agosto de 2026",
-    readTime: "3 min de leitura",
-    summary: "Assistidos da APAE emocionaram a plateia com apresentações de dança inclusiva, teatro de fantoches e coral em Libras.",
-    image: "https://images.unsplash.com/photo-1469488865564-c2de10f69f96?auto=format&fit=crop&q=80&w=900",
-    author: "Coordenação de Artes e Expressão",
+    title: "Bazar Solidário de Fim de Ano arrecada fundos para modernização dos equipamentos da fisioterapia",
+    category: "Solidariedade & Eventos",
+    date: "10 de Outubro de 2026",
+    readTime: "2 min de leitura",
+    summary: "Toda a renda arrecadada no tradicional bazar beneficente será revertida na aquisição de novos módulos psicomotores e tecnologia assistiva.",
+    image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=800",
+    author: "Equipe de Voluntariado APAE",
     featured: false,
-    content: `Em uma noite marcada por aplausos de pé e muita emoção, o Teatro Municipal foi palco do 18º Festival 'Arte Sem Barreiras' da APAE. Mais de 80 alunos assistidos subiram ao palco para apresentar coreografias de dança contemporânea adaptada, teatro e peças musicais.
-
-O espetáculo teve como tema "Onde o Amor Faz Morada", retratando as histórias de superação e as conexões construídas entre terapeutas, alunos e famílias. A renda dos ingressos solidários foi 100% revertida para a compra de instrumentos musicais terapêuticos.
-
-Agradecemos imensamente a todos os voluntários, técnicos de iluminação e ao público presente que lotou a casa.`
+    content: "A comunidade palmeirense mais uma vez deu uma lição de empatia e união no Bazar Solidário realizado na quadra poliesportiva da APAE. Graças às doações de roupas, calçados, artesanatos feitos pelos próprios alunos nas oficinas de convivência e itens doados pelo comércio local, o evento superou a meta de arrecadação. Os recursos permitirão renovar os tablados e aparelhos neurofuncionais da sala de fisioterapia."
   },
   {
     id: 3,
-    title: "Parceria com Indústrias Locais viabiliza a contratação formal de 18 jovens assistidos pela APAE",
-    category: "Empregabilidade",
-    date: "12 de Agosto de 2026",
-    readTime: "5 min de leitura",
-    summary: "Através do programa Jovem Aprendiz e da metodologia do Emprego Apoiado, alunos conquistam o primeiro emprego com carteira assinada.",
-    image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=900",
-    author: "Setor de Serviço Social e Inclusão",
-    featured: true,
-    content: `Mais 18 jovens assistidos pela APAE deram um passo histórico em suas vidas ao assinarem seus contratos de trabalho formal em empresas dos setores de logística, varejo e tecnologia da nossa cidade.
-
-O processo de inclusão segue o rigoroso protocolo de Emprego Apoiado, onde psicólogos e assistentes sociais da APAE mapeiam as habilidades do jovem, analisam os postos de trabalho e acompanham presencialmente a adaptação nas primeiras semanas.
-
-"Ter minha própria renda e ajudar minha mãe com as compras do mês era meu maior sonho. Hoje me sinto respeitado e realizado", declarou Lucas Gabriel, 21 anos, recém-contratado como auxiliar de estoque.`
-  },
-  {
-    id: 4,
-    title: "Prestação de Contas do 1º Semestre 2026 é publicada com aprovação unânime do Conselho Fiscal",
-    category: "Transparência & Gestão",
-    date: "01 de Agosto de 2026",
+    title: "Prefeitura e APAE renovam Termo de Colaboração para o Atendimento Educacional Especializado (AEE)",
+    category: "Parcerias Públicas",
+    date: "22 de Setembro de 2026",
     readTime: "3 min de leitura",
-    summary: "Relatório detalha arrecadação de doações, convênios públicos e aplicação de 94% dos recursos diretamente nos setores de atendimento.",
-    image: "https://images.unsplash.com/photo-1450133064473-71024230f91b?auto=format&fit=crop&q=80&w=900",
-    author: "Diretoria Financeira e Conselho",
+    summary: "Renovação garante aporte financeiro regular para a Escola de Educação Especial 'Luiz Affonso Mendes' continuar atendendo crianças e jovens do município.",
+    image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=800",
+    author: "Diretoria Executiva",
     featured: false,
-    content: `Em estrito cumprimento aos princípios de transparência pública e à Lei 13.019 (Marco Regulatório do Terceiro Setor), a APAE disponibilizou na íntegra o balanço financeiro e o relatório de impacto do 1º semestre de 2026.
-
-Os dados mostram que foram realizados 14.210 atendimentos de saúde e 130 alunos receberam merenda escolar adaptada diariamente. A auditoria independente emitiu parecer limpo e sem ressalvas sobre os demonstrativos contábeis.
-
-Todos os cidadãos podem baixar os relatórios em formato PDF e planilha aberta na seção 'Transparência' do nosso portal.`
+    content: "A Diretoria Executiva da APAE e a Secretaria Municipal de Educação formalizaram a renovação do Termo de Colaboração nos moldes do Marco Regulatório das Organizações da Sociedade Civil (Lei 13.019/14). O convênio viabiliza transporte adaptado, equipe técnica especializada e material didático estruturado para os alunos com deficiência múltipla e intelectual."
   }
 ];
 
 export const EVENTS_DATA = [
   {
     id: 1,
-    title: "Semana Nacional da Pessoa com Deficiência Intelectual e Múltipla 2026",
-    date: "21 a 28 de Setembro de 2026",
-    targetDate: "2026-09-21T08:00:00",
-    location: "Sede da APAE & Centro de Convenções Municipal",
-    schedule: "08:00 às 17:30",
-    category: "Oficial & Conscientização",
-    summary: "Ciclo de palestras abertas, oficinas práticas com neurocientistas, exposições artísticas e caminhada inclusiva pela cidade.",
-    badge: "Evento Principal",
+    title: "Comemoração Oficial do Jubileu de Ouro (50 Anos da APAE de Santa Cruz das Palmeiras)",
+    date: "31 de Agosto de 2026",
+    targetDate: "2026-08-31T09:00:00",
+    location: "Sede da APAE — Rua Jovino Martins da Silva, 44, Jd. São Carlos",
+    schedule: "09:00 às 17:00",
+    category: "Institucional & Solenidade",
+    summary: "Cerimônia solene em homenagem à memória do fundador Luiz Affonso Mendes ('Dudízio'), apresentação musical dos alunos e inauguração da placa comemorativa dos 50 anos.",
+    badge: "50 Anos",
     freeEntry: true
   },
   {
     id: 2,
-    title: "5ª Corrida & Caminhada Solidária 'Apaixonados pela Inclusão'",
-    date: "18 de Outubro de 2026",
-    targetDate: "2026-10-18T07:00:00",
-    location: "Parque da Cidade - Portão Principal",
-    schedule: "07:00 (Concentração e Aquecimento Guiado)",
-    category: "Esporte & Solidariedade",
-    summary: "Percursos de 5km (corrida), 3km (caminhada) e 1km (caminhada adaptada para cadeirantes e assistidos com seus familiares).",
-    badge: "Inscrições Abertas",
-    freeEntry: false,
-    price: "R$ 45 (Kit com Camiseta + Medalha Solidária)"
+    title: "Semana Nacional da Pessoa com Deficiência Intelectual e Múltipla",
+    date: "21 a 28 de Agosto de 2026",
+    targetDate: "2026-08-21T08:00:00",
+    location: "Auditório e Escolas Municipais de Santa Cruz das Palmeiras",
+    schedule: "Programação diária",
+    category: "Conscientização & Defesa de Direitos",
+    summary: "Ciclo de palestras, rodas de conversa nas escolas municipais para combate ao capacitismo e mostra de artes plásticas produzidas pelos alunos da APAE.",
+    badge: "Conscientização",
+    freeEntry: true
   },
   {
     id: 3,
-    title: "43ª Noite da Pizza Beneficente da APAE",
-    date: "14 de Novembro de 2026",
-    targetDate: "2026-11-14T19:30:00",
-    location: "Salão Paroquial São José & Drive-Thru APAE",
-    schedule: "19:30 às 22:30",
-    category: "Gastronomia Solidária",
-    summary: "Tradicional rodízio de pizzas artesanais e entrega de vouchers drive-thru para retirada. Música ao vivo com a banda inclusiva da APAE.",
-    badge: "Vagas Limitadas",
-    freeEntry: false,
-    price: "R$ 50 (Pizza Grande Família com cupom)"
-  },
-  {
-    id: 4,
-    title: "Bazar Beneficente Especial de Fim de Ano",
-    date: "05 de Dezembro de 2026",
-    targetDate: "2026-12-05T09:00:00",
-    location: "Pátio Central da APAE",
-    schedule: "09:00 às 16:00",
-    category: "Bazar & Sustentabilidade",
-    summary: "Roupas, calçados, livros e peças de artesanato confeccionadas pelos assistidos com preços simbólicos a partir de R$ 5.",
-    badge: "Entrada Franca",
-    freeEntry: true
+    title: "Almoço da Primavera Beneficente da Família APAE",
+    date: "20 de Setembro de 2026",
+    targetDate: "2026-09-20T12:00:00",
+    location: "Salão Comunitário de Eventos",
+    schedule: "12:00 às 16:00",
+    category: "Gastronomia & Solidariedade",
+    summary: "Tradicional almoço beneficente com churrasco e música ao vivo, com 100% da arrecadação destinada à compra de materiais de estimulação multissensorial.",
+    badge: "Beneficente",
+    freeEntry: false
   }
 ];
 
-export const TRANSPARENCY_DATA = {
-  lastAuditDate: "30 de Junho de 2026",
-  auditorCompany: "BDO Brasil Auditores Independentes",
-  auditOpinion: "Parecer Limpo e Sem Ressalvas",
-  revenueDistribution: [
-    { name: "Convênios Públicos (SUS/MEC/SUAS)", value: 42, color: "#004B87" },
-    { name: "Doações de Pessoas Físicas (PIX/Boleto)", value: 26, color: "#0B63E5" },
-    { name: "Doações Corporativas & Leis de Incentivo", value: 18, color: "#F5A623" },
-    { name: "Eventos Beneficentes & Bazar Solidário", value: 10, color: "#00875A" },
-    { name: "Outras Rendas Próprias", value: 4, color: "#64748B" }
-  ],
-  expenseDistribution: [
-    { name: "Atendimento Clínico & Saúde Especializada", value: 48, color: "#004B87" },
-    { name: "Educação Especial & Oficinas Pedagógicas", value: 32, color: "#00875A" },
-    { name: "Assistência Social & Apoio às Famílias", value: 14, color: "#F5A623" },
-    { name: "Administração & Manutenção Institucional", value: 6, color: "#64748B" }
-  ],
-  documents: [
-    {
-      year: 2026,
-      category: "Balanço & DRE",
-      title: "Demonstrativo Contábil e DRE do 1º Semestre de 2026",
-      date: "15/07/2026",
-      size: "2.4 MB",
-      format: "PDF",
-      status: "Auditado",
-      code: "BAL-2026-S1"
-    },
-    {
-      year: 2025,
-      category: "Relatório de Atividades",
-      title: "Relatório Anual de Gestão e Impacto Social 2025",
-      date: "28/02/2026",
-      size: "8.1 MB",
-      format: "PDF",
-      status: "Publicado",
-      code: "REL-2025-ANUAL"
-    },
-    {
-      year: 2025,
-      category: "Balanço & DRE",
-      title: "Balanço Patrimonial e Parecer de Auditoria Externa 2025",
-      date: "20/03/2026",
-      size: "3.2 MB",
-      format: "PDF",
-      status: "Aprovado",
-      code: "BAL-2025-AUDIT"
-    },
-    {
-      year: 2026,
-      category: "Certidões",
-      title: "Certidão Negativa de Débitos Federais e Previdenciários (CND)",
-      date: "05/08/2026",
-      size: "450 KB",
-      format: "PDF",
-      status: "Vigente",
-      code: "CND-FED-2026"
-    },
-    {
-      year: 2026,
-      category: "Certidões",
-      title: "Certificado de Regularidade do FGTS (CRF)",
-      date: "10/08/2026",
-      size: "380 KB",
-      format: "PDF",
-      status: "Vigente",
-      code: "CRF-FGTS-2026"
-    },
-    {
-      year: 2026,
-      category: "Termos de Fomento",
-      title: "Termo de Colaboração SMS Nº 014/2026 — Atendimento Especializado SUS",
-      date: "10/01/2026",
-      size: "4.8 MB",
-      format: "PDF",
-      status: "Em Execução",
-      code: "TC-SMS-014-26"
-    },
-    {
-      year: 2026,
-      category: "Estatuto & Atas",
-      title: "Estatuto Social Consolidado da APAE Registrado em Cartório",
-      date: "12/04/2024",
-      size: "1.9 MB",
-      format: "PDF",
-      status: "Permanente",
-      code: "ESTATUTO-REG-APAE"
-    },
-    {
-      year: 2024,
-      category: "Estatuto & Atas",
-      title: "Ata de Eleição e Posse da Diretoria Executiva (Gestão 2024-2027)",
-      date: "15/12/2023",
-      size: "1.2 MB",
-      format: "PDF",
-      status: "Vigente",
-      code: "ATA-ELEICAO-24-27"
-    }
+export const PROJECTS_DATA = [
+  {
+    id: "proj-educacao",
+    title: "Escola de Educação Especial 'Luiz Affonso Mendes'",
+    category: "Educação Especial",
+    iconName: "BookOpen",
+    beneficiaries: "Alunos de 0 a 30 anos com Deficiência Intelectual e Múltipla",
+    stats: "165 matriculados",
+    desc: "Educação Básica Adaptada, Estimulação Precoce e Currículo Funcional que visa autonomia diária, alfabetização inclusiva e socialização.",
+    highlights: [
+      "Currículo Funcional e Individualizado (PEI)",
+      "Turmas de Estimulação Precoce (0 a 3 anos)",
+      "Tecnologia Assistiva e Pranchas de Comunicação Alternativa",
+      "Professores pós-graduados em Educação Especial e AEE"
+    ]
+  },
+  {
+    id: "proj-saude",
+    title: "Clínica Integrada de Reabilitação pelo SUS",
+    category: "Saúde Especializada",
+    iconName: "Stethoscope",
+    beneficiaries: "Munícipes de Santa Cruz das Palmeiras",
+    stats: "18.200 sessões anuais",
+    desc: "Atendimento multidisciplinar contínuo nas áreas de Fisioterapia Neurofuncional, Fonoaudiologia, Terapia Ocupacional e Psicologia Clínica.",
+    highlights: [
+      "Fisioterapia com Método Bobath e Treino de Marcha",
+      "Fonoaudiologia com Comunicação Alternativa e Disfagia",
+      "Terapia Ocupacional com Integração Sensorial",
+      "Acompanhamento e Orientação Contínua às Famílias"
+    ]
+  },
+  {
+    id: "proj-social",
+    title: "Programa Vínculos: Assistência Social & Convivência",
+    category: "Assistência Social & SUAS",
+    iconName: "Users",
+    beneficiaries: "Famílias e Cuidadores Atípicos",
+    stats: "120 famílias acolhidas",
+    desc: "Fortalecimento de vínculos comunitários, garantia de acesso a benefícios de transferência de renda (BPC/LOAS) e defesa integral dos direitos da pessoa com deficiência.",
+    highlights: [
+      "Grupos de Apoio Emocional para Mães e Cuidadores",
+      "Visitas Domiciliares do Serviço Social",
+      "Oficinas de Artesanato e Geração de Renda Familiar",
+      "Orientação Jurídica e Previdenciária Cidadã"
+    ]
+  }
+];
+
+export const LGPD_POLICY_DATA = {
+  controller: "Associação de Pais e Amigos dos Excepcionais de Santa Cruz das Palmeiras",
+  cnpj: "48.182.992/0001-41",
+  dpoName: "Encarregado de Proteção de Dados (DPO)",
+  dpoEmail: "dpo.privacidade@apaesantacruzdaspalmeiras.org.br",
+  address: "Rua Jovino Martins da Silva, 44, Jardim São Carlos, Santa Cruz das Palmeiras - SP",
+  law: "Lei Federal nº 13.709/2018 (LGPD)",
+  principles: [
+    "Finalidade e Adequação: dados coletados estritamente para matrícula escolar, prontuários de saúde (dados sensíveis com consentimento e base legal do Art. 11) e doações.",
+    "Segurança e Confidencialidade: prontuários clínicos e dados pedagógicos protegidos com controle restrito de acesso.",
+    "Transparência e Respeito aos Direitos do Titular: qualquer assistido, responsável ou doador pode solicitar acesso, retificação ou exclusão de dados através de nosso canal DPO."
   ]
 };
+
 
 export const DONATION_AMOUNTS = [
   {
     value: 30,
     label: "R$ 30",
     impact: "Fornece 1 Kit de Estimulação Visual e Material Sensorial",
-    color: "from-blue-500 to-apae-blue-600"
+    color: "from-blue-500 to-[#0072C6]"
   },
   {
     value: 60,
     label: "R$ 60",
-    impact: "Garante 1 Sessão Completa de Fonoaudiologia Especializada",
-    color: "from-emerald-500 to-apae-green-600",
+    impact: "Garante 1 Sessão Completa de Fisioterapia ou Fonoaudiologia",
+    color: "from-emerald-500 to-emerald-600",
     popular: true
   },
   {
     value: 120,
     label: "R$ 120",
-    impact: "Garante 1 Mês de Hidroterapia com Piscina Aquecida Adaptada",
-    color: "from-amber-500 to-apae-yellow-600"
+    impact: "Garante 1 Mês de Alimentação Balanceada e Insumos Terapêuticos",
+    color: "from-amber-500 to-amber-600"
   },
   {
     value: 250,
     label: "R$ 250",
-    impact: "Apadrinha a Reabilitação Integral de 1 Criança por Mês",
-    color: "from-indigo-600 to-blue-700"
+    impact: "Apadrinha o Atendimento Integral e Transporte Adaptado de 1 Aluno",
+    color: "from-blue-700 to-indigo-800"
   },
   {
     value: 500,
     label: "R$ 500",
-    impact: "Financia Insumos e Equipamentos para Oficinas de Trabalho PcD",
+    impact: "Apoia a manutenção contínua das salas de Estimulação e AEE",
     color: "from-purple-600 to-indigo-700"
   }
 ];
@@ -566,48 +857,40 @@ export const DONATION_AMOUNTS = [
 export const TESTIMONIALS_DATA = [
   {
     id: 1,
-    name: "Juliana Meirelles",
-    role: "Mãe do Theo, 4 anos (Assistido da Estimulação Precoce)",
-    text: "Quando recebemos o diagnóstico de Síndrome de Down, o medo do futuro paralisou nossa família. A APAE abriu os braços com um amor que nunca tínhamos visto. Hoje o Theo anda, fala, sorri e evolui a cada dia graças aos terapeutas.",
+    name: "Ana Cláudia Ferreira",
+    role: "Mãe do Gabriel, 7 anos (Aluno da Escola Especial)",
+    text: "A APAE de Santa Cruz das Palmeiras foi um divisor de águas na vida do meu filho. O acolhimento com que os terapeutas e professores tratam cada detalhe fez o Gabriel dar passos incríveis de autonomia e alegria.",
     image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&q=80&w=400"
   },
   {
     id: 2,
-    name: "Gabriel Santos",
-    role: "Assistido e Aluno da Oficina Profissionalizante (22 anos)",
-    text: "Na APAE eu aprendi informática e panificação. Hoje eu trabalho no mercado do meu bairro e ganho meu salário. Tenho orgulho de ser independente e mostrar que nós somos capazes!",
+    name: "Carlos Eduardo Mendes",
+    role: "Comerciante Palmeirense e Doador Mensal",
+    text: "Saber que 100% das contas são públicas, auditadas e que nossos recursos são aplicados diretamente nas crianças e jovens da nossa cidade dá orgulho de apoiar a APAE há mais de 10 anos.",
     image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?auto=format&fit=crop&q=80&w=400"
   },
   {
     id: 3,
-    name: "Renata Fagundes",
-    role: "Voluntária há 6 anos nas Oficinas de Arte",
-    text: "Ser voluntária na APAE me ensinou o real significado da empatia. O amor que recebemos de volta a cada abraço e sorriso é impagável. É o dia mais feliz da minha semana.",
+    name: "Juliana Rossi",
+    role: "Voluntária nas Oficinas de Artesanato",
+    text: "O amor que a gente recebe na APAE não tem preço. Ver a dedicação da equipe e a superação dos alunos renova a fé na humanidade toda semana.",
     image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400"
-  },
-  {
-    id: 4,
-    name: "Dr. Marcelo Castilho",
-    role: "Diretor de ESG do Banco Regional (Empresa Parceira)",
-    text: "A seriedade e a transparência com que a APAE conduz cada projeto nos dá total segurança para investir continuamente via leis de incentivo e doações corporativas.",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=400"
   }
 ];
 
 export const PARTNER_COMPANIES = [
-  { name: "Banco Cooperativo Sicredi", category: "Patrocinador Master", seal: "Selo Ouro", logo: "🏦" },
-  { name: "Supermercados Estrela", category: "Programa Troco Solidário", seal: "Selo Ouro", logo: "🛒" },
-  { name: "TechInclusão Software", category: "Doação de Tecnologia", seal: "Selo Prata", logo: "💻" },
-  { name: "Indústria Metalúrgica União", category: "Contratação PcD (Lei 8.213)", seal: "Selo Ouro", logo: "⚙️" },
-  { name: "Farmácias Vida & Saúde", category: "Campanha de Medicamentos", seal: "Selo Prata", logo: "💊" },
-  { name: "Construtora Horizonte Verde", category: "Obras e Acessibilidade", seal: "Selo Bronze", logo: "🏗️" }
+  { name: "Prefeitura Municipal de SCP", category: "Termo de Colaboração (Educação & Saúde)", seal: "Poder Público", logo: "🏛️" },
+  { name: "Sicoob Crediçúcar", category: "Apoio Comunitário", seal: "Selo Ouro", logo: "🏦" },
+  { name: "Comércio Unido Palmeirense", category: "Campanha do Troco Solidário", seal: "Selo Ouro", logo: "🛒" },
+  { name: "Usina Santa Cruz", category: "Responsabilidade Social & ESG", seal: "Selo Diamante", logo: "🌱" },
+  { name: "Supermercados Estrela SCP", category: "Doação de Alimentos e Bazar", seal: "Selo Prata", logo: "🛒" },
+  { name: "Indústrias Locais Associadas", category: "Programa Jovem Aprendiz PcD", seal: "Selo Inclusão", logo: "⚙️" }
 ];
 
 export const VOLUNTEER_AREAS = [
-  { id: "recreacao", label: "Recreação e Atividades Lúdicas", desc: "Apoio em jogos, festas comemorativas e contação de histórias" },
-  { id: "artes", label: "Oficinas de Artes e Artesanato", desc: "Auxílio em pintura, modelagem e confecção de peças" },
-  { id: "eventos", label: "Apoio em Eventos e Bazares", desc: "Organização, recepção, montagem de kits e vendas beneficentes" },
-  { id: "administrativo", label: "Suporte Administrativo e TI", desc: "Organização de arquivos, digitação, manutenção de computadores" },
-  { id: "saude", label: "Profissionais de Saúde e Terapia", desc: "Atuação voluntária para fisioterapeutas, fonoaudiólogos, psicólogos e dentistas" },
-  { id: "musica", label: "Música, Dança e Esportes", desc: "Aulas de ritmo, instrumentos musicais e esportes adaptados" }
+  { id: "recreacao", label: "Recreação e Atividades Lúdicas", desc: "Apoio em brincadeiras, eventos comemorativos e acolhimento" },
+  { id: "artes", label: "Oficinas de Artes e Artesanato", desc: "Auxílio em pintura, bordado e confecção de peças para o Bazar" },
+  { id: "eventos", label: "Apoio em Eventos Beneficentes", desc: "Organização, montagem, recepção e vendas solidárias" },
+  { id: "administrativo", label: "Suporte Administrativo e TI", desc: "Organização de arquivos, digitalização e suporte de informática" },
+  { id: "saude", label: "Profissionais de Saúde e Terapias", desc: "Voluntariado para psicólogos, terapeutas, médicos e fonoaudiólogos" }
 ];

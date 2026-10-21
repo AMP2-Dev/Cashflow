@@ -1,27 +1,55 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import { NEWS_DATA, EVENTS_DATA, PROJECTS_DATA, TRANSPARENCY_DATA } from '../data/apaeData';
+import { 
+  NEWS_DATA, 
+  EVENTS_DATA, 
+  PROJECTS_DATA, 
+  TRANSPARENCY_DOCUMENTS_DATA,
+  COMPLIANCE_CHECKLIST_DATA,
+  INSTITUTION_DATA
+} from '../data/apaeData';
 import { triggerConfetti } from '../utils/confetti';
 
 const ApaeContext = createContext();
 
 const INITIAL_DONATIONS = [
-  { id: "DON-9821", name: "Dra. Carolina Mendes", value: 120, method: "PIX", type: "Mensal", date: "31/08/2026 20:45", status: "Confirmado", destination: "Hidroterapia" },
-  { id: "DON-9820", name: "Supermercado Estrela Ltda", value: 2500, method: "Boleto", type: "Única", date: "31/08/2026 18:20", status: "Confirmado", destination: "Oficinas de Trabalho" },
-  { id: "DON-9819", name: "Anônimo", value: 60, method: "PIX", type: "Única", date: "31/08/2026 17:05", status: "Confirmado", destination: "Fonoaudiologia" },
-  { id: "DON-9818", name: "Fernando Peixoto", value: 250, method: "Cartão", type: "Mensal", date: "31/08/2026 14:12", status: "Confirmado", destination: "Apadrinhamento Geral" },
-  { id: "DON-9817", name: "Mariana Siqueira", value: 30, method: "PIX", type: "Única", date: "31/08/2026 11:30", status: "Confirmado", destination: "Estimulação Precoce" },
-  { id: "DON-9816", name: "TechInclusão Ltda", value: 5000, method: "PIX", type: "Única", date: "30/08/2026 16:00", status: "Confirmado", destination: "Tecnologia Assistiva" },
+  { id: "DON-9821", name: "Dra. Carolina Mendes", value: 120, method: "PIX", type: "Mensal", date: "31/08/2026 20:45", status: "Confirmado", destination: "Fisioterapia Neurofuncional" },
+  { id: "DON-9820", name: "Empresa Amiga da APAE - SCP", value: 2500, method: "Boleto", type: "Única", date: "31/08/2026 18:20", status: "Confirmado", destination: "Escola Luiz Affonso Mendes" },
+  { id: "DON-9819", name: "Anônimo (Munícipe SCP)", value: 60, method: "PIX", type: "Única", date: "31/08/2026 17:05", status: "Confirmado", destination: "Fonoaudiologia e CAA" },
+  { id: "DON-9818", name: "Fernando Peixoto", value: 250, method: "Cartão", type: "Mensal", date: "31/08/2026 14:12", status: "Confirmado", destination: "Estimulação Sensorial" },
+  { id: "DON-9817", name: "Mariana Siqueira", value: 50, method: "PIX", type: "Única", date: "31/08/2026 11:30", status: "Confirmado", destination: "Alimentação Adaptada" }
 ];
 
 const INITIAL_VOLUNTEERS = [
-  { id: "VOL-101", name: "Larissa Fernandes", email: "larissa.fernandes@email.com", phone: "(11) 97123-4567", area: "recreacao", availability: "Sábados manhã", motivation: "Quero levar alegria e brincadeiras para as crianças.", status: "Aprovado", date: "29/08/2026" },
-  { id: "VOL-102", name: "Marcos Vinicius Silva", email: "marcos.v@email.com", phone: "(11) 98234-5678", area: "artes", availability: "Terças e Quintas tarde", motivation: "Sou artesão e gostaria de ensinar pintura em tecido.", status: "Em Análise", date: "30/08/2026" },
-  { id: "VOL-103", name: "Fernanda Toledo", email: "ftoledo.fono@email.com", phone: "(11) 99345-6789", area: "saude", availability: "Sextas o dia todo", motivation: "Fonoaudióloga com pós em CAA, quero doar horas clínicas.", status: "Aprovado", date: "31/08/2026" }
+  { id: "VOL-101", name: "Larissa Fernandes", email: "larissa.fernandes@email.com", phone: "(19) 99712-4567", area: "recreacao", availability: "Sábados de manhã", motivation: "Quero apoiar as crianças nas atividades recreativas e oficinas de arte.", status: "Aprovado", date: "29/08/2026" },
+  { id: "VOL-102", name: "Marcos Vinicius Silva", email: "marcos.v@email.com", phone: "(19) 99823-5678", area: "artes", availability: "Terças e Quintas à tarde", motivation: "Artesão voluntário para ensinar artesanato aos alunos.", status: "Em Análise", date: "30/08/2026" },
+  { id: "VOL-103", name: "Fernanda Toledo", email: "ftoledo.fono@email.com", phone: "(19) 99934-5678", area: "saude", availability: "Sextas o dia todo", motivation: "Fonoaudióloga palmeirense querendo doar horas clínicas de acolhimento.", status: "Aprovado", date: "31/08/2026" }
 ];
 
-const INITIAL_PARTNERS = [
-  { id: "PAR-201", company: "Distribuidora Atlas Logística", cnpj: "23.456.789/0001-11", contactName: "Julio Cesar Brandão", email: "julio@atlaslog.com.br", phone: "(11) 4002-8922", modality: "lei_cotas", message: "Temos 6 vagas imediatas para jovens aprendizes assistidos pela APAE no nosso CD.", status: "Em Negociação", date: "28/08/2026" },
-  { id: "PAR-202", company: "Supermercados Estrela", cnpj: "10.987.654/0001-22", contactName: "Eliana Duarte", email: "esg@superestrela.com.br", phone: "(11) 3322-1100", modality: "troco_solidario", message: "Arrecadação do troco solidário nos caixas e destinação mensal para a APAE.", status: "Ativo", date: "15/08/2026" }
+const INITIAL_ESIC_REQUESTS = [
+  {
+    protocol: "SIC-2026-0042",
+    date: "14/09/2026",
+    applicant: "Conselho Comunitário de SCP",
+    email: "conselho.cidadao@scp.org.br",
+    subject: "Execução Físico-Financeira do Termo de Colaboração Nº 001/2026",
+    details: "Solicito demonstrativo analítico de aquisição de materiais didáticos adaptados do 1º semestre.",
+    status: "Respondido",
+    responseDate: "18/09/2026",
+    response: "Informações disponibilizadas na íntegra acompanhadas do demonstrativo contábil e notas fiscais no Portal da Transparência (Código DOC-2026-002).",
+    responsible: "Controladoria & Secretaria Geral"
+  },
+  {
+    protocol: "SIC-2026-0041",
+    date: "02/09/2026",
+    applicant: "Mariana Prado",
+    email: "mariana.prado@exemplo.com",
+    subject: "Quadro e Regulamento de Recrutamento Técnico",
+    details: "Gostaria de consultar o regulamento interno e critérios de pontuação para o próximo processo seletivo da área pedagógica.",
+    status: "Respondido",
+    responseDate: "05/09/2026",
+    response: "O Regulamento de Contratação de Pessoal da entidade está disponível para download público no Portal de Transparência sob o código REG-PESSOAL-2026.",
+    responsible: "Setor de Recursos Humanos"
+  }
 ];
 
 export function ApaeProvider({ children }) {
@@ -37,49 +65,144 @@ export function ApaeProvider({ children }) {
   const [selectedNews, setSelectedNews] = useState(null);
   const [selectedEvent, setSelectedEvent] = useState(null);
   const [selectedDoc, setSelectedDoc] = useState(null);
+  
   const [volunteerModalOpen, setVolunteerModalOpen] = useState(false);
   const [partnerModalOpen, setPartnerModalOpen] = useState(false);
   const [scheduleVisitModalOpen, setScheduleVisitModalOpen] = useState(false);
+  
+  // Compliance and Special Modals
+  const [complianceModalOpen, setComplianceModalOpen] = useState(false);
+  const [esicModalOpen, setEsicModalOpen] = useState(false);
+  const [lgpdModalOpen, setLgpdModalOpen] = useState(false);
+  const [dataDictionaryModalOpen, setDataDictionaryModalOpen] = useState(false);
 
-  // Lists
+  // Lists with LocalStorage persistence
+  const [documentsList, setDocumentsList] = useState(() => {
+    try {
+      const saved = localStorage.getItem('apae_scp_documents');
+      return saved ? JSON.parse(saved) : TRANSPARENCY_DOCUMENTS_DATA;
+    } catch {
+      return TRANSPARENCY_DOCUMENTS_DATA;
+    }
+  });
+
+  const [checklistData, setChecklistData] = useState(() => {
+    try {
+      const saved = localStorage.getItem('apae_scp_checklist');
+      return saved ? JSON.parse(saved) : COMPLIANCE_CHECKLIST_DATA;
+    } catch {
+      return COMPLIANCE_CHECKLIST_DATA;
+    }
+  });
+
+  const [newsList, setNewsList] = useState(() => {
+    try {
+      const saved = localStorage.getItem('apae_scp_news');
+      return saved ? JSON.parse(saved) : NEWS_DATA;
+    } catch {
+      return NEWS_DATA;
+    }
+  });
+
+  const [eventsList, setEventsList] = useState(() => {
+    try {
+      const saved = localStorage.getItem('apae_scp_events');
+      return saved ? JSON.parse(saved) : EVENTS_DATA;
+    } catch {
+      return EVENTS_DATA;
+    }
+  });
+
   const [donations, setDonations] = useState(() => {
-    const saved = localStorage.getItem('apae_donations');
-    return saved ? JSON.parse(saved) : INITIAL_DONATIONS;
+    try {
+      const saved = localStorage.getItem('apae_scp_donations');
+      return saved ? JSON.parse(saved) : INITIAL_DONATIONS;
+    } catch {
+      return INITIAL_DONATIONS;
+    }
   });
 
   const [volunteers, setVolunteers] = useState(() => {
-    const saved = localStorage.getItem('apae_volunteers');
-    return saved ? JSON.parse(saved) : INITIAL_VOLUNTEERS;
+    try {
+      const saved = localStorage.getItem('apae_scp_volunteers');
+      return saved ? JSON.parse(saved) : INITIAL_VOLUNTEERS;
+    } catch {
+      return INITIAL_VOLUNTEERS;
+    }
   });
 
-  const [partners, setPartners] = useState(() => {
-    const saved = localStorage.getItem('apae_partners');
-    return saved ? JSON.parse(saved) : INITIAL_PARTNERS;
+  const [esicRequests, setEsicRequests] = useState(() => {
+    try {
+      const saved = localStorage.getItem('apae_scp_esic');
+      return saved ? JSON.parse(saved) : INITIAL_ESIC_REQUESTS;
+    } catch {
+      return INITIAL_ESIC_REQUESTS;
+    }
   });
-
-  const [newsList, setNewsList] = useState(NEWS_DATA);
-  const [eventsList, setEventsList] = useState(EVENTS_DATA);
 
   // Toast
   const [toast, setToast] = useState(null);
 
+  // Save to LocalStorage
   useEffect(() => {
-    localStorage.setItem('apae_donations', JSON.stringify(donations));
+    try {
+      localStorage.setItem('apae_scp_documents', JSON.stringify(documentsList));
+    } catch (e) {}
+  }, [documentsList]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('apae_scp_checklist', JSON.stringify(checklistData));
+    } catch (e) {}
+  }, [checklistData]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('apae_scp_news', JSON.stringify(newsList));
+    } catch (e) {}
+  }, [newsList]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('apae_scp_events', JSON.stringify(eventsList));
+    } catch (e) {}
+  }, [eventsList]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('apae_scp_donations', JSON.stringify(donations));
+    } catch (e) {}
   }, [donations]);
 
   useEffect(() => {
-    localStorage.setItem('apae_volunteers', JSON.stringify(volunteers));
+    try {
+      localStorage.setItem('apae_scp_volunteers', JSON.stringify(volunteers));
+    } catch (e) {}
   }, [volunteers]);
 
   useEffect(() => {
-    localStorage.setItem('apae_partners', JSON.stringify(partners));
-  }, [partners]);
+    try {
+      localStorage.setItem('apae_scp_esic', JSON.stringify(esicRequests));
+    } catch (e) {}
+  }, [esicRequests]);
 
   const showToast = (message, type = 'success') => {
     setToast({ message, type });
     setTimeout(() => {
       setToast(null);
     }, 4500);
+  };
+
+  const scrollToSection = (sectionId) => {
+    setCurrentSection(sectionId);
+    if (typeof document !== 'undefined') {
+      const element = document.getElementById(sectionId);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
   };
 
   const openDonationModal = (amount = 60, type = 'recorrente', projectName = '') => {
@@ -94,71 +217,126 @@ export function ApaeProvider({ children }) {
   const recordDonation = (donationData) => {
     const newDonation = {
       id: `DON-${Math.floor(1000 + Math.random() * 9000)}`,
-      name: donationData.name || "Doador Solidário",
+      name: donationData.name || "Doador Solidário de SCP",
       value: Number(donationData.value),
       method: donationData.method || "PIX",
       type: donationData.type || "Única",
       date: new Date().toLocaleString('pt-BR'),
       status: "Confirmado",
-      destination: donationData.destination || "Fundo Geral Institucional"
+      destination: donationData.destination || "Geral - Escola Luiz Affonso Mendes"
     };
 
-    setDonations(prev => [newDonation, ...prev]);
+    setDonations([newDonation, ...donations]);
     triggerConfetti();
-    showToast(`Obrigado de coração! Doação de R$ ${newDonation.value},00 confirmada com sucesso.`);
+    showToast(`Obrigado pelo carinho! Sua doação de R$ ${Number(donationData.value).toFixed(2)} foi confirmada com sucesso!`);
+    closeDonationModal();
   };
 
-  const registerVolunteer = (formData) => {
+  const registerVolunteer = (volData) => {
     const newVol = {
       id: `VOL-${Math.floor(100 + Math.random() * 900)}`,
-      name: formData.name,
-      email: formData.email,
-      phone: formData.phone,
-      area: formData.area,
-      availability: formData.availability,
-      motivation: formData.motivation,
+      ...volData,
       status: "Em Análise",
       date: new Date().toLocaleDateString('pt-BR')
     };
-
-    setVolunteers(prev => [newVol, ...prev]);
-    triggerConfetti();
-    showToast(`Candidatura recebida com sucesso! Protocolo: ${newVol.id}. Entraremos em contato.`);
+    setVolunteers([newVol, ...volunteers]);
+    showToast("Inscrição de voluntariado recebida com sucesso! Nossa coordenação entrará em contato.");
+    setVolunteerModalOpen(false);
   };
 
-  const registerPartner = (formData) => {
-    const newPartner = {
-      id: `PAR-${Math.floor(200 + Math.random() * 800)}`,
-      company: formData.company,
-      cnpj: formData.cnpj,
-      contactName: formData.contactName,
-      email: formData.email,
-      phone: formData.phone,
-      modality: formData.modality,
-      message: formData.message,
-      status: "Recebido",
-      date: new Date().toLocaleDateString('pt-BR')
+  const addDocument = (newDoc) => {
+    const docWithId = {
+      id: `DOC-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
+      date: new Date().toLocaleDateString('pt-BR'),
+      sha256: newDoc.sha256 || Array.from({length: 64}, () => Math.floor(Math.random()*16).toString(16)).join(''),
+      status: newDoc.status || 'Publicado',
+      format: newDoc.format || 'PDF',
+      ...newDoc
     };
-
-    setPartners(prev => [newPartner, ...prev]);
-    triggerConfetti();
-    showToast(`Proposta empresarial cadastrada com sucesso! Protocolo: ${newPartner.id}.`);
+    setDocumentsList([docWithId, ...documentsList]);
+    showToast(`Documento ${docWithId.title} anexado e publicado com sucesso!`);
+    return docWithId;
   };
 
-  const scrollToSection = (sectionId) => {
-    setIsAdminOpen(false);
-    setCurrentSection(sectionId);
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
+  const deleteDocument = (docId) => {
+    setDocumentsList(documentsList.filter(d => d.id !== docId));
+    showToast("Documento removido do portal da transparência com sucesso.", "warning");
   };
+
+  const toggleChecklistItem = (groupKey, itemId) => {
+    setChecklistData(prev => {
+      const updatedGroup = { ...prev[groupKey] };
+      updatedGroup.items = updatedGroup.items.map(item => {
+        if (item.id === itemId) {
+          return { ...item, meets: !item.meets };
+        }
+        return item;
+      });
+      return {
+        ...prev,
+        [groupKey]: updatedGroup
+      };
+    });
+  };
+
+  const saveChecklistData = (updatedData) => {
+    setChecklistData(updatedData);
+    showToast("Checklist de Transparência e Conformidade atualizado com sucesso!");
+  };
+
+  const createEsicRequest = (requestData) => {
+    const protocol = `SIC-2026-${Math.floor(1000 + Math.random() * 9000)}`;
+    const newReq = {
+      protocol,
+      date: new Date().toLocaleDateString('pt-BR'),
+      applicant: requestData.applicant || "Cidadão",
+      email: requestData.email,
+      phone: requestData.phone || "",
+      subject: requestData.subject,
+      details: requestData.details,
+      status: "Em Análise (Prazo LAI: 20 dias)",
+      response: "",
+      responsible: "Ouvidoria Geral e-SIC"
+    };
+    setEsicRequests([newReq, ...esicRequests]);
+    showToast(`Solicitação registrada! Protocolo oficial gerado: ${protocol}`);
+    setEsicModalOpen(false);
+    return protocol;
+  };
+
+  const answerEsicRequest = (protocol, answerText, responsibleName) => {
+    setEsicRequests(prev => prev.map(req => {
+      if (req.protocol === protocol) {
+        return {
+          ...req,
+          status: "Respondido",
+          response: answerText,
+          responseDate: new Date().toLocaleDateString('pt-BR'),
+          responsible: responsibleName || "Controladoria e-SIC"
+        };
+      }
+      return req;
+    }));
+    showToast(`Resposta ao protocolo ${protocol} enviada e registrada no histórico da LAI!`);
+  };
+
+  // Calcular índice geral de conformidade (total de itens atendidos nos 3 grupos)
+  const totalChecklistItems = 
+    checklistData.group1_art7_8_1.items.length +
+    checklistData.group2_art8_3.items.length +
+    checklistData.group3_mrosc.items.length;
+
+  const totalMeetsCount = 
+    checklistData.group1_art7_8_1.items.filter(i => i.meets).length +
+    checklistData.group2_art8_3.items.filter(i => i.meets).length +
+    checklistData.group3_mrosc.items.filter(i => i.meets).length;
+
+  const complianceScore = Math.round((totalMeetsCount / totalChecklistItems) * 100);
 
   return (
     <ApaeContext.Provider
       value={{
+        institution: INSTITUTION_DATA,
         currentSection,
         setCurrentSection,
         scrollToSection,
@@ -166,7 +344,8 @@ export function ApaeProvider({ children }) {
         setIsAdminOpen,
         adminAuthenticated,
         setAdminAuthenticated,
-        // Modals
+
+        // Modais
         donationModalOpen,
         donationModalConfig,
         openDonationModal,
@@ -185,17 +364,37 @@ export function ApaeProvider({ children }) {
         setPartnerModalOpen,
         scheduleVisitModalOpen,
         setScheduleVisitModalOpen,
-        // Data & Actions
+        complianceModalOpen,
+        setComplianceModalOpen,
+        esicModalOpen,
+        setEsicModalOpen,
+        lgpdModalOpen,
+        setLgpdModalOpen,
+        dataDictionaryModalOpen,
+        setDataDictionaryModalOpen,
+
+        // Dados e Ações
         donations,
         recordDonation,
         volunteers,
         registerVolunteer,
-        partners,
-        registerPartner,
+        documentsList,
+        addDocument,
+        deleteDocument,
+        checklistData,
+        toggleChecklistItem,
+        saveChecklistData,
+        totalChecklistItems,
+        totalMeetsCount,
+        complianceScore,
+        esicRequests,
+        createEsicRequest,
+        answerEsicRequest,
         newsList,
         setNewsList,
         eventsList,
         setEventsList,
+
         toast,
         showToast
       }}
