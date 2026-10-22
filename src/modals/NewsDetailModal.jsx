@@ -16,6 +16,18 @@ export function NewsDetailModal() {
   const { selectedNews, setSelectedNews, showToast } = useApae();
   const { speakText, isSpeaking, stopSpeaking } = useAccessibility();
 
+  // Fechar com tecla ESC
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        stopSpeaking();
+        setSelectedNews(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [stopSpeaking, setSelectedNews]);
+
   if (!selectedNews) return null;
 
   const handleToggleVoice = () => {
@@ -31,9 +43,20 @@ export function NewsDetailModal() {
     showToast("Link da notícia copiado para a área de transferência!");
   };
 
+  const handleClose = () => {
+    stopSpeaking();
+    setSelectedNews(null);
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
+    <div 
+      onClick={handleClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-slide-up flex flex-col max-h-[90vh]"
+      >
         
         {/* Header Imagem */}
         <div className="h-64 overflow-hidden relative flex-shrink-0">

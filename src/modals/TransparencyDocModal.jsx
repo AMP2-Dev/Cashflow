@@ -15,11 +15,28 @@ import {
 export function TransparencyDocModal() {
   const { selectedDoc, setSelectedDoc, showToast } = useApae();
 
+  // Fechar com tecla ESC
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelectedDoc(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setSelectedDoc]);
+
   if (!selectedDoc) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
+    <div 
+      onClick={() => setSelectedDoc(null)}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-slide-up flex flex-col max-h-[90vh]"
+      >
         
         {/* Header */}
         <div className="bg-slate-900 text-white p-6 flex items-center justify-between">
@@ -98,6 +115,13 @@ export function TransparencyDocModal() {
 
           {/* Botões de Ação */}
           <div className="flex items-center justify-end gap-3 pt-2">
+            <button
+              type="button"
+              onClick={() => setSelectedDoc(null)}
+              className="px-5 py-3 rounded-2xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors"
+            >
+              Fechar
+            </button>
             <button
               onClick={() => {
                 showToast(`Download concluído: ${selectedDoc.title}`);

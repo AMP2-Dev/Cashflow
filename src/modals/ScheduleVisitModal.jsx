@@ -23,6 +23,18 @@ export function ScheduleVisitModal() {
   const [groupSize, setGroupSize] = useState('1 a 5');
   const [confirmed, setConfirmed] = useState(false);
 
+  // Fechar com tecla ESC
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setConfirmed(false);
+        setScheduleVisitModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setScheduleVisitModalOpen]);
+
   if (!scheduleVisitModalOpen) return null;
 
   const handleSubmit = (e) => {
@@ -32,9 +44,20 @@ export function ScheduleVisitModal() {
     showToast("Solicitação de visita agendada com sucesso! Entraremos em contato para confirmar o dia.");
   };
 
+  const handleClose = () => {
+    setConfirmed(false);
+    setScheduleVisitModalOpen(false);
+  };
+
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
+    <div 
+      onClick={handleClose}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden animate-slide-up flex flex-col max-h-[90vh]"
+      >
         
         {/* Header */}
         <div className="bg-slate-900 text-white p-6 flex items-center justify-between">
@@ -172,13 +195,22 @@ export function ScheduleVisitModal() {
                 </div>
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-3.5 rounded-2xl bg-apae-blue-600 hover:bg-apae-blue-700 text-white font-black text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2 mt-4"
-              >
-                <Send className="w-4 h-4" />
-                <span>SOLICITAR AGENDAMENTO</span>
-              </button>
+              <div className="flex items-center gap-3 mt-4">
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="py-3.5 px-5 rounded-2xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3.5 rounded-2xl bg-apae-blue-600 hover:bg-apae-blue-700 text-white font-black text-xs sm:text-sm transition-all shadow-md flex items-center justify-center gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>SOLICITAR AGENDAMENTO</span>
+                </button>
+              </div>
             </form>
           )}
         </div>

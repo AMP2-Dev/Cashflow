@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApae } from '../context/ApaeContext';
 import { useAccessibility } from '../context/AccessibilityContext';
-import { INSTITUTION_DATA } from '../data/apaeData';
+import { INSTITUTION_DATA, DEFAULT_HERO_SLIDES } from '../data/apaeData';
 import { 
   Heart, 
   Sparkles, 
@@ -17,51 +17,27 @@ import {
 } from 'lucide-react';
 
 export function HeroBanner() {
-  const { openDonationModal, scrollToSection, setScheduleVisitModalOpen, showToast } = useApae();
+  const { heroSlides, openDonationModal, scrollToSection, setScheduleVisitModalOpen, showToast } = useApae();
   const { speakText } = useAccessibility();
   const [copiedPix, setCopiedPix] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
 
+  // Slides dinâmicos (gerenciáveis pelo painel admin da APAE)
+  const slides = (heroSlides && heroSlides.length > 0) ? heroSlides : DEFAULT_HERO_SLIDES;
+
   // Modo Fundo Total Cinemático (com deslocamento suave) vs Modo Editorial
   const [heroLayoutMode, setHeroLayoutMode] = useState('fullbleed'); // 'fullbleed' | 'split'
 
-  const heroSlides = [
-    {
-      tag: "50 Anos de Amor & Dedicação (1976 - 2026)",
-      titleLight: "Cada vida atendida é uma",
-      titleHighlight: "história de amor e superação",
-      description: "Há cinco décadas acolhendo crianças, jovens e famílias em Santa Cruz das Palmeiras. Atendimento clínico multidisciplinar, reabilitação neurofuncional e educação especial 100% gratuitos e humanizados.",
-      image: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&q=85&w=1920",
-      patientStory: "Atendimento Humanizado • Fisioterapia & Estimulação",
-      accentColor: "#F5A623"
-    },
-    {
-      tag: "Escola de Educação Especial 'Luiz Affonso Mendes'",
-      titleLight: "Aprender no próprio ritmo com",
-      titleHighlight: "respeito, dignidade e carinho",
-      description: "Salas de aula adaptadas, currículo funcional e tecnologia assistiva para que cada aluno conquiste autonomia diária, alfabetização inclusiva e integração com a comunidade.",
-      image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=85&w=1920",
-      patientStory: "Educação Especial & Estimulação Precoce",
-      accentColor: "#0072C6"
-    },
-    {
-      tag: "Centro de Reabilitação Multidisciplinar SUS",
-      titleLight: "Ciência e afeto unidos na",
-      titleHighlight: "reabilitação neurofuncional contínua",
-      description: "Equipe especializada em Fisioterapia Neurofuncional, Fonoaudiologia, Terapia Ocupacional e Psicologia acolhendo mais de 165 assistidos de Santa Cruz das Palmeiras.",
-      image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=85&w=1920",
-      patientStory: "Mais de 18.200 atendimentos anuais gratuitos",
-      accentColor: "#00875A"
-    }
-  ];
-
   // Alternância automática dos slides com tempo suave
   useEffect(() => {
+    if (activeSlide >= slides.length) {
+      setActiveSlide(0);
+    }
     const timer = setInterval(() => {
-      setActiveSlide((prev) => (prev + 1) % heroSlides.length);
+      setActiveSlide((prev) => (prev + 1) % slides.length);
     }, 9000);
     return () => clearInterval(timer);
-  }, [heroSlides.length]);
+  }, [slides.length, activeSlide]);
 
   const handleCopyPix = () => {
     navigator.clipboard.writeText(INSTITUTION_DATA.cnpj);
@@ -70,7 +46,7 @@ export function HeroBanner() {
     setTimeout(() => setCopiedPix(false), 3000);
   };
 
-  const current = heroSlides[activeSlide];
+  const current = slides[activeSlide] || slides[0] || DEFAULT_HERO_SLIDES[0];
 
   return (
     <section 
@@ -89,16 +65,16 @@ export function HeroBanner() {
         <>
           {/* FOTO DE FUNDO TOTAL COM EFEITO SUAVE DE DESLOCAMENTO / ZOOM LENTO */}
           <div className="absolute inset-0 z-0 overflow-hidden">
-            {heroSlides.map((slide, idx) => (
+            {slides.map((slide, idx) => (
               <div
-                key={idx}
+                key={slide.id || idx}
                 className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
                   activeSlide === idx ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
                 }`}
               >
                 <img
                   src={slide.image}
-                  alt={slide.titleHighlight}
+                  alt={slide.titleHighlight || "APAE Santa Cruz das Palmeiras"}
                   className={`w-full h-full object-cover object-center transition-transform duration-[10000ms] ease-out ${
                     activeSlide === idx ? 'scale-110 translate-x-3 -translate-y-2' : 'scale-100 translate-x-0 translate-y-0'
                   }`}
@@ -112,19 +88,15 @@ export function HeroBanner() {
             <div className="absolute inset-0 z-20 bg-gradient-to-r from-white/95 via-white/85 to-white/10 sm:via-white/75 sm:to-transparent pointer-events-none" />
             <div className="absolute inset-0 z-20 bg-gradient-to-t from-white/90 via-transparent to-white/40 pointer-events-none" />
 
-            {/* Curva Orgânica Sutil de Apoio (Estilo AACD em filigrana amarela dourada) */}
-            <svg 
-              className="absolute right-0 top-0 w-[550px] lg:w-[750px] h-full opacity-25 pointer-events-none z-20 hidden md:block"
-              viewBox="0 0 800 800" 
-              fill="none"
-            >
-              <path 
-                d="M 600 80 C 380 140 260 320 320 520 C 380 720 620 740 740 640 Z" 
-                stroke="#F5A623" 
-                strokeWidth="70" 
-                strokeLinecap="round" 
+            {/* MARCA D'ÁGUA INSTITUCIONAL DO LOGOTIPO DA APAE SANTA CRUZ DAS PALMEIRAS
+                (Substitui a antiga curva amarela, trazendo elegância, identidade visual e leveza) */}
+            <div className="absolute right-4 sm:right-12 lg:right-24 top-1/2 -translate-y-1/2 w-64 h-64 sm:w-80 sm:h-80 lg:w-[460px] lg:h-[460px] opacity-[0.14] pointer-events-none z-20 hidden md:flex items-center justify-center mix-blend-multiply select-none">
+              <img 
+                src="/apae-scp-logo.png" 
+                alt="Emblema Oficial APAE Santa Cruz das Palmeiras" 
+                className="w-full h-full object-contain filter drop-shadow-md" 
               />
-            </svg>
+            </div>
           </div>
 
           {/* CONTEÚDO SOBREPOSTO DE FORA A FORA */}
@@ -189,7 +161,7 @@ export function HeroBanner() {
 
                 {/* Seletor Discreto de Slides */}
                 <div className="flex items-center gap-2 pt-2">
-                  {heroSlides.map((_, idx) => (
+                  {slides.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => setActiveSlide(idx)}
@@ -200,7 +172,7 @@ export function HeroBanner() {
                     />
                   ))}
                   <span className="text-[11px] font-normal text-slate-400 ml-2">
-                    {activeSlide + 1} de {heroSlides.length}
+                    {activeSlide + 1} de {slides.length}
                   </span>
                 </div>
 

@@ -17,6 +17,17 @@ export function ProjectDetailModal() {
   const { selectedProject, setSelectedProject, openDonationModal, showToast } = useApae();
   const { speakText } = useAccessibility();
 
+  // Fechar com tecla ESC
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelectedProject(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setSelectedProject]);
+
   if (!selectedProject) return null;
 
   const handleShare = () => {
@@ -25,8 +36,14 @@ export function ProjectDetailModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
+    <div 
+      onClick={() => setSelectedProject(null)}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-slide-up flex flex-col max-h-[90vh]"
+      >
         
         {/* Header Imagem */}
         <div className="h-60 overflow-hidden relative flex-shrink-0">
@@ -120,6 +137,13 @@ export function ProjectDetailModal() {
 
           {/* Botões de Ação */}
           <div className="pt-2 flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={() => setSelectedProject(null)}
+              className="px-5 py-3.5 rounded-2xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs"
+            >
+              Fechar
+            </button>
+
             <button
               onClick={() => {
                 const proj = selectedProject;

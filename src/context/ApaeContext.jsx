@@ -5,7 +5,8 @@ import {
   PROJECTS_DATA, 
   TRANSPARENCY_DOCUMENTS_DATA,
   COMPLIANCE_CHECKLIST_DATA,
-  INSTITUTION_DATA
+  INSTITUTION_DATA,
+  DEFAULT_HERO_SLIDES
 } from '../data/apaeData';
 import { triggerConfetti } from '../utils/confetti';
 
@@ -140,8 +141,25 @@ export function ApaeProvider({ children }) {
     }
   });
 
+  // Hero Banners & Imagens de Fundo
+  const [heroSlides, setHeroSlides] = useState(() => {
+    try {
+      const saved = localStorage.getItem('apae_scp_hero_slides');
+      return saved ? JSON.parse(saved) : DEFAULT_HERO_SLIDES;
+    } catch {
+      return DEFAULT_HERO_SLIDES;
+    }
+  });
+
   // Toast
   const [toast, setToast] = useState(null);
+
+  // Save to LocalStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('apae_scp_hero_slides', JSON.stringify(heroSlides));
+    } catch (e) {}
+  }, [heroSlides]);
 
   // Save to LocalStorage
   useEffect(() => {
@@ -320,6 +338,41 @@ export function ApaeProvider({ children }) {
     showToast(`Resposta ao protocolo ${protocol} enviada e registrada no histórico da LAI!`);
   };
 
+  // Gerenciamento de Slides / Banners do Hero
+  const updateHeroSlide = (id, updatedFields) => {
+    setHeroSlides(prev => prev.map(slide => slide.id === id ? { ...slide, ...updatedFields } : slide));
+    showToast("Slide do Hero atualizado com sucesso!");
+  };
+
+  const addHeroSlide = (newSlideData) => {
+    const newSlide = {
+      id: `slide-${Date.now()}`,
+      tag: newSlideData?.tag || "Novo Projeto APAE SCP",
+      titleLight: newSlideData?.titleLight || "Acolhimento com amor e",
+      titleHighlight: newSlideData?.titleHighlight || "dedicação a cada passo",
+      description: newSlideData?.description || "Atendimento integral humanizado e educação especial em Santa Cruz das Palmeiras.",
+      image: newSlideData?.image || "https://images.unsplash.com/photo-1485546246426-74dc88dec4d9?auto=format&fit=crop&q=85&w=1920",
+      patientStory: newSlideData?.patientStory || "Educação Especial & Cuidado",
+      accentColor: newSlideData?.accentColor || "#F5A623"
+    };
+    setHeroSlides(prev => [...prev, newSlide]);
+    showToast("Novo slide adicionado à apresentação principal!");
+  };
+
+  const deleteHeroSlide = (id) => {
+    if (heroSlides.length <= 1) {
+      showToast("Mantenha ao menos 1 slide na apresentação principal.", "error");
+      return;
+    }
+    setHeroSlides(prev => prev.filter(slide => slide.id !== id));
+    showToast("Slide removido com sucesso.");
+  };
+
+  const resetHeroSlides = () => {
+    setHeroSlides(DEFAULT_HERO_SLIDES);
+    showToast("Slides restaurados para o padrão institucional.");
+  };
+
   // Calcular índice geral de conformidade (total de itens atendidos nos 3 grupos)
   const totalChecklistItems = 
     checklistData.group1_art7_8_1.items.length +
@@ -394,6 +447,14 @@ export function ApaeProvider({ children }) {
         setNewsList,
         eventsList,
         setEventsList,
+
+        // Slides do Hero & Fotos de Fundo
+        heroSlides,
+        setHeroSlides,
+        updateHeroSlide,
+        addHeroSlide,
+        deleteHeroSlide,
+        resetHeroSlides,
 
         toast,
         showToast

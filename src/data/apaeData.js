@@ -894,3 +894,36 @@ export const VOLUNTEER_AREAS = [
   { id: "administrativo", label: "Suporte Administrativo e TI", desc: "Organização de arquivos, digitalização e suporte de informática" },
   { id: "saude", label: "Profissionais de Saúde e Terapias", desc: "Voluntariado para psicólogos, terapeutas, médicos e fonoaudiólogos" }
 ];
+
+export const DEFAULT_HERO_SLIDES = [
+  {
+    id: "slide-1",
+    tag: "50 Anos de Amor & Dedicação (1976 - 2026)",
+    titleLight: "Cada vida atendida é uma",
+    titleHighlight: "história de amor e superação",
+    description: "Há cinco décadas acolhendo crianças, jovens e famílias em Santa Cruz das Palmeiras. Atendimento clínico multidisciplinar, reabilitação neurofuncional e educação especial 100% gratuitos e humanizados.",
+    image: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&q=85&w=1920",
+    patientStory: "Atendimento Humanizado • Fisioterapia & Estimulação",
+    accentColor: "#F5A623"
+  },
+  {
+    id: "slide-2",
+    tag: "Escola de Educação Especial 'Luiz Affonso Mendes'",
+    titleLight: "Aprender no próprio ritmo com",
+    titleHighlight: "respeito, dignidade e carinho",
+    description: "Salas de aula adaptadas, currículo funcional e tecnologia assistiva para que cada aluno conquiste autonomia diária, alfabetização inclusiva e integração com a comunidade.",
+    image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=85&w=1920",
+    patientStory: "Educação Especial & Estimulação Precoce",
+    accentColor: "#0072C6"
+  },
+  {
+    id: "slide-3",
+    tag: "Centro de Reabilitação Multidisciplinar SUS",
+    titleLight: "Ciência e afeto unidos na",
+    titleHighlight: "reabilitação neurofuncional contínua",
+    description: "Equipe especializada em Fisioterapia Neurofuncional, Fonoaudiologia, Terapia Ocupacional e Psicologia acolhendo mais de 165 assistidos de Santa Cruz das Palmeiras.",
+    image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=85&w=1920",
+    patientStory: "Mais de 18.200 atendimentos anuais gratuitos",
+    accentColor: "#00875A"
+  }
+];

@@ -23,6 +23,17 @@ export function EsicModal() {
   const [searchProtocol, setSearchProtocol] = useState('');
   const [consultResult, setConsultResult] = useState(null);
 
+  // Fechar com tecla ESC
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setEsicModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setEsicModalOpen]);
+
   if (!esicModalOpen) return null;
 
   const handleSubmit = (e) => {
@@ -63,8 +74,12 @@ export function EsicModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-fade-in">
+    <div 
+      onClick={() => setEsicModalOpen(false)}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-fade-in"
+    >
       <div 
+        onClick={(e) => e.stopPropagation()}
         className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 animate-slide-up"
         role="dialog"
         aria-modal="true"
@@ -190,13 +205,22 @@ export function EsicModal() {
                 />
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 rounded-2xl bg-apae-blue-600 hover:bg-apae-blue-700 text-white font-black text-xs sm:text-sm shadow-md flex items-center justify-center gap-2"
-              >
-                <Send className="w-4 h-4" />
-                <span>Protocolar Pedido no e-SIC Oficial</span>
-              </button>
+              <div className="flex items-center gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setEsicModalOpen(false)}
+                  className="py-3 px-5 rounded-2xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-2xl bg-apae-blue-600 hover:bg-apae-blue-700 text-white font-black text-xs sm:text-sm shadow-md flex items-center justify-center gap-2"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>Protocolar Pedido no e-SIC Oficial</span>
+                </button>
+              </div>
             </form>
           )}
 
@@ -272,13 +296,22 @@ export function EsicModal() {
                 />
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs sm:text-sm shadow-md flex items-center justify-center gap-2"
-              >
-                <Lock className="w-4 h-4" />
-                <span>Registrar Relato Seguro na Ouvidoria</span>
-              </button>
+              <div className="flex items-center gap-3 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setEsicModalOpen(false)}
+                  className="py-3 px-5 rounded-2xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-black text-xs sm:text-sm shadow-md flex items-center justify-center gap-2"
+                >
+                  <Lock className="w-4 h-4" />
+                  <span>Registrar Relato Seguro na Ouvidoria</span>
+                </button>
+              </div>
             </form>
           )}
 
@@ -363,6 +396,20 @@ export function EsicModal() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Rodapé de Acessibilidade com Botão Fechar/Cancelar */}
+        <div className="bg-slate-50 border-t border-slate-200 px-6 py-3.5 flex items-center justify-between text-xs flex-shrink-0">
+          <span className="text-slate-500 hidden sm:inline">
+            Dica: pressione <kbd className="px-1.5 py-0.5 bg-white border border-slate-300 rounded font-mono text-[10px] text-slate-700 shadow-2xs">ESC</kbd> ou clique fora da caixa para fechar
+          </span>
+          <button
+            type="button"
+            onClick={() => setEsicModalOpen(false)}
+            className="px-5 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 transition-colors shadow-2xs ml-auto"
+          >
+            Fechar Janela
+          </button>
         </div>
       </div>
     </div>

@@ -21,6 +21,17 @@ export function EventDetailModal() {
   const [phone, setPhone] = useState('');
   const [confirmed, setConfirmed] = useState(false);
 
+  // Fechar com tecla ESC
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setSelectedEvent(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setSelectedEvent]);
+
   if (!selectedEvent) return null;
 
   const handleRegister = (e) => {
@@ -31,8 +42,14 @@ export function EventDetailModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
+    <div 
+      onClick={() => setSelectedEvent(null)}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden animate-slide-up flex flex-col max-h-[90vh]"
+      >
         
         {/* Header */}
         <div className="bg-slate-900 text-white p-6 relative">
@@ -142,13 +159,22 @@ export function EventDetailModal() {
                 </div>
               </div>
 
-              <button
-                type="submit"
-                className="w-full py-3 rounded-xl bg-apae-yellow-400 hover:bg-apae-yellow-300 text-slate-950 font-black text-xs transition-all shadow-md flex items-center justify-center gap-1.5 mt-2"
-              >
-                <Ticket className="w-4 h-4" />
-                <span>CONFIRMAR INSCRIÇÃO NO EVENTO</span>
-              </button>
+              <div className="flex items-center gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedEvent(null)}
+                  className="py-3 px-4 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 py-3 rounded-xl bg-apae-yellow-400 hover:bg-apae-yellow-300 text-slate-950 font-black text-xs transition-all shadow-md flex items-center justify-center gap-1.5"
+                >
+                  <Ticket className="w-4 h-4" />
+                  <span>CONFIRMAR INSCRIÇÃO NO EVENTO</span>
+                </button>
+              </div>
             </form>
           )}
 

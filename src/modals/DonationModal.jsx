@@ -24,6 +24,17 @@ export function DonationModal() {
   const [donorEmail, setDonorEmail] = useState('');
   const [copiedPix, setCopiedPix] = useState(false);
 
+  // Fechar com tecla ESC
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        closeDonationModal();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [closeDonationModal]);
+
   if (!donationModalOpen) return null;
 
   const currentVal = customVal ? Number(customVal) : selectedVal;
@@ -55,8 +66,14 @@ export function DonationModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in">
-      <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden animate-slide-up flex flex-col max-h-[90vh]">
+    <div 
+      onClick={closeDonationModal}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm animate-fade-in"
+    >
+      <div 
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden animate-slide-up flex flex-col max-h-[90vh]"
+      >
         
         {/* Header Modal */}
         <div className="bg-slate-900 text-white p-5 sm:p-6 flex items-center justify-between">
@@ -182,14 +199,23 @@ export function DonationModal() {
             </div>
           )}
 
-          {/* Botão de Finalizar */}
-          <button
-            type="submit"
-            className="w-full py-3.5 rounded-2xl bg-gradient-to-r from-apae-yellow-400 to-amber-500 hover:from-apae-yellow-300 hover:to-amber-400 text-slate-950 font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2"
-          >
-            <Heart className="w-4 h-4 fill-current" />
-            <span>CONFIRMAR DOAÇÃO DE R$ {currentVal},00</span>
-          </button>
+          {/* Botões de Ação */}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={closeDonationModal}
+              className="py-3.5 px-5 rounded-2xl border border-slate-300 hover:bg-slate-100 text-slate-700 font-bold text-xs transition-colors"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-3.5 rounded-2xl bg-gradient-to-r from-apae-yellow-400 to-amber-500 hover:from-apae-yellow-300 hover:to-amber-400 text-slate-950 font-black text-sm transition-all shadow-lg flex items-center justify-center gap-2"
+            >
+              <Heart className="w-4 h-4 fill-current" />
+              <span>CONFIRMAR DOAÇÃO DE R$ {currentVal},00</span>
+            </button>
+          </div>
 
           <div className="flex items-center justify-center gap-1.5 text-[11px] text-slate-400">
             <Lock className="w-3.5 h-3.5 text-emerald-600" />

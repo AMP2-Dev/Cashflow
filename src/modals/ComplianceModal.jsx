@@ -23,6 +23,17 @@ export function ComplianceModal() {
     setLocalChecklist(checklistData);
   }, [checklistData, complianceModalOpen]);
 
+  // Fechar com tecla ESC
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setComplianceModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setComplianceModalOpen]);
+
   if (!complianceModalOpen) return null;
 
   const currentGroupKey = 
@@ -62,9 +73,13 @@ export function ComplianceModal() {
   const localScore = Math.round((localMeetsCount / totalChecklistItems) * 100);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in">
+    <div 
+      onClick={() => setComplianceModalOpen(false)}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-sm animate-fade-in"
+    >
       {/* Modal Dialog com o mesmo layout e cabeçalho azul do print oficial */}
       <div 
+        onClick={(e) => e.stopPropagation()}
         className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 animate-slide-up"
         role="dialog"
         aria-modal="true"

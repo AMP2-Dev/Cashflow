@@ -11,6 +11,17 @@ export function LgpdModal() {
   const [direitoTipo, setDireitoTipo] = useState('confirmacao');
   const [detalhes, setDetalhes] = useState('');
 
+  // Fechar com tecla ESC
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setLgpdModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setLgpdModalOpen]);
+
   if (!lgpdModalOpen) return null;
 
   const handleSubmitDireito = (e) => {
@@ -22,8 +33,12 @@ export function LgpdModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-fade-in">
+    <div 
+      onClick={() => setLgpdModalOpen(false)}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-fade-in"
+    >
       <div 
+        onClick={(e) => e.stopPropagation()}
         className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 animate-slide-up"
         role="dialog"
         aria-modal="true"
@@ -228,6 +243,20 @@ export function LgpdModal() {
               </div>
             </div>
           )}
+        </div>
+
+        {/* Rodapé com botão Fechar */}
+        <div className="bg-slate-50 border-t border-slate-200 px-6 py-3.5 flex items-center justify-between text-xs flex-shrink-0">
+          <span className="text-slate-500 hidden sm:inline">
+            Pressione <kbd className="px-1.5 py-0.5 bg-white border border-slate-300 rounded font-mono text-[10px] text-slate-700 shadow-2xs">ESC</kbd> ou clique fora para fechar
+          </span>
+          <button
+            type="button"
+            onClick={() => setLgpdModalOpen(false)}
+            className="px-5 py-2 rounded-xl bg-white border border-slate-300 font-bold text-slate-700 hover:bg-slate-100 transition-colors shadow-2xs ml-auto"
+          >
+            Fechar
+          </button>
         </div>
       </div>
     </div>

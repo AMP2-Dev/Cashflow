@@ -6,6 +6,17 @@ import { X, Database, Download, Code, CheckCircle2 } from 'lucide-react';
 export function DataDictionaryModal() {
   const { dataDictionaryModalOpen, setDataDictionaryModalOpen, documentsList, showToast } = useApae();
 
+  // Fechar com tecla ESC
+  React.useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setDataDictionaryModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [setDataDictionaryModalOpen]);
+
   if (!dataDictionaryModalOpen) return null;
 
   const handleDownloadJsonData = () => {
@@ -25,8 +36,12 @@ export function DataDictionaryModal() {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-fade-in">
+    <div 
+      onClick={() => setDataDictionaryModalOpen(false)}
+      className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/75 backdrop-blur-sm animate-fade-in"
+    >
       <div 
+        onClick={(e) => e.stopPropagation()}
         className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[92vh] flex flex-col overflow-hidden border border-slate-200 animate-slide-up"
         role="dialog"
         aria-modal="true"
