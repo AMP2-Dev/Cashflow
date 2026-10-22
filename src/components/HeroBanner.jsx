@@ -8,7 +8,6 @@ import {
   ShieldCheck, 
   ChevronRight, 
   ArrowRight, 
-  QrCode, 
   Copy, 
   Check, 
   Calendar, 
@@ -24,135 +23,150 @@ export function HeroBanner() {
   const [copiedPix, setCopiedPix] = useState(false);
   const [activeSlide, setActiveSlide] = useState(0);
 
+  // Slides claros, luminosos e humanos com histórias e atendimento real
   const heroSlides = [
     {
-      tag: "Reabilitação & Neurodesenvolvimento",
-      title: "Transformando vidas através do cuidado, carinho e ciência",
-      description: "Mais de 1.400 crianças, jovens e adultos com deficiência intelectual e múltipla encontram na APAE um porto seguro de saúde, educação e acolhimento familiar 100% gratuito.",
-      image: "https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&q=80&w=1200",
-      ctaLabel: "Apadrinhar uma Criança",
-      accent: "from-blue-600 to-apae-blue-700"
+      tag: "50 Anos de História & Acolhimento",
+      titleLight: "Cuidando de cada vida com",
+      titleHighlight: "ciência, amor e inclusão",
+      description: "Há cinco décadas transformando a realidade de crianças, jovens e famílias em Santa Cruz das Palmeiras. Atendimento clínico multidisciplinar, reabilitação neurofuncional e educação especial 100% gratuitos.",
+      image: "https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&q=80&w=1200",
+      patientStory: "Atendimento Humanizado • Fisioterapia & AEE",
+      accentColor: "#F5A623"
     },
     {
-      tag: "Educação Especial & Inclusão",
-      title: "Cada aprendizado é uma vitória extraordinária",
-      description: "Salas de recursos multifuncionais, alfabetização adaptada, robótica assistiva e desenvolvimento de autonomia para que cada aluno alcance seu máximo potencial.",
-      image: "https://images.unsplash.com/photo-1503676260728-1c00da094a0b?auto=format&fit=crop&q=80&w=1200",
-      ctaLabel: "Conhecer Nossas Escolas",
-      accent: "from-amber-500 to-apae-yellow-600"
+      tag: "Educação Especial & AEE",
+      titleLight: "Cada pequeno passo é uma",
+      titleHighlight: "grande conquista de autonomia",
+      description: "Na Escola de Educação Especial 'Luiz Affonso Mendes', nossos alunos aprendem, desenvolvem potenciais e conquistam independência em salas adaptadas e estimulação sensorial contínua.",
+      image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?auto=format&fit=crop&q=80&w=1200",
+      patientStory: "Estimulação Precoce & Comunicação Alternativa",
+      accentColor: "#0072C6"
     },
     {
-      tag: "Futuro & Mercado de Trabalho",
-      title: "Construindo independência e cidadania plena",
-      description: "Nossos programas de aprendizagem profissional e emprego apoiado já inseriram centenas de jovens no mercado formal com carteira assinada e dignidade.",
-      image: "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&q=80&w=1200",
-      ctaLabel: "Seja Empresa Parceira",
-      accent: "from-emerald-600 to-apae-green-700"
+      tag: "Saúde & Reabilitação pelo SUS",
+      titleLight: "Dedicação que une técnica,",
+      titleHighlight: "carinho e desenvolvimento",
+      description: "Equipe especializada em Fisioterapia Neurofuncional, Fonoaudiologia, Terapia Ocupacional e Psicologia acolhendo mais de 165 assistidos e suas famílias todos os dias.",
+      image: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=1200",
+      patientStory: "Mais de 18.200 sessões gratuitas por ano",
+      accentColor: "#00875A"
     }
   ];
 
   useEffect(() => {
     const timer = setInterval(() => {
       setActiveSlide((prev) => (prev + 1) % heroSlides.length);
-    }, 7000);
+    }, 8000);
     return () => clearInterval(timer);
   }, [heroSlides.length]);
 
   const handleCopyPix = () => {
     navigator.clipboard.writeText(INSTITUTION_DATA.cnpj);
     setCopiedPix(true);
-    showToast(`Chave PIX da APAE de Santa Cruz das Palmeiras (CNPJ: ${INSTITUTION_DATA.cnpj}) copiada!`);
+    showToast(`Chave PIX da APAE de Santa Cruz das Palmeiras (CNPJ: ${INSTITUTION_DATA.cnpj}) copiada com sucesso!`);
     setTimeout(() => setCopiedPix(false), 3000);
   };
 
   const current = heroSlides[activeSlide];
 
   return (
-    <section aria-label="Apresentação Principal" className="relative overflow-hidden bg-slate-900 text-white min-h-[640px] lg:min-h-[700px] flex items-center">
-      {/* Background Image com Overlay Escuro Gradiente Suave */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src={current.image}
-          alt="Atendimento humanizado na APAE"
-          className="w-full h-full object-cover object-center opacity-30 transition-all duration-1000 ease-out transform scale-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/90 to-slate-900/60" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent" />
+    <section 
+      aria-label="Apresentação Principal da APAE" 
+      className="relative w-full overflow-hidden bg-[#FDFBF7] text-slate-800 pt-8 pb-16 lg:pt-12 lg:pb-20 border-b border-slate-150"
+    >
+      {/* FORMAS ORGÂNICAS DE FORA A FORA (ESTILO AACD) — Curvas fluidas em amarelo e azul claro */}
+      <div className="absolute inset-0 pointer-events-none overflow-hidden z-0">
+        {/* Curva Orgânica Amarela / Dourada AACD (Loop assimétrico fluido na lateral direita) */}
+        <svg 
+          className="absolute -right-20 sm:-right-10 top-0 w-[500px] sm:w-[700px] lg:w-[860px] h-full opacity-35 sm:opacity-40 transition-all duration-1000"
+          viewBox="0 0 800 800" 
+          fill="none" 
+          xmlns="http://www.w3.org/2000/svg"
+        >
+          <path 
+            d="M 650 100 C 400 120 280 280 340 480 C 400 680 620 720 750 620 C 880 520 850 300 750 200 Z" 
+            stroke="#F5A623" 
+            strokeWidth="90" 
+            strokeLinecap="round" 
+            fill="none" 
+          />
+          <circle cx="280" cy="220" r="140" fill="#E0F2FE" opacity="0.45" />
+          <circle cx="700" cy="650" r="180" fill="#FEF3C7" opacity="0.6" />
+        </svg>
+
+        {/* Arco sutil superior esquerdo para quebrar a linearidade da página */}
+        <div className="absolute -top-32 -left-32 w-96 h-96 rounded-full bg-gradient-to-br from-blue-100/40 via-amber-100/20 to-transparent blur-3xl pointer-events-none" />
       </div>
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20 w-full">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+      {/* Conteúdo de Fora a Fora com Margens e Equilíbrio Visual */}
+      <div className="relative z-10 max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
           
-          {/* Coluna de Conteúdo Principal */}
+          {/* COLUNA ESQUERDA: Tipografia Leve, Aérea e Refinada */}
           <div className="lg:col-span-7 space-y-6">
             
-            {/* Badges de Credibilidade */}
+            {/* Badges Delicados e Transparentes */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-apae-yellow-500 text-slate-950 uppercase tracking-wider shadow-sm">
-                <Sparkles className="w-3.5 h-3.5" />
-                {current.tag}
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium tracking-wide bg-amber-100/70 text-amber-900 border border-amber-300/60">
+                <Sparkles className="w-3.5 h-3.5 text-amber-600" />
+                <span>{current.tag}</span>
               </span>
 
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-white/10 text-slate-200 backdrop-blur-md border border-white/15">
-                <ShieldCheck className="w-3.5 h-3.5 text-emerald-400" />
-                CEBAS Saúde & Educação Certificado
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-normal text-slate-600 bg-white/70 backdrop-blur-xs border border-slate-200/80">
+                <ShieldCheck className="w-3.5 h-3.5 text-emerald-600" />
+                <span>CEBAS Saúde & Educação Homologado</span>
               </span>
             </div>
 
-            {/* Título Principal */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl xl:text-6xl font-black tracking-tight leading-[1.1] text-white">
-              {current.title.split(' ').map((word, idx) => {
-                if (idx > 2 && idx < 6) {
-                  return (
-                    <span key={idx} className="text-transparent bg-clip-text bg-gradient-to-r from-apae-yellow-400 to-amber-300">
-                      {word}{' '}
-                    </span>
-                  );
-                }
-                return word + ' ';
-              })}
+            {/* Título Principal com Peso Suave (font-light / font-normal) */}
+            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight leading-[1.18] text-slate-800">
+              {current.titleLight}{' '}
+              <span className="font-normal text-slate-900 border-b-2 border-[#F5A623]/60 pb-0.5">
+                {current.titleHighlight}
+              </span>
             </h1>
 
-            {/* Descrição Acessível */}
-            <p className="text-base sm:text-lg text-slate-300 max-w-2xl leading-relaxed">
+            {/* Descrição Leve e Fluida */}
+            <p className="text-sm sm:text-base text-slate-600 font-normal max-w-xl leading-relaxed">
               {current.description}
             </p>
 
-            {/* Botões de Ação Imediata */}
-            <div className="flex flex-wrap items-center gap-3.5 pt-2">
+            {/* Ações: Botões elegantes sem peso excessivo */}
+            <div className="flex flex-wrap items-center gap-3 pt-2">
               <button
                 onClick={() => openDonationModal(60, 'recorrente', 'Apoio Geral APAE')}
-                className="px-6 py-3.5 rounded-xl font-black text-base text-slate-950 bg-gradient-to-r from-apae-yellow-400 via-apae-yellow-500 to-amber-500 hover:from-apae-yellow-300 hover:to-amber-400 shadow-xl hover:shadow-apae-yellow-500/30 transition-all transform hover:-translate-y-0.5 flex items-center gap-2 focus:ring-4 focus:ring-apae-yellow-400"
+                className="px-6 py-3 rounded-full font-medium text-xs sm:text-sm text-slate-950 bg-[#F5A623] hover:bg-[#E59715] shadow-xs hover:shadow-md transition-all flex items-center gap-2 active:scale-95"
               >
-                <Heart className="w-5 h-5 fill-slate-950" />
-                <span>FAÇA UMA DOAÇÃO ONLINE</span>
+                <Heart className="w-4 h-4 fill-slate-950 text-slate-950" />
+                <span>FAZER UMA DOAÇÃO ONLINE</span>
               </button>
 
               <button
                 onClick={() => scrollToSection('projetos')}
-                className="px-5 py-3.5 rounded-xl font-bold text-sm text-white bg-white/10 hover:bg-white/20 backdrop-blur-md border border-white/20 transition-colors flex items-center gap-2"
+                className="px-5 py-3 rounded-full font-normal text-xs sm:text-sm text-slate-700 bg-white/80 hover:bg-white border border-slate-200/80 transition-colors flex items-center gap-1.5 shadow-xs"
               >
-                <span>Conhecer Nossos Projetos</span>
-                <ArrowRight className="w-4 h-4" />
+                <span>Conhecer Atendimentos</span>
+                <ArrowRight className="w-3.5 h-3.5 text-slate-400" />
               </button>
 
               <button
                 onClick={() => setScheduleVisitModalOpen(true)}
-                className="px-4 py-3.5 rounded-xl font-semibold text-xs text-slate-300 hover:text-white hover:bg-slate-800/80 transition-colors flex items-center gap-1.5"
+                className="px-4 py-3 rounded-full font-normal text-xs text-slate-500 hover:text-slate-800 hover:bg-slate-100/60 transition-colors flex items-center gap-1.5"
               >
-                <Calendar className="w-4 h-4 text-apae-yellow-400" />
+                <Calendar className="w-3.5 h-3.5 text-[#F5A623]" />
                 <span>Agendar Visita</span>
               </button>
             </div>
 
-            {/* Slide Navigation Dots */}
-            <div className="flex items-center gap-2 pt-4">
+            {/* Navegador Discreto de Slides */}
+            <div className="flex items-center gap-2 pt-2">
               {heroSlides.map((_, idx) => (
                 <button
                   key={idx}
                   onClick={() => setActiveSlide(idx)}
-                  className={`h-2 rounded-full transition-all ${
-                    activeSlide === idx ? 'w-8 bg-apae-yellow-400' : 'w-2 bg-slate-600 hover:bg-slate-500'
+                  className={`h-1.5 rounded-full transition-all ${
+                    activeSlide === idx ? 'w-8 bg-[#0072C6]' : 'w-2 bg-slate-300 hover:bg-slate-400'
                   }`}
                   aria-label={`Ir para destaque ${idx + 1}`}
                 />
@@ -161,101 +175,88 @@ export function HeroBanner() {
 
           </div>
 
-          {/* Coluna Lateral: Card Flutuante de Impacto & PIX Instantâneo */}
-          <div className="lg:col-span-5">
-            <div className="bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 sm:p-7 shadow-2xl backdrop-blur-xl space-y-6">
-              
-              <div className="flex items-center justify-between border-b border-slate-700/80 pb-4">
-                <div className="flex items-center gap-2.5">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-black">
-                    PIX
+          {/* COLUNA DIREITA: Cortes da Imagem Asimétricos + Card Translúcido Sobreposto (Estilo AACD) */}
+          <div className="lg:col-span-5 relative mt-4 lg:mt-0">
+            
+            {/* Foto com Corte Orgânico Desequilibrado / Equilibrado (Canto superior curvado acentuado) */}
+            <div className="relative z-10 w-full">
+              <div className="relative overflow-hidden rounded-[36px] sm:rounded-[44px] rounded-tr-[90px] sm:rounded-tr-[130px] border-4 border-white shadow-xl aspect-[4/3] sm:aspect-[16/11] bg-slate-100 group">
+                <img
+                  src={current.image}
+                  alt="Atendimento acolhedor e humanizado na APAE de Santa Cruz das Palmeiras"
+                  className="w-full h-full object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
+                />
+
+                {/* Tag de identificação sobre a foto */}
+                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-md px-3 py-1.5 rounded-full text-[11px] font-medium text-slate-700 shadow-xs border border-white/80">
+                  {current.patientStory}
+                </div>
+              </div>
+
+              {/* CARD FLUTUANTE TRANSLÚCIDO SOBREPOSTO (Overlap trazendo desequilíbrio e leveza) */}
+              <div className="relative sm:-mt-12 sm:-ml-6 z-20 mt-4 max-w-sm ml-auto sm:ml-0 bg-white/85 backdrop-blur-md border border-slate-200/70 rounded-3xl p-4 sm:p-5 shadow-lg space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-150 pb-2.5">
+                  <div className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="text-xs font-medium text-slate-800">Doação Rápida via PIX</span>
                   </div>
+                  <span className="text-[10px] font-normal text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-full">
+                    Oficial & Direto
+                  </span>
+                </div>
+
+                {/* Box da Chave CNPJ com Copiar em Design Claro */}
+                <div className="flex items-center justify-between gap-2 bg-slate-50/90 px-3 py-2 rounded-xl border border-slate-200">
                   <div>
-                    <h2 className="text-base font-black text-white">Doação Rápida via PIX</h2>
-                    <p className="text-xs text-slate-400">100% revertido para o atendimento direto</p>
+                    <span className="block text-[10px] font-normal text-slate-400">Chave CNPJ Oficial:</span>
+                    <code className="text-xs font-mono font-medium text-slate-800 tracking-wide">
+                      {INSTITUTION_DATA.cnpj}
+                    </code>
                   </div>
-                </div>
-                <span className="text-[11px] font-bold text-emerald-400 bg-emerald-950/80 border border-emerald-600/40 px-2 py-1 rounded-full flex items-center gap-1">
-                  <Check className="w-3 h-3" /> Seguro & Oficial
-                </span>
-              </div>
-
-              {/* Seletor Rápido de Valor */}
-              <div>
-                <label className="text-xs font-bold text-slate-300 block mb-2">
-                  Selecione um valor de contribuição solidária:
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {[30, 60, 120].map((val) => (
-                    <button
-                      key={val}
-                      onClick={() => openDonationModal(val, 'unica', 'Doação Instantânea')}
-                      className="py-2.5 px-2 rounded-xl bg-slate-700/60 hover:bg-apae-blue-600 hover:text-white border border-slate-600 hover:border-apae-blue-500 font-black text-sm text-slate-200 transition-all text-center group"
-                    >
-                      <span className="block text-xs font-normal text-slate-400 group-hover:text-blue-100">R$</span>
-                      <span>{val},00</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Box da Chave CNPJ com Copiar */}
-              <div className="bg-slate-900/80 rounded-2xl p-4 border border-slate-700">
-                <div className="flex items-center justify-between mb-1.5">
-                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">
-                    Chave PIX Oficial (CNPJ)
-                  </span>
-                  <span className="text-[10px] text-apae-yellow-400 font-bold">
-                    Banco do Brasil
-                  </span>
-                </div>
-
-                <div className="flex items-center justify-between gap-2 bg-slate-950 px-3 py-2.5 rounded-xl border border-slate-800">
-                  <code className="text-sm font-mono font-bold text-emerald-400 tracking-wider">
-                    {INSTITUTION_DATA.cnpj}
-                  </code>
 
                   <button
                     onClick={handleCopyPix}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
+                    className={`px-3 py-1.5 rounded-lg text-[11px] font-normal transition-all flex items-center gap-1 shadow-xs ${
                       copiedPix
                         ? 'bg-emerald-600 text-white'
-                        : 'bg-slate-800 hover:bg-slate-700 text-slate-200'
+                        : 'bg-white hover:bg-slate-100 text-slate-700 border border-slate-200'
                     }`}
-                    title="Copiar Chave CNPJ"
+                    title="Copiar Chave CNPJ da APAE"
                   >
-                    {copiedPix ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
+                    {copiedPix ? <Check className="w-3 h-3" /> : <Copy className="w-3 h-3" />}
                     <span>{copiedPix ? 'Copiado!' : 'Copiar'}</span>
                   </button>
                 </div>
-                <p className="text-[10px] text-slate-400 mt-2">
-                  Favorecido: Associação de Pais e Amigos dos Excepcionais (APAE)
-                </p>
+
+                <div className="flex items-center justify-between text-[11px] text-slate-500 pt-0.5">
+                  <span>Associação de Pais e Amigos dos Excepcionais</span>
+                  <button
+                    onClick={() => openDonationModal(60, 'recorrente')}
+                    className="text-[#0072C6] font-medium hover:underline text-[11px]"
+                  >
+                    Outras formas →
+                  </button>
+                </div>
               </div>
 
-              {/* Botão de Abrir Checkout Completo */}
-              <button
-                onClick={() => openDonationModal(60, 'recorrente')}
-                className="w-full py-3 rounded-xl bg-gradient-to-r from-apae-blue-600 to-blue-600 hover:from-apae-blue-500 hover:to-blue-500 text-white font-bold text-sm transition-all shadow-md flex items-center justify-center gap-2"
-              >
-                <span>Outros Valores / Cartão / Boleto</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-
             </div>
+
           </div>
 
         </div>
 
-        {/* Barra de Estatísticas em Tempo Real */}
-        <div className="mt-12 pt-8 border-t border-slate-800 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6">
+        {/* BARRA DE ESTATÍSTICAS COM CARDS EM CONTORNO / TRANSLÚCIDOS (Alternância de Peso) */}
+        <div className="mt-14 pt-8 border-t border-slate-200/70 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
           {INSTITUTION_DATA.stats.map((st, i) => (
-            <div key={i} className="bg-slate-800/40 border border-slate-800 rounded-2xl p-4 hover:border-apae-yellow-500/40 transition-colors">
-              <div className="text-2xl sm:text-3xl font-black text-apae-yellow-400">
-                {st.value.toLocaleString('pt-BR')}{st.suffix}
+            <div 
+              key={i} 
+              className="bg-transparent hover:bg-white/70 border border-slate-200/80 hover:border-amber-300/70 rounded-2xl p-4 transition-all duration-300 group"
+            >
+              <div className="text-2xl sm:text-3xl font-light text-slate-900 group-hover:text-[#F5A623] transition-colors">
+                {st.value.toLocaleString('pt-BR')}<span className="text-base text-slate-400 font-normal">{st.suffix}</span>
               </div>
-              <div className="text-xs font-bold text-slate-200 mt-0.5">{st.label}</div>
-              <div className="text-[11px] text-slate-400">{st.subtitle}</div>
+              <div className="text-xs font-medium text-slate-700 mt-0.5">{st.label}</div>
+              <div className="text-[11px] font-normal text-slate-500 leading-tight">{st.subtitle}</div>
             </div>
           ))}
         </div>

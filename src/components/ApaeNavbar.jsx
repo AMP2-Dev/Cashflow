@@ -7,19 +7,9 @@ import {
   X, 
   ShieldCheck, 
   ChevronDown, 
-  Users, 
-  Building2, 
-  FileText, 
-  HandHeart, 
-  Calendar, 
-  BookOpen, 
-  Stethoscope, 
-  Phone,
   Lock,
-  Layers,
-  HelpCircle,
-  Database,
-  ShieldAlert
+  MessageSquare,
+  FileText
 } from 'lucide-react';
 
 export function ApaeNavbar() {
@@ -68,8 +58,8 @@ export function ApaeNavbar() {
       label: 'Transparência',
       children: [
         { id: 'portal-transp', label: 'Portal das Contas Públicas', section: 'transparencia' },
-        { id: 'checklist-lai', label: 'Checklist Oficial de Transparência', action: () => setComplianceModalOpen(true) },
-        { id: 'dicionario-dados', label: 'Dados Abertos & Dicionário (LAI)', action: () => setDataDictionaryModalOpen(true) },
+        { id: 'checklist-lai', label: 'Checklist Oficial de Transparência (LAI)', action: () => setComplianceModalOpen(true) },
+        { id: 'dicionario-dados', label: 'Dados Abertos & Dicionário', action: () => setDataDictionaryModalOpen(true) },
         { id: 'faq-sociedade', label: 'Perguntas Frequentes (FAQ)', section: 'faq' }
       ]
     },
@@ -78,8 +68,8 @@ export function ApaeNavbar() {
       id: 'ouvidoria-menu', 
       label: 'Ouvidoria & e-SIC',
       children: [
-        { id: 'esic-solicitar', label: 'e-SIC — Pedido de Informação (LAI)', action: () => setEsicModalOpen(true) },
-        { id: 'denuncia-sigilosa', label: 'Canal de Denúncias com Sigilo', action: () => setEsicModalOpen(true) },
+        { id: 'esic-solicitar', label: 'e-SIC — Pedido de Informação', action: () => setEsicModalOpen(true) },
+        { id: 'denuncia-sigilosa', label: 'Canal de Denúncias Sigiloso', action: () => setEsicModalOpen(true) },
         { id: 'faq-transp', label: 'Dúvidas Frequentes', section: 'faq' }
       ]
     },
@@ -111,50 +101,41 @@ export function ApaeNavbar() {
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-150 transition-colors">
+      <div className="max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-10">
+        <div className="flex items-center justify-between h-20 sm:h-24">
           
-          {/* Logo Oficial APAE com Brasão */}
+          {/* Logo Oficial APAE Santa Cruz das Palmeiras com Respiro e Equilíbrio */}
           <button
             onClick={() => handleNavClick('inicio')}
-            className="flex items-center gap-3 group text-left focus:outline-none focus:ring-2 focus:ring-[#0072C6] rounded-lg p-1"
+            className="flex items-center gap-3.5 sm:gap-4 group text-left focus:outline-none rounded-2xl py-1 pr-3"
             aria-label="APAE Santa Cruz das Palmeiras - Página Inicial"
           >
-            {/* SVG da Flor da APAE */}
-            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[#0072C6] to-blue-800 flex items-center justify-center shadow-md p-1.5 transition-transform group-hover:scale-105 flex-shrink-0">
-              <svg viewBox="0 0 100 100" className="w-full h-full">
-                <path d="M 20 80 C 15 50 40 40 46 25 C 48 38 35 60 40 80 Z" fill="#00875A" />
-                <path d="M 80 80 C 85 50 60 40 54 25 C 52 38 65 60 60 80 Z" fill="#00875A" />
-                <ellipse cx="50" cy="22" rx="6" ry="12" fill="#F5A623" />
-                <ellipse cx="50" cy="48" rx="6" ry="12" fill="#F5A623" />
-                <ellipse cx="37" cy="35" rx="12" ry="6" fill="#F5A623" />
-                <ellipse cx="63" cy="35" rx="12" ry="6" fill="#F5A623" />
-                <ellipse cx="41" cy="26" rx="10" ry="6" transform="rotate(-45 41 26)" fill="#F5A623" />
-                <ellipse cx="59" cy="26" rx="10" ry="6" transform="rotate(45 59 26)" fill="#F5A623" />
-                <ellipse cx="41" cy="44" rx="10" ry="6" transform="rotate(45 41 44)" fill="#F5A623" />
-                <ellipse cx="59" cy="44" rx="10" ry="6" transform="rotate(-45 59 44)" fill="#F5A623" />
-                <circle cx="50" cy="35" r="7" fill="#FFFFFF" />
-                <circle cx="50" cy="35" r="4" fill="#004B87" />
-                <path d="M 32 82 C 50 90 50 90 68 82 C 60 86 40 86 32 82 Z" fill="#F5A623" />
-              </svg>
+            {/* Imagem do Logo Oficial sem aperto */}
+            <div className="h-12 sm:h-14 w-auto flex items-center justify-center transition-transform group-hover:scale-[1.02]">
+              <img
+                src="/apae-scp-logo.png"
+                alt="Logo APAE Santa Cruz das Palmeiras"
+                className="h-full w-auto object-contain drop-shadow-xs"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "https://apaesantacruzdaspalmeiras.org.br/ws/media-library/40d609f41a99cf7ade980c57f164633b/apae-scp.png";
+                }}
+              />
             </div>
 
-            <div>
-              <div className="flex items-center gap-1.5">
-                <span className="font-black text-xl tracking-tight text-[#0072C6]">APAE</span>
-                <span className="text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded bg-amber-100 text-amber-900 border border-amber-300">
-                  Santa Cruz das Palmeiras
-                </span>
-              </div>
-              <p className="text-[11px] font-semibold text-slate-500 tracking-tight line-clamp-1">
+            <div className="hidden sm:block border-l border-slate-200 pl-3.5">
+              <span className="block text-[13px] font-medium tracking-tight text-slate-800 leading-snug">
+                APAE Santa Cruz das Palmeiras
+              </span>
+              <span className="block text-[11px] font-normal text-slate-500 tracking-normal">
                 Escola de Ed. Especial "Luiz Affonso Mendes" • 50 Anos
-              </p>
+              </span>
             </div>
           </button>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden xl:flex items-center gap-1">
+          {/* Desktop Navigation com Fontes Finas, Menores e Espaçamento Aéreo */}
+          <nav className="hidden xl:flex items-center gap-0.5 2xl:gap-1.5">
             {navLinks.map((item) => (
               <div 
                 key={item.id}
@@ -166,22 +147,22 @@ export function ApaeNavbar() {
                   onClick={() => {
                     if (!item.children) handleNavClick(item.section);
                   }}
-                  className={`flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-bold transition-colors ${
+                  className={`flex items-center gap-1 px-2.5 2xl:px-3 py-1.5 rounded-full text-[13px] font-normal tracking-wide transition-all ${
                     currentSection === item.id || currentSection === item.section
-                      ? 'text-[#0072C6] bg-blue-50 font-black' 
-                      : 'text-slate-700 hover:text-[#0072C6] hover:bg-slate-50'
+                      ? 'text-[#0072C6] bg-blue-50/70 font-medium' 
+                      : 'text-slate-600 hover:text-[#0072C6] hover:bg-slate-50/80'
                   }`}
                   aria-haspopup={item.children ? 'true' : 'false'}
                   aria-expanded={activeDropdown === item.id}
                 >
                   <span>{item.label}</span>
-                  {item.children && <ChevronDown className="w-3.5 h-3.5 opacity-60" />}
+                  {item.children && <ChevronDown className="w-3 h-3 opacity-40 transition-transform group-hover:rotate-180" />}
                 </button>
 
-                {/* Dropdown Menu */}
+                {/* Dropdown Menu com visual leve e translúcido */}
                 {item.children && activeDropdown === item.id && (
-                  <div className="absolute left-0 top-full pt-1 w-64 animate-fade-in z-50">
-                    <div className="bg-white rounded-2xl shadow-xl border border-slate-100 p-2 overflow-hidden">
+                  <div className="absolute left-0 top-full pt-1.5 w-64 animate-fade-in z-50">
+                    <div className="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl border border-slate-200/70 p-2 overflow-hidden">
                       {item.children.map((sub) => (
                         <button
                           key={sub.id}
@@ -190,7 +171,7 @@ export function ApaeNavbar() {
                             else if (sub.section) handleNavClick(sub.section);
                             setActiveDropdown(null);
                           }}
-                          className="w-full text-left px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:bg-blue-50 hover:text-[#0072C6] transition-colors flex items-center justify-between"
+                          className="w-full text-left px-3.5 py-2 rounded-xl text-xs font-normal text-slate-600 hover:bg-blue-50/60 hover:text-[#0072C6] transition-colors flex items-center justify-between"
                         >
                           <span>{sub.label}</span>
                         </button>
@@ -202,36 +183,36 @@ export function ApaeNavbar() {
             ))}
           </nav>
 
-          {/* Action CTAs */}
-          <div className="hidden sm:flex items-center gap-2">
-            {/* Checklist Direto */}
+          {/* Action CTAs: Botões leves e equilibrados */}
+          <div className="hidden sm:flex items-center gap-2.5">
+            {/* Checklist Transparência (Botão contorno translúcido) */}
             <button
               onClick={() => setComplianceModalOpen(true)}
-              className="p-2 rounded-xl border border-blue-200 text-[#0072C6] bg-blue-50 hover:bg-blue-100 text-xs font-bold transition-all flex items-center gap-1.5"
-              title="Abrir Checklist Oficial de Transparência"
+              className="px-3 py-2 rounded-full border border-blue-200/80 text-[#0072C6] bg-blue-50/40 hover:bg-blue-50 text-xs font-medium transition-all flex items-center gap-1.5"
+              title="Abrir Checklist Oficial de Transparência LAI"
             >
-              <ShieldCheck className="w-4 h-4 text-[#0072C6]" />
+              <ShieldCheck className="w-3.5 h-3.5 text-[#0072C6]" />
               <span className="hidden lg:inline">Transparência</span>
             </button>
 
-            {/* Painel do Gestor */}
+            {/* Painel do Gestor (Contorno sutil) */}
             <button
               onClick={() => setIsAdminOpen(!isAdminOpen)}
-              className={`p-2 rounded-xl border transition-all flex items-center gap-1.5 text-xs font-bold ${
+              className={`p-2 rounded-full border text-xs font-medium transition-all flex items-center gap-1.5 ${
                 isAdminOpen
                   ? 'bg-slate-900 text-white border-slate-900'
-                  : 'border-slate-200 text-slate-600 hover:text-[#0072C6] hover:border-blue-200 hover:bg-slate-50'
+                  : 'border-slate-200/80 text-slate-500 hover:text-[#0072C6] hover:border-blue-200 hover:bg-slate-50/60'
               }`}
               title="Acessar Painel Administrativo / CMS"
             >
-              <Lock className="w-3.5 h-3.5 text-slate-500" />
-              <span className="hidden lg:inline">{isAdminOpen ? 'Sair Gestor' : 'Gestor'}</span>
+              <Lock className="w-3.5 h-3.5 text-slate-400" />
+              <span className="hidden lg:inline">{isAdminOpen ? 'Sair' : 'Gestor'}</span>
             </button>
 
-            {/* Doar Agora Principal */}
+            {/* Doar Agora Principal em estilo refinado */}
             <button
               onClick={() => openDonationModal(60, 'recorrente', 'Escola Luiz Affonso Mendes')}
-              className="group relative inline-flex items-center gap-2 px-4 py-2 rounded-xl font-black text-xs text-slate-900 bg-gradient-to-r from-amber-400 via-amber-500 to-amber-600 shadow-md hover:shadow-lg transition-all"
+              className="group relative inline-flex items-center gap-1.5 px-4 py-2 rounded-full font-medium text-xs text-slate-900 bg-[#F5A623] hover:bg-[#E59715] shadow-xs hover:shadow-md transition-all active:scale-95"
             >
               <Heart className="w-3.5 h-3.5 fill-slate-900 text-slate-900" />
               <span>DOAR AGORA</span>
@@ -242,18 +223,18 @@ export function ApaeNavbar() {
           <div className="flex items-center gap-2 xl:hidden">
             <button
               onClick={() => openDonationModal(60, 'recorrente')}
-              className="px-3 py-1.5 rounded-lg text-xs font-black bg-amber-400 text-slate-900 flex items-center gap-1"
+              className="px-3 py-1.5 rounded-full text-xs font-medium bg-[#F5A623] text-slate-900 flex items-center gap-1"
             >
-              <Heart className="w-3.5 h-3.5 fill-current" />
+              <Heart className="w-3 h-3 fill-current" />
               <span>Doar</span>
             </button>
 
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-slate-700 hover:bg-slate-100"
+              className="p-2 rounded-xl text-slate-600 hover:bg-slate-100"
               aria-label="Abrir Menu de Navegação"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </button>
           </div>
 
@@ -262,20 +243,20 @@ export function ApaeNavbar() {
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="xl:hidden bg-white border-t border-slate-100 px-4 pt-3 pb-6 space-y-2 shadow-2xl animate-slide-up max-h-[85vh] overflow-y-auto">
+        <div className="xl:hidden bg-white/98 backdrop-blur-xl border-t border-slate-100 px-5 pt-3 pb-6 space-y-2 shadow-2xl animate-slide-up max-h-[85vh] overflow-y-auto">
           {navLinks.map((item) => (
-            <div key={item.id} className="border-b border-slate-50 pb-2">
+            <div key={item.id} className="border-b border-slate-100/70 pb-2">
               <button
                 onClick={() => {
                   if (item.section) handleNavClick(item.section);
                   else if (item.children) handleNavClick(item.children[0].section || 'inicio');
                 }}
-                className="w-full text-left py-2 px-3 text-sm font-bold text-slate-800 hover:text-[#0072C6] hover:bg-blue-50 rounded-xl"
+                className="w-full text-left py-2 px-2 text-sm font-medium text-slate-700 hover:text-[#0072C6] rounded-xl"
               >
                 {item.label}
               </button>
               {item.children && (
-                <div className="pl-4 space-y-1 mt-1">
+                <div className="pl-3 space-y-1 mt-0.5">
                   {item.children.map((sub) => (
                     <button
                       key={sub.id}
@@ -284,7 +265,7 @@ export function ApaeNavbar() {
                         else if (sub.section) handleNavClick(sub.section);
                         setMobileMenuOpen(false);
                       }}
-                      className="w-full text-left py-1.5 px-3 text-xs font-medium text-slate-600 hover:text-[#0072C6] rounded-lg flex items-center gap-2"
+                      className="w-full text-left py-1.5 px-3 text-xs font-normal text-slate-500 hover:text-[#0072C6] rounded-lg flex items-center gap-2"
                     >
                       <span className="w-1.5 h-1.5 rounded-full bg-[#0072C6]" />
                       <span>{sub.label}</span>
@@ -301,7 +282,7 @@ export function ApaeNavbar() {
                 setComplianceModalOpen(true);
                 setMobileMenuOpen(false);
               }}
-              className="w-full py-2.5 px-4 rounded-xl bg-blue-50 text-[#0072C6] font-bold text-xs flex items-center justify-center gap-2 border border-blue-200"
+              className="w-full py-2.5 px-4 rounded-full bg-blue-50/70 text-[#0072C6] font-medium text-xs flex items-center justify-center gap-2 border border-blue-200/80"
             >
               <ShieldCheck className="w-4 h-4" />
               <span>Checklist de Transparência</span>
@@ -312,9 +293,9 @@ export function ApaeNavbar() {
                 setIsAdminOpen(!isAdminOpen);
                 setMobileMenuOpen(false);
               }}
-              className="w-full py-2.5 px-4 rounded-xl border border-slate-300 text-slate-700 font-bold text-xs flex items-center justify-center gap-2"
+              className="w-full py-2.5 px-4 rounded-full border border-slate-200 text-slate-600 font-medium text-xs flex items-center justify-center gap-2"
             >
-              <Lock className="w-4 h-4 text-slate-500" />
+              <Lock className="w-4 h-4 text-slate-400" />
               <span>{isAdminOpen ? 'Sair do Painel Gestor' : 'Área do Gestor (CMS)'}</span>
             </button>
           </div>
