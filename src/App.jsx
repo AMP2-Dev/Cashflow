@@ -221,7 +221,7 @@ export default function App() {
     if (hostname.includes('amplificadora') || params.get('app') === 'radio') {
       return 'radio';
     }
-    if (hostname.includes('apae') || params.get('app') === 'apae') {
+    if (hostname.includes('apae') || hostname.includes('santacruzdaspalmeiras') || params.get('app') === 'apae') {
       return 'apae';
     }
     if (params.get('app') === 'portal') {
@@ -249,7 +249,7 @@ export default function App() {
         setActiveMode('drywall');
       } else if (hostname.includes('amplificadora') || params.get('app') === 'radio') {
         setActiveMode('radio');
-      } else if (hostname.includes('apae') || params.get('app') === 'apae') {
+      } else if (hostname.includes('apae') || hostname.includes('santacruzdaspalmeiras') || params.get('app') === 'apae') {
         setActiveMode('apae');
       } else if (params.get('app') === 'portal') {
         setActiveMode('portal');
@@ -279,6 +279,7 @@ export default function App() {
       if (favEl) favEl.href = '/favicon-amplificadora.jpg';
     } else if (activeMode === 'apae') {
       document.title = 'APAE Santa Cruz das Palmeiras • Escola Luiz Affonso Mendes | 50 Anos';
+      if (favEl) favEl.href = '/apae-scp-logo.png';
     } else if (activeMode === 'portal') {
       document.title = 'AMP Institucional • Ecossistema Full-Stack';
       if (favEl) favEl.href = '/amp-mesh-logo.png';
