@@ -32,8 +32,8 @@ export function ApaeComingSoon({ onEnterPreview, onOpenAdmin }) {
       {/* 1. Imagem de Fundo Emocional Panorâmica com Efeito de Luz Suave */}
       <div className="absolute inset-0 z-0">
         <img 
-          src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&q=85&w=1920" 
-          alt="APAE Santa Cruz das Palmeiras" 
+          src="https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&q=85&w=1920" 
+          alt="APAE Santa Cruz das Palmeiras - Educação e Desenvolvimento" 
           className="w-full h-full object-cover object-center filter scale-105 transform transition-transform duration-[15000ms] ease-out"
         />
         {/* Máscara de Transparência Escura e Quente */}

@@ -730,10 +730,10 @@ export function ApaeAdminPanel() {
                         <span>Sugestões rápidas:</span>
                         <button
                           type="button"
-                          onClick={() => setSlideFormData({ ...slideFormData, image: 'https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&q=85&w=1920' })}
+                          onClick={() => setSlideFormData({ ...slideFormData, image: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&q=85&w=1920' })}
                           className="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-blue-300 text-[10px]"
                         >
-                          Cuidado & Reabilitação
+                          Desenvolvimento & Estímulo (Sem Rosto)
                         </button>
                         <button
                           type="button"

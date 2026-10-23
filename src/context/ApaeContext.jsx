@@ -145,7 +145,17 @@ export function ApaeProvider({ children }) {
   const [heroSlides, setHeroSlides] = useState(() => {
     try {
       const saved = localStorage.getItem('apae_scp_hero_slides');
-      return saved ? JSON.parse(saved) : DEFAULT_HERO_SLIDES;
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.map((slide) => 
+            slide.image && slide.image.includes('photo-1576765608535-5f04d1e3f289')
+              ? { ...slide, image: 'https://images.unsplash.com/photo-1587654780291-39c9404d746b?auto=format&fit=crop&q=85&w=1920' }
+              : slide
+          );
+        }
+      }
+      return DEFAULT_HERO_SLIDES;
     } catch {
       return DEFAULT_HERO_SLIDES;
     }
