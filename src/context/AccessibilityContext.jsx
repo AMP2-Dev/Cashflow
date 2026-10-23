@@ -16,11 +16,19 @@ export function AccessibilityProvider({ children }) {
   // Handle CSS classes on body
   useEffect(() => {
     const body = document.body;
+    const html = document.documentElement;
 
     // Font size classes
     body.classList.remove('text-size-large', 'text-size-xlarge');
-    if (fontSize === 'large') body.classList.add('text-size-large');
-    if (fontSize === 'xlarge') body.classList.add('text-size-xlarge');
+    html.classList.remove('text-size-large', 'text-size-xlarge');
+    if (fontSize === 'large') {
+      body.classList.add('text-size-large');
+      html.classList.add('text-size-large');
+    }
+    if (fontSize === 'xlarge') {
+      body.classList.add('text-size-xlarge');
+      html.classList.add('text-size-xlarge');
+    }
     localStorage.setItem('apae_font_size', fontSize);
 
     // Contrast classes

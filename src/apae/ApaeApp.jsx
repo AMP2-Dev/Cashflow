@@ -15,6 +15,7 @@ import { ContactAndLocationSection } from '../components/ContactAndLocationSecti
 import { ApaeFooter } from '../components/ApaeFooter';
 import { ReadingGuide } from '../components/ReadingGuide';
 import { Toast } from '../components/Toast';
+import { VLibrasWidget } from '../components/VLibrasWidget';
 
 // Admin
 import { ApaeAdminPanel } from '../admin/ApaeAdminPanel';
@@ -160,6 +161,7 @@ function ApaeMainContent() {
       <ReadingGuide />
       <Toast />
       <LgpdCookieBanner />
+      <VLibrasWidget />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Roboto:wght@300;400;500;700&family=Lexend:wght@300;400;500;600;700&display=swap');
 
 :root {
   --font-sans: "Plus Jakarta Sans", "Outfit", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -128,4 +128,86 @@ input, select, button {
   background: rgba(11, 18, 36, 0.75);
   backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* =========================================================================
+   SISTEMA DE ACESSIBILIDADE WCAG / APAE INCLUSÃO
+   ========================================================================= */
+
+/* 1. Fonte Adaptada para Dislexia (Lexend - desenvolvida para facilitar a leitura) */
+body.font-dyslexic,
+body.font-dyslexic * {
+  font-family: 'Lexend', system-ui, -apple-system, sans-serif !important;
+  letter-spacing: 0.04em !important;
+  word-spacing: 0.12em !important;
+  line-height: 1.8 !important;
+}
+
+/* 2. Escala de Tamanho de Fonte (A+, A++) */
+html.text-size-large,
+body.text-size-large {
+  font-size: 18px !important;
+  zoom: 1.08;
+}
+
+html.text-size-xlarge,
+body.text-size-xlarge {
+  font-size: 20px !important;
+  zoom: 1.18;
+}
+
+/* 3. Modos de Contraste */
+/* Alto Contraste Escuro (Fundo Preto com Texto Amarelo/Branco Luminoso) */
+body.contrast-high-dark {
+  background-color: #000000 !important;
+  color: #FFFFFF !important;
+}
+
+body.contrast-high-dark *:not(img):not(video):not(svg):not(path):not(code) {
+  background-color: #0a0a0a !important;
+  color: #FFFF00 !important;
+  border-color: #FFFF00 !important;
+}
+
+body.contrast-high-dark a,
+body.contrast-high-dark button {
+  color: #00FFFF !important;
+  border-color: #00FFFF !important;
+}
+
+body.contrast-high-dark button[class*="bg-"] {
+  background-color: #000000 !important;
+  border: 2px solid #FFFF00 !important;
+}
+
+/* Alto Contraste Claro */
+body.contrast-high-light {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+}
+
+body.contrast-high-light *:not(img):not(video):not(svg):not(path) {
+  background-color: #FFFFFF !important;
+  color: #000000 !important;
+  border-color: #000000 !important;
+}
+
+/* Monocromático */
+body.contrast-monochrome {
+  filter: grayscale(100%) contrast(120%) !important;
+}
+
+/* 4. Destaque de Links */
+body.highlight-links a,
+body.highlight-links button {
+  outline: 2px dashed #0072C6 !important;
+  outline-offset: 2px !important;
+  text-decoration: underline !important;
+}
+
+/* 5. Redução de Movimento */
+body.reduce-motion * {
+  animation: none !important;
+  transition: none !important;
+  scroll-behavior: auto !important;
 }

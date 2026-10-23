@@ -121,7 +121,7 @@ export function AccessibilityBar() {
           {/* Fonte para Dislexia */}
           <button
             onClick={() => setDyslexiaFont(!dyslexiaFont)}
-            className={`px-2 py-1 rounded transition-colors hidden lg:inline-flex items-center gap-1 ${
+            className={`px-2 py-1 rounded transition-colors inline-flex items-center gap-1 ${
               dyslexiaFont ? 'bg-blue-600 text-white font-bold' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
             }`}
             title="Ativar fonte adaptada para pessoas com Dislexia"
@@ -133,7 +133,7 @@ export function AccessibilityBar() {
           {/* Guia / Régua de Leitura */}
           <button
             onClick={() => setReadingGuide(!readingGuide)}
-            className={`px-2 py-1 rounded transition-colors hidden lg:inline-flex items-center gap-1 ${
+            className={`px-2 py-1 rounded transition-colors hidden sm:inline-flex items-center gap-1 ${
               readingGuide ? 'bg-purple-600 text-white font-bold' : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
             }`}
             title="Ativar régua visual de foco para leitura guiada"
@@ -142,16 +142,21 @@ export function AccessibilityBar() {
             <span>Guia Leitura</span>
           </button>
 
-          {/* Simulação VLibras / Tradutor de Libras */}
+          {/* Suporte a Libras com VLibras Oficial do Governo Federal */}
           <button
             onClick={() => {
-              alert("O Portal da APAE é totalmente adaptado com intérpretes de Libras presenciais em todos os eventos e conteúdos em vídeo com janela de Libras.");
+              const accessBtn = document.querySelector('[vw-access-button]') || document.querySelector('.vw-access-button');
+              if (accessBtn) {
+                accessBtn.click();
+              } else {
+                window.open('https://vlibras.gov.br', '_blank');
+              }
             }}
             className="px-2 py-1 rounded bg-blue-900/60 hover:bg-blue-800 text-blue-200 font-medium flex items-center gap-1 transition-colors"
-            title="Suporte a Libras (Língua Brasileira de Sinais)"
+            title="Abrir Intérprete Virtual em Libras (VLibras)"
           >
             <HandMetal className="w-3.5 h-3.5 text-blue-300" />
-            <span>Libras</span>
+            <span>Libras (VLibras)</span>
           </button>
 
           {/* Resetar Acessibilidade */}
