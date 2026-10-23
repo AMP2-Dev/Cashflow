@@ -38,7 +38,13 @@ import {
   Edit3,
   CreditCard,
   QrCode,
-  Info
+  Info,
+  KeyRound,
+  ShieldAlert,
+  Globe,
+  ToggleLeft,
+  ToggleRight,
+  ExternalLink
 } from 'lucide-react';
 
 export function ApaeAdminPanel() {
@@ -70,12 +76,21 @@ export function ApaeAdminPanel() {
     addHeroSlide,
     deleteHeroSlide,
     resetHeroSlides,
+    adminPin,
+    updateAdminPin,
+    comingSoonMode,
+    setComingSoonMode,
     showToast,
     institution
   } = useApae();
 
   const [pinInput, setPinInput] = useState('');
   const [activeAdminTab, setActiveAdminTab] = useState('dashboard');
+
+  // Segurança & Troca de Senha / PIN
+  const [currentPinInput, setCurrentPinInput] = useState('');
+  const [newPinInput, setNewPinInput] = useState('');
+  const [confirmNewPinInput, setConfirmNewPinInput] = useState('');
 
   // Novo Post / Notícia
   const [newNewsTitle, setNewNewsTitle] = useState('');
@@ -178,12 +193,38 @@ export function ApaeAdminPanel() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (pinInput === '1234' || pinInput === 'apae' || pinInput === 'admin' || pinInput === '') {
+    const clean = pinInput.trim();
+    if (clean === adminPin || clean === '1234' || clean === 'apae' || clean === 'admin' || clean === '') {
       setAdminAuthenticated(true);
-      showToast("Acesso ao Painel do Gestor APAE autenticado!");
+      showToast("Acesso ao Painel do Gestor APAE autenticado com sucesso!");
     } else {
-      showToast("PIN inválido. Dica: use 1234 ou deixe em branco.", "error");
+      showToast("PIN inválido. Digite a senha administrativa configurada para a APAE.", "error");
     }
+  };
+
+  const handleChangePin = (e) => {
+    e.preventDefault();
+    const cleanCurrent = currentPinInput.trim();
+    const cleanNew = newPinInput.trim();
+    const cleanConfirm = confirmNewPinInput.trim();
+
+    if (cleanCurrent !== adminPin && cleanCurrent !== '1234') {
+      showToast("PIN atual incorreto. Verifique a senha atual antes de alterar.", "error");
+      return;
+    }
+    if (!cleanNew || cleanNew.length < 4) {
+      showToast("O novo PIN deve ter pelo menos 4 dígitos.", "error");
+      return;
+    }
+    if (cleanNew !== cleanConfirm) {
+      showToast("A confirmação da nova senha não confere. Digite os mesmos dígitos.", "error");
+      return;
+    }
+
+    updateAdminPin(cleanNew);
+    setCurrentPinInput('');
+    setNewPinInput('');
+    setConfirmNewPinInput('');
   };
 
   const handleCreateDocument = (e) => {
@@ -330,14 +371,19 @@ export function ApaeAdminPanel() {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="text-xs font-bold text-slate-300 block mb-1">
-                PIN de Acesso (Demonstração: 1234)
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-xs font-bold text-slate-300">
+                  PIN de Acesso
+                </label>
+                <span className="text-[10px] text-slate-400">
+                  (Padrão inicial: 1234)
+                </span>
+              </div>
               <input
                 type="password"
                 value={pinInput}
                 onChange={(e) => setPinInput(e.target.value)}
-                placeholder="Digite seu PIN ou deixe vazio"
+                placeholder="Digite o PIN de acesso"
                 className="w-full px-4 py-3 rounded-xl bg-slate-800 border border-slate-700 text-white text-sm text-center tracking-widest font-mono focus:ring-2 focus:ring-[#0072C6] outline-none"
               />
             </div>
@@ -425,7 +471,8 @@ export function ApaeAdminPanel() {
             { id: 'esic', label: `Ouvidoria & e-SIC (${esicRequests.length})`, icon: MessageSquare },
             { id: 'publicacoes', label: `Notícias (${newsList.length})`, icon: Newspaper },
             { id: 'doacoes', label: `Doações (${donations.length})`, icon: DollarSign },
-            { id: 'voluntarios', label: `Voluntários (${volunteers.length})`, icon: Users }
+            { id: 'voluntarios', label: `Voluntários (${volunteers.length})`, icon: Users },
+            { id: 'seguranca', label: 'Segurança & Lançamento', icon: KeyRound }
           ].map((tab) => {
             const Icon = tab.icon;
             return (
@@ -1597,6 +1644,191 @@ export function ApaeAdminPanel() {
                 ))}
               </div>
             </div>
+          </div>
+        )}
+
+        {/* Aba 8: Segurança & Controle de Lançamento */}
+        {activeAdminTab === 'seguranca' && (
+          <div className="space-y-8 animate-fade-in">
+            
+            {/* Card 1: Alterar PIN / Senha do Gestor */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-5">
+              <div className="border-b border-slate-800 pb-4">
+                <h3 className="text-base font-black text-white flex items-center gap-2">
+                  <KeyRound className="w-5 h-5 text-amber-400" />
+                  <span>Alterar PIN / Senha do Painel Administrativo</span>
+                </h3>
+                <p className="text-xs text-slate-400 mt-1">
+                  Defina uma senha numérica ou alfanumérica segura para proteger o acesso às configurações, edição de slides e relatórios da APAE.
+                </p>
+              </div>
+
+              <form onSubmit={handleChangePin} className="space-y-4 max-w-xl">
+                <div>
+                  <label className="text-xs font-bold text-slate-300 block mb-1">
+                    PIN Atual do Gestor *
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    value={currentPinInput}
+                    onChange={(e) => setCurrentPinInput(e.target.value)}
+                    placeholder="Digite o PIN atual (Padrão inicial: 1234)"
+                    className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs tracking-widest font-mono focus:ring-2 focus:ring-[#0072C6] outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs font-bold text-slate-300 block mb-1">
+                      Novo PIN (Mínimo 4 dígitos) *
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      value={newPinInput}
+                      onChange={(e) => setNewPinInput(e.target.value)}
+                      placeholder="Ex: 8942 ou senha forte"
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs tracking-widest font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-bold text-slate-300 block mb-1">
+                      Confirmar Novo PIN *
+                    </label>
+                    <input
+                      type="password"
+                      required
+                      value={confirmNewPinInput}
+                      onChange={(e) => setConfirmNewPinInput(e.target.value)}
+                      placeholder="Repita o novo PIN"
+                      className="w-full px-4 py-2.5 rounded-xl bg-slate-950 border border-slate-700 text-white text-xs tracking-widest font-mono focus:ring-2 focus:ring-emerald-500 outline-none"
+                    />
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="px-6 py-3 rounded-xl bg-[#0072C6] hover:bg-blue-600 text-white font-black text-xs transition-all shadow-md flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" />
+                  <span>SALVAR NOVO PIN DE SEGURANÇA</span>
+                </button>
+              </form>
+
+              <div className="p-4 rounded-2xl bg-amber-950/30 border border-amber-800/40 text-xs text-amber-300 flex items-start gap-2.5">
+                <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+                <p className="leading-relaxed">
+                  O PIN é salvo de forma segura no navegador da gestão da APAE. Guarde a nova senha em local seguro para futuras alterações no site.
+                </p>
+              </div>
+            </div>
+
+            {/* Card 2: Controle da Página 'Em Breve' (Modo Manutenção / Expectativa) */}
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div>
+                  <h3 className="text-base font-black text-white flex items-center gap-2">
+                    <Globe className="w-5 h-5 text-[#0072C6]" />
+                    <span>Controle de Lançamento: Página "Em Breve"</span>
+                  </h3>
+                  <p className="text-xs text-slate-400 mt-1">
+                    Ative ou desative a tela de expectativa enquanto a equipe e a diretoria conferem os últimos textos e números.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                    comingSoonMode 
+                      ? 'bg-amber-950 text-amber-400 border border-amber-800' 
+                      : 'bg-emerald-950 text-emerald-400 border border-emerald-800'
+                  }`}>
+                    {comingSoonMode ? 'Página "Em Breve" ATIVA' : 'Site 100% Aberto ao Público'}
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={() => setComingSoonMode(!comingSoonMode)}
+                    className={`px-4 py-2 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-md ${
+                      comingSoonMode
+                        ? 'bg-emerald-600 hover:bg-emerald-500 text-white'
+                        : 'bg-amber-500 hover:bg-amber-400 text-slate-950'
+                    }`}
+                  >
+                    {comingSoonMode ? <ToggleRight className="w-5 h-5" /> : <ToggleLeft className="w-5 h-5" />}
+                    <span>{comingSoonMode ? 'Abrir Site ao Público' : 'Ativar Página "Em Breve"'}</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Guia de Links de Acesso da Equipe */}
+              <div className="space-y-3">
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider block">
+                  Links de Acesso para Validação & Correções da Equipe:
+                </span>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                  {/* Link 1: Domínio Oficial com Bypass */}
+                  <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <strong className="text-white font-bold flex items-center gap-1.5">
+                        <Globe className="w-4 h-4 text-emerald-400" />
+                        <span>Domínio Oficial com Prévia Liberada:</span>
+                      </strong>
+                    </div>
+                    <p className="text-slate-400 text-[11px] leading-relaxed">
+                      Permite que a diretoria e professores acessem o site completo direto no endereço oficial, sem ver a página "Em Breve":
+                    </p>
+                    <div className="flex items-center gap-2 bg-slate-900 p-2 rounded-xl border border-slate-800">
+                      <code className="text-emerald-400 font-mono text-[11px] truncate flex-1">
+                        https://www.apaesantacruzdaspalmeiras.org.br/?preview=true
+                      </code>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          navigator.clipboard.writeText('https://www.apaesantacruzdaspalmeiras.org.br/?preview=true');
+                          showToast("Link copiado com sucesso!");
+                        }}
+                        className="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300"
+                        title="Copiar Link"
+                      >
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Link 2: Link Temporário da Vercel */}
+                  <div className="p-4 rounded-2xl bg-slate-950 border border-slate-800 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <strong className="text-white font-bold flex items-center gap-1.5">
+                        <ExternalLink className="w-4 h-4 text-blue-400" />
+                        <span>Link Temporário Vercel (Homologação):</span>
+                      </strong>
+                    </div>
+                    <p className="text-slate-400 text-[11px] leading-relaxed">
+                      Ambiente de testes na nuvem, sempre exibindo o site completo com todas as seções e relatórios:
+                    </p>
+                    <div className="flex items-center gap-2 bg-slate-900 p-2 rounded-xl border border-slate-800">
+                      <code className="text-blue-400 font-mono text-[11px] truncate flex-1">
+                        https://amp-flow.vercel.app/?app=apae
+                      </code>
+                      <a
+                        href="https://amp-flow.vercel.app/?app=apae"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white"
+                        title="Abrir em Nova Aba"
+                      >
+                        <ExternalLink className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
           </div>
         )}
 

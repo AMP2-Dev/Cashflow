@@ -16,6 +16,7 @@ import { ApaeFooter } from '../components/ApaeFooter';
 import { ReadingGuide } from '../components/ReadingGuide';
 import { Toast } from '../components/Toast';
 import { VLibrasWidget } from '../components/VLibrasWidget';
+import { ApaeComingSoon } from '../components/ApaeComingSoon';
 
 // Admin
 import { ApaeAdminPanel } from '../admin/ApaeAdminPanel';
@@ -94,7 +95,25 @@ function LgpdCookieBanner() {
 }
 
 function ApaeMainContent() {
-  const { isAdminOpen, setIsAdminOpen } = useApae();
+  const { isAdminOpen, setIsAdminOpen, comingSoonMode } = useApae();
+
+  const [isPreviewMode, setIsPreviewMode] = useState(() => {
+    try {
+      if (typeof window === 'undefined') return false;
+      const params = new URLSearchParams(window.location.search);
+      const hostname = window.location.hostname.toLowerCase();
+      const isOfficialDomain = hostname.includes('apaesantacruzdaspalmeiras.org.br');
+      // No link temporário da Vercel (amp-flow.vercel.app) ou em desenvolvimento, abre o site completo direto!
+      if (!isOfficialDomain) return true;
+      return (
+        params.get('preview') === 'true' || 
+        params.get('preview') === '1' || 
+        sessionStorage.getItem('apae_preview_bypass') === 'true'
+      );
+    } catch {
+      return false;
+    }
+  });
 
   // Permite abrir o admin com #admin ou ?admin na URL
   useEffect(() => {
@@ -111,8 +130,49 @@ function ApaeMainContent() {
     return <ApaeAdminPanel />;
   }
 
+  // Se o Modo "Em Breve" estiver ativado e o usuário não estiver em modo de prévia, exibe a página institucional de espera
+  if (comingSoonMode && !isPreviewMode) {
+    return (
+      <ApaeComingSoon 
+        onEnterPreview={() => {
+          setIsPreviewMode(true);
+          try { sessionStorage.setItem('apae_preview_bypass', 'true'); } catch {}
+        }}
+        onOpenAdmin={() => setIsAdminOpen(true)}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-white text-slate-900 font-sans selection:bg-blue-100 selection:text-[#0072C6]">
+      
+      {/* Faixa Superior Discreta de Homologação (Apenas se a página 'Em Breve' estiver ativa e o usuário for da equipe) */}
+      {comingSoonMode && isPreviewMode && (
+        <div className="bg-amber-400 text-slate-950 px-4 py-2 text-xs font-bold flex flex-wrap items-center justify-between gap-2 shadow-sm sticky top-0 z-50">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-slate-950 animate-pulse" />
+            <span>Modo de Homologação Ativo • Visualizando a nova versão completa da APAE (Página "Em Breve" visível para o público comum)</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => {
+                setIsPreviewMode(false);
+                try { sessionStorage.removeItem('apae_preview_bypass'); } catch {}
+              }}
+              className="px-3 py-1 rounded-lg bg-slate-950 text-white hover:bg-black transition-colors text-[11px]"
+            >
+              Ver Tela "Em Breve"
+            </button>
+            <button
+              onClick={() => setIsAdminOpen(true)}
+              className="px-3 py-1 rounded-lg bg-white text-slate-950 hover:bg-slate-100 transition-colors text-[11px]"
+            >
+              Painel Gestor
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 1. Barra de Acessibilidade Superior (Leitor de voz, alto contraste, modo dislexia) */}
       <AccessibilityBar />
 

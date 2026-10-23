@@ -151,8 +151,43 @@ export function ApaeProvider({ children }) {
     }
   });
 
+  // Segurança do Gestor (PIN customizável)
+  const [adminPin, setAdminPin] = useState(() => {
+    try {
+      return localStorage.getItem('apae_admin_pin') || '1234';
+    } catch {
+      return '1234';
+    }
+  });
+
+  // Modo 'Em Breve' (Página de Espera no Domínio Oficial)
+  const [comingSoonMode, setComingSoonModeState] = useState(() => {
+    try {
+      const saved = localStorage.getItem('apae_coming_soon');
+      return saved !== null ? saved === 'true' : true; // Padrão: ativado para lançamento
+    } catch {
+      return true;
+    }
+  });
+
   // Toast
   const [toast, setToast] = useState(null);
+
+  const updateAdminPin = (newPin) => {
+    setAdminPin(newPin);
+    try {
+      localStorage.setItem('apae_admin_pin', newPin);
+    } catch {}
+    showToast("Novo PIN de acesso ao painel do gestor atualizado com sucesso!");
+  };
+
+  const setComingSoonMode = (val) => {
+    setComingSoonModeState(val);
+    try {
+      localStorage.setItem('apae_coming_soon', String(val));
+    } catch {}
+    showToast(val ? "Modo 'Em Breve' ATIVADO no domínio oficial." : "Modo 'Em Breve' DESATIVADO. Site aberto ao público!");
+  };
 
   // Save to LocalStorage
   useEffect(() => {
@@ -455,6 +490,12 @@ export function ApaeProvider({ children }) {
         addHeroSlide,
         deleteHeroSlide,
         resetHeroSlides,
+
+        // Segurança & Lançamento (PIN e Modo Em Breve)
+        adminPin,
+        updateAdminPin,
+        comingSoonMode,
+        setComingSoonMode,
 
         toast,
         showToast
